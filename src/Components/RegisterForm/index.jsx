@@ -1,4 +1,5 @@
 import React from "react";
+// import { Link } from "react-router-dom";
 
 function RegisterForm() {
     return (
@@ -58,6 +59,9 @@ function RegisterForm() {
                         </button>
                         <div className="text-center text-gray-500">
                             <span>Already have an account?</span>&nbsp;
+                            {/* <Link to="/login" class="underline hover:underline hover:text-blue-800">
+                                Login
+                            </Link> */}
                         </div>
                     </div>
                 </div>
