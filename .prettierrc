@@ -1,11 +1,11 @@
 {
-    "printWidth": 80,
-    "tabWidth": 2,
+    "printWidth": 100,
+    "tabWidth": 4,
     "trailingComma": "none",
-    "semi": true,
     "singleQuote": false,
     "htmlWhitespaceSensitivity": "css",
-    "quoteProps": "as-needed",
+    "endOfLine":"auto" ,
+
   "overrides": [
     {
       "files": "*.css",
