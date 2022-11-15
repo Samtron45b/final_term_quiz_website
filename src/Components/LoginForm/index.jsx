@@ -1,5 +1,5 @@
 import React from "react";
-// import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function LoginForm() {
     return (
@@ -46,9 +46,9 @@ function LoginForm() {
                     </button>
                     <div className="text-center text-gray-500">
                         <span>New to site?</span>&nbsp;
-                        {/* <Link to="/register" class="underline hover:underline hover:text-blue-800">
+                        <Link to="/register" class="underline hover:underline hover:text-blue-800">
                             Register
-                        </Link> */}
+                        </Link>
                     </div>
                 </div>
             </form>
