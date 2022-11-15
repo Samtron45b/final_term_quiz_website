@@ -1,10 +1,19 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 function RegisterForm() {
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm();
+
+    const onSubmit = (data) => console.log(data);
+
     return (
         <div className="w-full md:max-w-xl bg-white shadow-lg rounded px-8 pt-8 pb-6">
-            <form>
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="mb-3">
                     <label className="block text-sm font-medium text-gray-700" htmlFor="email">
                         Email
@@ -17,7 +26,11 @@ function RegisterForm() {
                                 className="shadow-sm focus:ring-indigo-500
                                         focus:border-indigo-500 mt-1
                                         block w-full sm:text-sm border border-gray-300 rounded-md"
+                                {...register("email", { required: true })}
                             />
+                            {errors.email && (
+                                <span className="text-red-600">This field is required</span>
+                            )}
                         </div>
                     </label>
                 </div>
@@ -30,8 +43,13 @@ function RegisterForm() {
                                 name="username"
                                 placeholder="johndoe"
                                 className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500
-                                mt-1 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                            mt-1 block w-full sm:text-sm border border-gray-300
+                                            rounded-md"
+                                {...register("username", { required: true })}
                             />
+                            {errors.username && (
+                                <span className="text-red-600">This field is required</span>
+                            )}
                         </div>
                     </label>
                 </div>
@@ -45,7 +63,11 @@ function RegisterForm() {
                                 className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500
                                             mt-1 block w-full sm:text-sm border border-gray-300
                                             rounded-md"
+                                {...register("password", { required: true }, { minLength: 8 })}
                             />
+                            {errors.password && (
+                                <span className="text-red-600">This field is required</span>
+                            )}
                         </div>
                     </label>
                 </div>
@@ -53,13 +75,19 @@ function RegisterForm() {
                     <div className="py-3 bg-gray-50 text-right flex flex-row justify-between">
                         <button
                             type="submit"
-                            className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            className="inline-flex justify-center py-2 px-4 border border-transparent
+                            shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600
+                            hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2
+                            focus:ring-indigo-500"
                         >
                             Sign up
                         </button>
                         <div className="text-center text-gray-500">
                             <span>Already have an account?</span>&nbsp;
-                            <Link to="/login" class="underline hover:underline hover:text-blue-800">
+                            <Link
+                                to="/login"
+                                className="underline hover:underline hover:text-blue-800"
+                            >
                                 Login
                             </Link>
                         </div>
