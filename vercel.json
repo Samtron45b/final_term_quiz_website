@@ -1,0 +1,7 @@
+{
+    "version": 2,
+    "name": "final_term",
+    "builds": [
+        { "src": "*.jsx", "use": "@vercel/react" }
+    ]
+}
