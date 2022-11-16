@@ -2,9 +2,16 @@
     "version": 2,
     "name": "final_term",
     "builds": [
+<<<<<<< HEAD
         { "src": "App.jsx", "use": "@vercel/node" }
     ],
     "routes": [
         { "src": "/(.*)", "dest": "/App.jsx" }
+=======
+        { "src": "app.js", "use": "@vercel/node" }
+    ],
+    "routes": [
+        { "src": "/(.*)", "dest": "/app.js" }
+>>>>>>> 30d9ae11acbb3660ec42d88f2e54997507fcfe49
     ]
 }
