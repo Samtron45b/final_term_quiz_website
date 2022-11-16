@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "name": "final_term",
+    "builds": [
+        { "src": "App.jsx", "use": "@vercel/node" }
+    ],
+    "routes": [
+        { "src": "/(.*)", "dest": "/App.jsx" }
+    ]
+}
