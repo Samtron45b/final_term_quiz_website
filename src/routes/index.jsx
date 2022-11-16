@@ -1,4 +1,5 @@
 import React from "react";
+import Main from "../pages/main";
 import RegisterForm from "../components/registerForm";
 import LoginForm from "../components/loginForm";
 
@@ -6,7 +7,7 @@ const ViewRoutes = [
     {
         path: "/",
         exact: true,
-        component: <RegisterForm />
+        component: <Main />
     },
     {
         path: "/register",

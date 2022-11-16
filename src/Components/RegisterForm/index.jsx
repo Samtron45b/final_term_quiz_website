@@ -9,7 +9,9 @@ function RegisterForm() {
         formState: { errors }
     } = useForm();
 
-    const onSubmit = (data) => console.log(data);
+    const onSubmit = (data) => {
+        console.log(data);
+    };
 
     return (
         <div className="w-full md:max-w-xl bg-white shadow-lg rounded px-8 pt-8 pb-6">
