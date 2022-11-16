@@ -11,6 +11,7 @@ module.exports = {
     },
     plugins: ["react"],
     rules: {
+        "no-console": "off",
         "react/react-in-jsx-scope": "off",
         "prettier/prettier": [
             "error",

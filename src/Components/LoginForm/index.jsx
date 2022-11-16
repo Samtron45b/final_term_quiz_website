@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import SocialSignInBtns from "./socialSignInBtns";
 
 function LoginForm() {
@@ -11,6 +12,7 @@ function LoginForm() {
     } = useForm();
 
     const onSubmit = (data) => console.log(data);
+    const [showPass, setShowPass] = useState(false);
 
     return (
         <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
@@ -43,12 +45,12 @@ function LoginForm() {
                     </div>
                     <div className="password-input mb-3">
                         <label
-                            className="block text-sm font-medium text-gray-700"
+                            className="block text-sm font-medium text-gray-700 relative"
                             htmlFor="password"
                         >
                             Password
                             <input
-                                type="password"
+                                type={showPass ? "text" : "password"}
                                 name="password"
                                 className="shadow-sm 
                                 focus:ring-indigo-500 focus:border-indigo-500 mt-1
@@ -58,6 +60,19 @@ function LoginForm() {
                                 placeholder="********"
                                 {...register("password", { required: true }, { minLength: 8 })}
                             />
+                            <div
+                                className="icon_button absolute right-4 top-8"
+                                onClick={() => {
+                                    setShowPass(!showPass);
+                                }}
+                                aria-hidden="true"
+                            >
+                                {showPass ? (
+                                    <FaEye className="w-5 h-5" />
+                                ) : (
+                                    <FaEyeSlash className="w-5 h-5" />
+                                )}
+                            </div>
                             {errors.password && (
                                 <span className="text-red-600">This field is required</span>
                             )}
@@ -85,7 +100,7 @@ function LoginForm() {
                             to="/register"
                             class="no-underline hover:no-underline hover:text-blue-800 font-bold"
                         >
-                            Register
+                            Sign up
                         </Link>
                     </div>
                     <div className="relative flex items-center justify-center w-full mt-3 border border-t">
