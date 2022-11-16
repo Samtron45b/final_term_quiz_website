@@ -1,7 +1,7 @@
 import React from "react";
 import Main from "../pages/main";
-import RegisterForm from "../components/registerForm";
-import LoginForm from "../components/loginForm";
+import RegisterForm from "../components/registerForm/index";
+import LoginForm from "../components/loginForm/index";
 
 const ViewRoutes = [
     {
