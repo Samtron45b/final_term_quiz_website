@@ -15,6 +15,8 @@ function RegisterForm() {
     };
     const [showPass, setShowPass] = useState(false);
 
+    const [showRePass, setShowRePass] = useState(false);
+
     return (
         <div className="relative flex flex-col items-center justify-center min-h-screen overflow-hidden">
             <div className="w-full md:max-w-xl bg-white shadow-lg rounded px-8 pt-8 pb-6">
@@ -94,6 +96,41 @@ function RegisterForm() {
                                 )}
                             </div>
                             {errors.password && (
+                                <span className="text-red-600">This field is required</span>
+                            )}
+                        </label>
+                    </div>
+                    <div className="mb-3">
+                        <label
+                            className="block text-sm font-medium text-gray-700 relative"
+                            htmlFor="password"
+                        >
+                            Re-Password
+                            <input
+                                type={showRePass ? "text" : "password"}
+                                name="re_password"
+                                className="shadow-sm
+                                focus:ring-indigo-500 focus:border-indigo-500 mt-1
+                                block w-full sm:text-sm border border-gray-300 rounded-md
+                                px-2 py-2 bg-white border rounded-md "
+                                id="password"
+                                placeholder="********"
+                                {...register("re_password", { required: true }, { minLength: 8 })}
+                            />
+                            <div
+                                className="icon_button absolute right-4 top-8"
+                                onClick={() => {
+                                    setShowRePass(!showRePass);
+                                }}
+                                aria-hidden="true"
+                            >
+                                {showRePass ? (
+                                    <FaEye className="w-5 h-5" />
+                                ) : (
+                                    <FaEyeSlash className="w-5 h-5" />
+                                )}
+                            </div>
+                            {errors.re_password && (
                                 <span className="text-red-600">This field is required</span>
                             )}
                         </label>
