@@ -17,6 +17,7 @@ db.serialize(() => {
         creator TEXT,
         timeCreated INTEGER,
 
+        UNIQUE (name, creator),
         FOREIGN KEY (creator) REFERENCES user (username)
     )`);
 
