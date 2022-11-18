@@ -12,7 +12,7 @@ export function getAllData(table, columns, valuesToGet) {
 
 export function queryString(table, columns, valuesToGet) {
 	let string = `SELECT * FROM ${table} WHERE ${columns[0]} = '${valuesToGet[0]}'`;
-	
+
 	for (let i = 1; i < columns.length; ++i) {
 		string += ` AND ${columns[i]} == '${valuesToGet[i]}'`;
 	}
@@ -22,12 +22,12 @@ export function queryString(table, columns, valuesToGet) {
 
 export function query(queryString) {
 	return new Promise((resolve, reject) => {
-		db.get(queryString, (err, rows) => {
+		db.get(queryString, (err, row) => {
 			if (err) {
 				reject(err);
 			}
 			else {
-				resolve(rows);
+				resolve(row);
 			}
 		});
 	})
