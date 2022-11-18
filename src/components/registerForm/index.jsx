@@ -103,7 +103,7 @@ function RegisterForm() {
                     <div className="mb-3">
                         <label
                             className="block text-sm font-medium text-gray-700 relative"
-                            htmlFor="password"
+                            htmlFor="re_password"
                         >
                             Re-Password
                             <input
@@ -113,7 +113,7 @@ function RegisterForm() {
                                 focus:ring-indigo-500 focus:border-indigo-500 mt-1
                                 block w-full sm:text-sm border border-gray-300 rounded-md
                                 px-2 py-2 bg-white border rounded-md "
-                                id="password"
+                                id="re_password"
                                 placeholder="********"
                                 {...register("re_password", { required: true }, { minLength: 8 })}
                             />
