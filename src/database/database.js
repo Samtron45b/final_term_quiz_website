@@ -3,11 +3,11 @@ import sqlite from "sqlite3";
 const db = new sqlite.Database("database.db");
 
 export function getData(table, columns, valuesToGet) {
-	return query(db.get, queryString(table, columns, valuesToGet));
+	return query(queryString(table, columns, valuesToGet));
 }
 
 export function getAllData(table, columns, valuesToGet) {
-	return query(db.all, queryString(table, columns, valuesToGet));
+	return queryAll(queryString(table, columns, valuesToGet));
 }
 
 export function queryString(table, columns, valuesToGet) {
@@ -20,9 +20,22 @@ export function queryString(table, columns, valuesToGet) {
 	return string;
 }
 
-export function query(queryFunction, query) {
+export function query(queryString) {
 	return new Promise((resolve, reject) => {
-		queryFunction(query, (err, rows) => {
+		db.get(queryString, (err, rows) => {
+			if (err) {
+				reject(err);
+			}
+			else {
+				resolve(rows);
+			}
+		});
+	})
+}
+
+export function queryAll(queryString) {
+	return new Promise((resolve, reject) => {
+		db.all(queryString, (err, rows) => {
 			if (err) {
 				reject(err);
 			}
