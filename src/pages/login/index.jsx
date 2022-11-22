@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import SocialSignInBtns from "./socialSignInBtns";
 
-function LoginForm() {
+function LoginPage() {
     const {
         register,
         handleSubmit,
@@ -116,4 +116,4 @@ function LoginForm() {
     );
 }
 
-export default LoginForm;
+export default LoginPage;

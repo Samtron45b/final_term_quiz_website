@@ -1,7 +1,7 @@
 import React from "react";
 import Main from "../pages/main";
-import RegisterForm from "../components/registerForm/index";
-import LoginForm from "../components/loginForm/index";
+import RegisterPage from "../pages/register/index";
+import LoginPage from "../pages/login/index";
 
 const ViewRoutes = [
     {
@@ -12,12 +12,12 @@ const ViewRoutes = [
     {
         path: "/register",
         exact: true,
-        component: <RegisterForm />
+        component: <RegisterPage />
     },
     {
         path: "/login",
         exact: true,
-        component: <LoginForm />
+        component: <LoginPage />
     }
 ];
 

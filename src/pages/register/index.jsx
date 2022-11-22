@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
-function RegisterForm() {
+function RegisterPage() {
     const {
         register,
         handleSubmit,
@@ -163,4 +163,4 @@ function RegisterForm() {
     );
 }
 
-export default RegisterForm;
+export default RegisterPage;
