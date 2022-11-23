@@ -24,7 +24,7 @@ function Main() {
             <div className="flex space-x-4 text-gray-500 mt-2">
                 <Link
                     to="/login"
-                    class="no-underline hover:no-underline hover:text-blue-800 font-bold"
+                    className="no-underline hover:no-underline hover:text-blue-800 font-bold"
                 >
                     <div className="px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600">
                         Sign in
@@ -33,7 +33,7 @@ function Main() {
 
                 <Link
                     to="/register"
-                    class="no-underline hover:no-underline hover:text-blue-800 font-bold"
+                    className="no-underline hover:no-underline hover:text-blue-800 font-bold"
                 >
                     <div className="px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-teal-700 rounded-md hover:bg-teal-600 focus:outline-none focus:bg-teal-600">
                         Register

@@ -81,7 +81,7 @@ function LoginPage() {
                     <div className="forgot-pwd-btn mb-2">
                         <Link
                             to="/register"
-                            class=" text-sm text-gray-500 no-underline hover:underline hover:text-blue-800"
+                            className=" text-sm text-gray-500 no-underline hover:underline hover:text-blue-800"
                         >
                             Forgot password?
                         </Link>
@@ -100,7 +100,7 @@ function LoginPage() {
                         <span>Don&#39;t have account?</span>&nbsp;
                         <Link
                             to="/register"
-                            class="no-underline hover:no-underline hover:text-purple-700 font-bold"
+                            className="no-underline hover:no-underline hover:text-blue-800 font-bold"
                         >
                             Sign up
                         </Link>
