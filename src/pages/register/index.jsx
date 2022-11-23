@@ -139,10 +139,11 @@ function RegisterPage() {
                         <div className="py-3 text-right flex flex-row justify-between">
                             <button
                                 type="submit"
+                                data-mdb-ripple="true"
+                                data-mdb-ripple-color="light"
                                 className="inline-flex justify-center py-2 px-4 border border-transparent
-                                shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600
-                                hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2
-                                focus:ring-indigo-500"
+                                shadow-sm text-sm font-medium rounded-md text-white bg-purple-700
+                                hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
                             >
                                 Create account
                             </button>
@@ -150,7 +151,7 @@ function RegisterPage() {
                                 <span>Already have an account?</span>&nbsp;
                                 <Link
                                     to="/login"
-                                    class="no-underline hover:no-underline hover:text-blue-800 font-bold"
+                                    class="no-underline hover:no-underline hover:text-purple-700 font-bold"
                                 >
                                     Sign in
                                 </Link>

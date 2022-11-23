@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
+import MainHeader from "../../components/header/main_header/main_header";
 
 function Main() {
     const getQuotes = async () => {
@@ -17,6 +18,7 @@ function Main() {
     // Show the response if everything is fine
     return (
         <div>
+            <MainHeader />
             <h1>Random Quotes:</h1>
             <p>{data.content}</p>
             <div className="flex space-x-4 text-gray-500 mt-2">

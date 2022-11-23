@@ -19,7 +19,7 @@ function SocialSignInBtns() {
                 type="button"
                 data-mdb-ripple="true"
                 data-mdb-ripple-color="light"
-                className="text-white bg-[#ea4335] font-medium rounded-full text-sm p-3 text-center inline-flex items-center mr-2 mb-2"
+                className="text-white bg-[#ea4335] font-medium rounded-full text-sm p-3 text-center inline-flex items-center mr-2 mb-2 "
                 onClick={google}
             >
                 <FaGoogle className="w-5 h-5" />

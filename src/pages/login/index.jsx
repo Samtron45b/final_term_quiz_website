@@ -89,6 +89,8 @@ function LoginPage() {
                     <div className="mt-6">
                         <button
                             type="submit"
+                            data-mdb-ripple="true"
+                            data-mdb-ripple-color="light"
                             className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
                         >
                             Login
@@ -98,7 +100,7 @@ function LoginPage() {
                         <span>Don&#39;t have account?</span>&nbsp;
                         <Link
                             to="/register"
-                            class="no-underline hover:no-underline hover:text-blue-800 font-bold"
+                            class="no-underline hover:no-underline hover:text-purple-700 font-bold"
                         >
                             Sign up
                         </Link>
