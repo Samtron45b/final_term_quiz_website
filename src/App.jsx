@@ -26,8 +26,12 @@ function App() {
                     throw new Error("authentication has been failed!");
                 })
                 .then((resObject) => {
-                    const decode = jwtDecode(resObject.accessToken, "letsplay");
-                    setUser(decode);
+                    const decodeToken = jwtDecode(resObject.accessToken, "letsplay");
+                    const userInfo = {
+                        name: decodeToken.displayName,
+                        avatar: decodeToken.photos[0]
+                    };
+                    setUser(userInfo);
                 })
                 .catch((err) => {
                     console.log(err);
