@@ -151,7 +151,7 @@ function RegisterPage() {
                                 <span>Already have an account?</span>&nbsp;
                                 <Link
                                     to="/login"
-                                    className="no-underline hover:no-underline hover:text-blue-800 font-bold"
+                                    className="no-underline hover:no-underline hover:text-purple-700 font-bold"
                                 >
                                     Sign in
                                 </Link>

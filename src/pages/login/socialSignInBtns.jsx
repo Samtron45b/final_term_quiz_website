@@ -11,7 +11,7 @@ function SocialSignInBtns() {
             <button
                 type="button"
                 className="text-white bg-[#3b5998] font-medium rounded-full text-sm p-3 text-center inline-flex items-center mr-2 mb-2"
-                style={{ "background-color": "#1877f2" }}
+                style={{ backgroundColor: "#1877f2" }}
             >
                 <FaFacebookF className="w-5 h-5" />
             </button>

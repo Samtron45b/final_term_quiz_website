@@ -100,7 +100,7 @@ function LoginPage() {
                         <span>Don&#39;t have account?</span>&nbsp;
                         <Link
                             to="/register"
-                            className="no-underline hover:no-underline hover:text-blue-800 font-bold"
+                            className="no-underline hover:no-underline hover:text-purple-700 font-bold"
                         >
                             Sign up
                         </Link>
