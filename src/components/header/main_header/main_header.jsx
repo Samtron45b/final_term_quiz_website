@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { GrFormAdd } from "react-icons/gr";
+import { IoMdAdd } from "react-icons/io";
+import ProfileMenu from "./profile_menu";
 
 function MainHeader() {
     return (
@@ -47,16 +48,17 @@ function MainHeader() {
                     </ul>
                 </div> */}
                 <div className="header_item_right flex items-center space-x-3">
+                    <style>
+                        {`
+                            .plus_group_container:hover .plus_group_icon{
+                                fill: #6b46c1;
+                            }
+                        `}
+                    </style>
                     <div className="plus_group_container cursor-pointer flex justify-center items-center w-12 h-12 rounded-full hover:bg-gray-100 ">
-                        <GrFormAdd className="plus_group_icon w-8 h-8" />
+                        <IoMdAdd className="plus_group_icon w-8 h-8 " />
                     </div>
-                    <div className="user_avatar flex cursor-pointer rounded-full w-12 h-12 justify-center items-center space-x-2 hover:bg-gray-100">
-                        <img
-                            className="w-5/6 h-5/6 rounded-full"
-                            src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
-                            alt=""
-                        />
-                    </div>
+                    <ProfileMenu />
                 </div>
             </div>
         </header>
