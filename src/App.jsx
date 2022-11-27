@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import jwtDecode from "jwt-decode";
 import ViewRoutes from "./routes";
@@ -43,18 +43,31 @@ function App() {
     console.log(user);
 
     return (
-        <QueryClientProvider client={queryClient}>
-            <Router>
-                <Routes>
-                    {ViewRoutes.map(({ path, exact, component }, key) => {
-                        return (
-                            // eslint-disable-next-line react/no-array-index-key
-                            <Route key={key} exact={exact} path={path} element={component} />
-                        );
-                    })}
-                </Routes>
-            </Router>
-        </QueryClientProvider>
+        <div className="pb-5">
+            <QueryClientProvider client={queryClient}>
+                <Router>
+                    <Routes>
+                        {ViewRoutes.map(({ path, exact, component }, key) => {
+                            const routeKey = `route${key}`;
+                            const accessToken = localStorage.getItem("accessToken");
+                            let firstComponent = component;
+                            if ((path === "/login" || path === "/register") && accessToken) {
+                                firstComponent = <Navigate to="/" />;
+                            }
+
+                            return (
+                                <Route
+                                    key={routeKey}
+                                    exact={exact}
+                                    path={path}
+                                    element={firstComponent}
+                                />
+                            );
+                        })}
+                    </Routes>
+                </Router>
+            </QueryClientProvider>
+        </div>
     );
 }
 
