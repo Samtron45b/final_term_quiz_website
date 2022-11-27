@@ -73,20 +73,22 @@ function PassswordEdit() {
                 <div className="mb-3 w-1/2">
                     <label
                         className="block text-sm font-medium text-gray-700 relative"
-                        htmlFor="password"
+                        htmlFor="curpassword"
                     >
                         Current password
                         <input
                             type={showCurPass ? "text" : "password"}
-                            name="password"
-                            className="shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-full sm:text-sm border border-gray-300 rounded-md
-                                px-2 py-2 bg-white border rounded-md "
+                            name="curpassword"
+                            className={`shadow-sm
+                            focus:border-indigo-500 mt-1 text-${
+                                !canChangePass ? "gray-700" : "gray-500"
+                            }
+                            block w-full sm:text-sm border border-gray-300 rounded-md
+                            px-2 py-2 bg-white border rounded-md `}
                             disabled={canChangePass}
-                            id="password"
+                            id="curpassword"
                             placeholder="********"
-                            {...register("password", { required: true }, { minLength: 8 })}
+                            {...register("curpassword", { required: true }, { minLength: 8 })}
                         />
                         <div
                             className="icon_button absolute right-4 top-8"
@@ -109,20 +111,20 @@ function PassswordEdit() {
                 <div className="mb-3 w-1/2">
                     <label
                         className="block text-sm font-medium text-gray-700 relative"
-                        htmlFor="password"
+                        htmlFor="newpassword"
                     >
                         New password
                         <input
                             type={showNewPass ? "text" : "password"}
-                            name="password"
+                            name="newpassword"
                             className="shadow-sm
                                 focus:ring-indigo-500 focus:border-indigo-500 mt-1
                                 block w-full sm:text-sm border border-gray-300 rounded-md
                                 px-2 py-2 bg-white border rounded-md "
                             disabled={!canChangePass}
-                            id="password"
+                            id="newpassword"
                             placeholder="********"
-                            {...register("password", { required: true }, { minLength: 8 })}
+                            {...register("newpassword", { required: true }, { minLength: 8 })}
                         />
                         <div
                             className="icon_button absolute right-4 top-8"
@@ -145,20 +147,24 @@ function PassswordEdit() {
                 <div className="mb-3 w-1/2">
                     <label
                         className="block text-sm font-medium text-gray-700 relative"
-                        htmlFor="re_password"
+                        htmlFor="confirm_new_password"
                     >
                         Confirm new password
                         <input
                             type={showConfirmNewPass ? "text" : "password"}
-                            name="re_password"
+                            name="confirm_new_password"
                             className="shadow-sm
                                 focus:ring-indigo-500 focus:border-indigo-500 mt-1
                                 block w-full sm:text-sm border border-gray-300 rounded-md
                                 px-2 py-2 bg-white border rounded-md "
                             disabled={!canChangePass}
-                            id="re_password"
+                            id="confirm_new_password"
                             placeholder="********"
-                            {...register("re_password", { required: true }, { minLength: 8 })}
+                            {...register(
+                                "confirm_new_password",
+                                { required: true },
+                                { minLength: 8 }
+                            )}
                         />
                         <div
                             className="icon_button absolute right-4 top-8"

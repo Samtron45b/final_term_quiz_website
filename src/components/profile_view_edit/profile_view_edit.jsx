@@ -24,6 +24,13 @@ function ProfileViewEdit() {
         setIsEditing(false);
     }
 
+    function getInputClassName() {
+        return `shadow-sm
+        focus:border-indigo-500 mt-1 text-${isEditing ? "gray-700" : "gray-500"}
+        block w-full sm:text-sm border border-gray-300 rounded-md
+        px-2 py-2 bg-white border rounded-md `;
+    }
+
     function renderButton() {
         if (!isEditing) {
             return (
@@ -73,7 +80,7 @@ function ProfileViewEdit() {
     return (
         <div className="">
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="email-input mb-3">
+                <div className="email-input mb-3 w-1/2">
                     <label className="block text-sm font-medium text-gray-700" htmlFor="email">
                         Email
                         <input
@@ -82,10 +89,7 @@ function ProfileViewEdit() {
                             type="email"
                             name="email"
                             placeholder="john.doe@example.com"
-                            className="shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-1/2 sm:text-sm border border-gray-300 rounded-md
-                                px-2 py-2 bg-white border rounded-md "
+                            className={getInputClassName()}
                             {...register("email", { required: true })}
                         />
                         {errors.email && (
@@ -93,15 +97,12 @@ function ProfileViewEdit() {
                         )}
                     </label>
                 </div>
-                <div className="username-input mb-5">
+                <div className="username-input mb-5 w-1/2">
                     <label className="block text-sm font-medium text-gray-700" htmlFor="username">
                         Username
                         <input
                             name="username"
-                            className="shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-1/2 sm:text-sm border border-gray-300 rounded-md
-                                px-2 py-2 bg-white border rounded-md "
+                            className={getInputClassName()}
                             disabled={!isEditing}
                             id="username"
                             type="text"
