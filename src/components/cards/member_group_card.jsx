@@ -7,7 +7,9 @@ function MemberGroupCard({ memberName, memberAvatar, memberRole, userRole, isLas
 
     function renderButton(btnType) {
         const isRoleBtn = btnType.toLocaleLowerCase() === "role".toLocaleLowerCase();
-        const btnDisabled = isRoleBtn ? userRole < 3 : userRole < 4;
+        const btnDisabled = isRoleBtn
+            ? userRole > 2 || userRole >= memberRole
+            : userRole > 3 || userRole >= memberRole;
         const btnIconActiveColor = `text-${isRoleBtn ? "cyan-400" : "red-500"}`;
         // const roleBtnDisabled = userRole > 3;
         // const deleteBtnDisabled = userRole > 4;

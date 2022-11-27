@@ -12,7 +12,7 @@ function TableMember({ title, dataList }) {
             const { memberName, memberAvatar, memberRole } = dataList[index];
             rowToRender.push(
                 <MemberGroupCard
-                    userRole={4}
+                    userRole={1}
                     memberName={memberName}
                     memberAvatar={memberAvatar}
                     memberRole={memberRole}
