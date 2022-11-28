@@ -37,7 +37,7 @@ function LoginPage() {
                                     name="username"
                                     className="shadow-sm
                                     focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border border-gray-300 rounded-md
+                                    block w-full sm:text-sm border-gray-300
                                     px-2 py-2 bg-white border rounded-md "
                                     id="username"
                                     type="text"
@@ -60,7 +60,7 @@ function LoginPage() {
                                     name="password"
                                     className="shadow-sm
                                     focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border border-gray-300 rounded-md
+                                    block w-full sm:text-sm border-gray-300
                                     px-2 py-2 bg-white border rounded-md "
                                     id="password"
                                     placeholder="********"

@@ -83,7 +83,7 @@ function PassswordEdit() {
                             focus:border-indigo-500 mt-1 text-${
                                 !canChangePass ? "gray-700" : "gray-500"
                             }
-                            block w-full sm:text-sm border border-gray-300 rounded-md
+                            block w-full sm:text-sm border-gray-300
                             px-2 py-2 bg-white border rounded-md `}
                             disabled={canChangePass}
                             id="curpassword"
@@ -119,7 +119,7 @@ function PassswordEdit() {
                             name="newpassword"
                             className="shadow-sm
                                 focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-full sm:text-sm border border-gray-300 rounded-md
+                                block w-full sm:text-sm border-gray-300
                                 px-2 py-2 bg-white border rounded-md "
                             disabled={!canChangePass}
                             id="newpassword"
@@ -155,7 +155,7 @@ function PassswordEdit() {
                             name="confirm_new_password"
                             className="shadow-sm
                                 focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-full sm:text-sm border border-gray-300 rounded-md
+                                block w-full sm:text-sm border-gray-300
                                 px-2 py-2 bg-white border rounded-md "
                             disabled={!canChangePass}
                             id="confirm_new_password"

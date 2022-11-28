@@ -8,7 +8,7 @@ function ModalFrame({ isVisible, hasXCloseBtn, clickOutSideToClose, onClose, chi
         return (
             <button
                 type="button"
-                className="mb-1 px-3 py-1 rounded-lg text-black text-md font-bold text-gray-300 hover:text-black hover:bg-gray-200 place-self-end"
+                className="mb-1 px-3 py-1 rounded-lg text-md font-bold text-gray-300 hover:text-black hover:bg-gray-200 place-self-end"
                 onClick={() => onClose()}
             >
                 X

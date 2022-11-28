@@ -4,6 +4,7 @@ import RegisterPage from "../pages/register/index";
 import LoginPage from "../pages/login/index";
 import GroupDetailPage from "../pages/group_detail/index";
 import AccountPage from "../pages/account/index";
+import ActiveAccountPage from "../pages/activate_account";
 
 const ViewRoutes = [
     {
@@ -30,6 +31,11 @@ const ViewRoutes = [
         path: "/account/:username",
         exact: true,
         component: <AccountPage />
+    },
+    {
+        path: "/activate_account/:username",
+        exact: true,
+        component: <ActiveAccountPage />
     }
 ];
 
