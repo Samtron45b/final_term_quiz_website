@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
-import SocialSignInBtns from "./socialSignInBtns";
+import axios from "axios";
+// import SocialSignInBtns from "./socialSignInBtns";
 import AuthResultModal from "../../components/modals/auth_result_modal_body";
 import ModalFrame from "../../components/modals/modal_frame";
 
@@ -14,10 +15,25 @@ function LoginPage() {
         formState: { errors }
     } = useForm();
 
-    const onSubmit = (data) => console.log(data);
     const [showPass, setShowPass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showResultModal, setShowResultModal] = useState(false);
+
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        console.log(data);
+        axios
+            .post("http://localhost:5000/auth/login", data)
+            .then((response) => {
+                const { token } = response.data;
+                localStorage.setItem("token", token);
+                window.location.href = "/";
+            })
+            .catch((loginError) => {
+                console.log(loginError);
+                setIsLoading(false);
+            });
+    };
 
     return (
         <>
@@ -98,7 +114,7 @@ function LoginPage() {
                                 type="submit"
                                 data-mdb-ripple="true"
                                 data-mdb-ripple-color="light"
-                                onClick={() => setIsLoading(true)}
+                                // onClick={() => setIsLoading(true)}
                                 className="w-full px-4 py-2 tracking-wide text-white transition-colors duration-200 transform bg-purple-700 rounded-md hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
                             >
                                 {isLoading ? (
@@ -126,7 +142,7 @@ function LoginPage() {
                         <div className="text-center mt-4 text-purple-600 font-semibold">
                             Sign in with
                         </div>
-                        <SocialSignInBtns />
+                        {/* <SocialSignInBtns /> */}
                     </form>
                 </div>
             </div>
