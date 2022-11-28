@@ -25,7 +25,7 @@ function LoginPage() {
         axios
             .post("http://localhost:5000/auth/login", data)
             .then((response) => {
-                const { token } = response.data;
+                const { token } = response.data.user;
                 localStorage.setItem("token", token);
                 window.location.href = "/";
             })
