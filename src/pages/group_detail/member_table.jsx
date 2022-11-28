@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { Fragment } from "react";
 import MemberGroupCard from "../../components/cards/member_group_card";
 
 function TableMember({ title, dataList }) {
@@ -26,7 +27,7 @@ function TableMember({ title, dataList }) {
     if (length === 0) return null;
 
     return (
-        <div className="block">
+        <>
             <div className="flex border-b-2 border-purple-700">
                 <div className="grow pb-2 text-purple-600 text-lg font-bold">{title}</div>
             </div>
@@ -34,7 +35,7 @@ function TableMember({ title, dataList }) {
                 <thead />
                 <tbody>{renderRows()}</tbody>
             </table>
-        </div>
+        </>
     );
 }
 
