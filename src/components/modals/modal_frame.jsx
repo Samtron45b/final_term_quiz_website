@@ -1,6 +1,14 @@
 import PropTypes from "prop-types";
 
-function ModalFrame({ isVisible, hasXCloseBtn, clickOutSideToClose, onClose, children }) {
+function ModalFrame({
+    width,
+    height,
+    isVisible,
+    hasXCloseBtn,
+    clickOutSideToClose,
+    onClose,
+    children
+}) {
     if (!isVisible) return null;
 
     function renderXCloseBtn() {
@@ -27,11 +35,17 @@ function ModalFrame({ isVisible, hasXCloseBtn, clickOutSideToClose, onClose, chi
     return (
         <div
             id="outSideModal"
-            className="fixed inset-0 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center"
+            className="fixed inset-0 z-50 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center"
             onClick={handleClickOutSide}
             aria-hidden="true"
         >
-            <div className="modal_body w-1/5 px-3 py-2 bg-white rounded-md flex flex-col justify-center items-center">
+            <div
+                className="modal_body px-3 py-2 bg-white rounded-md flex flex-col justify-center items-center"
+                style={{
+                    width,
+                    height
+                }}
+            >
                 {renderXCloseBtn()}
                 {children}
             </div>
@@ -40,6 +54,8 @@ function ModalFrame({ isVisible, hasXCloseBtn, clickOutSideToClose, onClose, chi
 }
 
 ModalFrame.propTypes = {
+    width: PropTypes.string,
+    height: PropTypes.string,
     isVisible: PropTypes.bool,
     hasXCloseBtn: PropTypes.bool,
     clickOutSideToClose: PropTypes.bool,
@@ -48,6 +64,8 @@ ModalFrame.propTypes = {
     children: PropTypes.any.isRequired
 };
 ModalFrame.defaultProps = {
+    width: "auto",
+    height: "auto",
     isVisible: null,
     clickOutSideToClose: true,
     hasXCloseBtn: true

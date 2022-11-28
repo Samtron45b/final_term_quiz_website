@@ -1,14 +1,23 @@
-import React, { useEffect, useState } from "react";
+/* eslint-disable react/jsx-no-constructed-context-values */
+import React, { useEffect, useMemo, useState } from "react";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
 import jwtDecode from "jwt-decode";
 import ViewRoutes from "./routes";
 import "./App.css";
+import AddGroupModalContext from "./components/contexts/add_group_context";
+import ModalFrame from "./components/modals/modal_frame";
+import AddGroupModalBody from "./components/modals/add_group_modal_body";
 
 const queryClient = new QueryClient();
 
 function App() {
     const [user, setUser] = useState(null);
+    const [showAddGroupModal, setShowAddGroupModal] = useState(false);
+    const addGroupModalContextValue = useMemo(() => ({
+        showAddGroupModal,
+        setShowAddGroupModal
+    }));
 
     useEffect(() => {
         const getUser = async () => {
@@ -43,31 +52,41 @@ function App() {
     console.log(user);
 
     return (
-        <div className="pb-5">
-            <QueryClientProvider client={queryClient}>
-                <Router>
-                    <Routes>
-                        {ViewRoutes.map(({ path, exact, component }, key) => {
-                            const routeKey = `route${key}`;
-                            const accessToken = localStorage.getItem("accessToken");
-                            let firstComponent = component;
-                            if ((path === "/login" || path === "/register") && accessToken) {
-                                firstComponent = <Navigate to="/" />;
-                            }
+        <AddGroupModalContext.Provider value={addGroupModalContextValue}>
+            <div className="pb-5">
+                <QueryClientProvider client={queryClient}>
+                    <Router>
+                        <Routes>
+                            {ViewRoutes.map(({ path, exact, component }, key) => {
+                                const routeKey = `route${key}`;
+                                const accessToken = localStorage.getItem("accessToken");
+                                let firstComponent = component;
+                                if ((path === "/login" || path === "/register") && accessToken) {
+                                    firstComponent = <Navigate to="/" />;
+                                }
 
-                            return (
-                                <Route
-                                    key={routeKey}
-                                    exact={exact}
-                                    path={path}
-                                    element={firstComponent}
-                                />
-                            );
-                        })}
-                    </Routes>
-                </Router>
-            </QueryClientProvider>
-        </div>
+                                return (
+                                    <Route
+                                        key={routeKey}
+                                        exact={exact}
+                                        path={path}
+                                        element={firstComponent}
+                                    />
+                                );
+                            })}
+                        </Routes>
+                    </Router>
+                </QueryClientProvider>
+            </div>
+            <ModalFrame
+                width="40%"
+                isVisible={showAddGroupModal}
+                clickOutSideToClose={false}
+                onClose={() => setShowAddGroupModal(false)}
+            >
+                <AddGroupModalBody />
+            </ModalFrame>
+        </AddGroupModalContext.Provider>
     );
 }
 

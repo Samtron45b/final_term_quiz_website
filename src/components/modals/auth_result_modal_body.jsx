@@ -12,7 +12,7 @@ function AuthResultModalBody({ authStatus, message, onClose }) {
     }
 
     return (
-        <div className="modal_body bg-white rounded-md flex flex-col justify-center items-center">
+        <div className=" bg-white rounded-md flex flex-col justify-center items-center">
             {renderIcon()}
             <p className="mt-2 break-all text-center">{`${message}`}</p>
             <button

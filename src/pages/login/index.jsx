@@ -17,7 +17,7 @@ function LoginPage() {
 
     const [showPass, setShowPass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [showResultModal, setShowResultModal] = useState(false);
+    const [showResultModal, setShowResultModal] = useState(true);
 
     const onSubmit = async (data) => {
         setIsLoading(true);
@@ -146,7 +146,11 @@ function LoginPage() {
                     </form>
                 </div>
             </div>
-            <ModalFrame isVisible={showResultModal} onClose={() => setShowResultModal(false)}>
+            <ModalFrame
+                width="20%"
+                isVisible={showResultModal}
+                onClose={() => setShowResultModal(false)}
+            >
                 <AuthResultModal
                     authStatus={1}
                     message="Succeeded."

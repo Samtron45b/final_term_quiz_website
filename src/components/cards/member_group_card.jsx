@@ -2,7 +2,14 @@ import PropTypes from "prop-types";
 import { AiOutlineUserDelete } from "react-icons/ai";
 import { MdAssignmentInd } from "react-icons/md";
 
-function MemberGroupCard({ memberName, memberAvatar, memberRole, userRole, isLastRow }) {
+function MemberGroupCard({
+    memberName,
+    memberAvatar,
+    memberRole,
+    userRole,
+    isLastRow,
+    onChangeRoleBtnClick
+}) {
     console.log(memberRole, userRole);
 
     function renderButton(btnType) {
@@ -27,6 +34,7 @@ function MemberGroupCard({ memberName, memberAvatar, memberRole, userRole, isLas
                 {isRoleBtn ? (
                     <MdAssignmentInd
                         size={20}
+                        onClick={() => onChangeRoleBtnClick({ name: memberName, role: memberRole })}
                         className={`${btnDisabled ? "text-transparent" : btnIconActiveColor}`}
                     />
                 ) : (
@@ -70,7 +78,11 @@ MemberGroupCard.propTypes = {
     memberAvatar: PropTypes.string.isRequired,
     memberRole: PropTypes.number.isRequired,
     userRole: PropTypes.number.isRequired,
-    isLastRow: PropTypes.bool.isRequired
+    isLastRow: PropTypes.bool.isRequired,
+    onChangeRoleBtnClick: PropTypes.func
+};
+MemberGroupCard.defaultProps = {
+    onChangeRoleBtnClick: null
 };
 
 export default MemberGroupCard;
