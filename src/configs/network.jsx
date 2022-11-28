@@ -11,7 +11,7 @@ const axiosPublic = axios.create({
 
 axiosPublic.interceptors.request.use(
     (config) => {
-        const accessToken = sessionStorage.getItem("accessToken");
+        const accessToken = localStorage.getItem("accessToken");
         const newConfig = config;
         if (!newConfig.headers) {
             newConfig.headers = {
@@ -30,8 +30,8 @@ axiosPublic.interceptors.response.use(
         const status = error.response?.status ?? null;
         if (status === 401) {
             window.location.replace("/logout");
-            sessionStorage.removeItem("access_token");
-            sessionStorage.removeItem("refresh_token");
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
         }
         // status might be undefined
         if (!status) {
