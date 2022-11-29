@@ -10,16 +10,20 @@ function RegisterPage() {
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
+        getValues
     } = useForm();
 
-    const onSubmit = (data) => {
-        console.log(data);
-    };
     const [showPass, setShowPass] = useState(false);
     const [showRePass, setShowRePass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showResultModal, setShowResultModal] = useState(false);
+
+    const onSubmit = (data) => {
+        setIsLoading(true);
+        console.log(data);
+        setIsLoading(false);
+    };
 
     return (
         <>
@@ -88,7 +92,7 @@ function RegisterPage() {
                                     px-2 py-2 bg-white border rounded-md "
                                     id="password"
                                     placeholder="********"
-                                    {...register("password", { required: true }, { minLength: 8 })}
+                                    {...register("password", { required: true, minLength: 8 })}
                                 />
                                 <div
                                     className="icon_button absolute right-4 top-8"
@@ -103,8 +107,15 @@ function RegisterPage() {
                                         <FaEyeSlash className="w-5 h-5" />
                                     )}
                                 </div>
-                                {errors.password && (
-                                    <span className="text-red-600">This field is required</span>
+                                {errors.password && errors.password.type === "required" && (
+                                    <span className="text-red-600" role="alert">
+                                        This field is required
+                                    </span>
+                                )}
+                                {errors.password && errors.password.type === "minLength" && (
+                                    <span className="text-red-600" role="alert">
+                                        Minimum length is 8
+                                    </span>
                                 )}
                             </label>
                         </div>
@@ -123,11 +134,11 @@ function RegisterPage() {
                                     px-2 py-2 bg-white border rounded-md "
                                     id="re_password"
                                     placeholder="********"
-                                    {...register(
-                                        "re_password",
-                                        { required: true },
-                                        { minLength: 8 }
-                                    )}
+                                    {...register("re_password", {
+                                        required: true,
+                                        minLength: 8,
+                                        validate: (value) => value === getValues("password")
+                                    })}
                                 />
                                 <div
                                     className="icon_button absolute right-4 top-8"
@@ -142,8 +153,20 @@ function RegisterPage() {
                                         <FaEyeSlash className="w-5 h-5" />
                                     )}
                                 </div>
-                                {errors.re_password && (
-                                    <span className="text-red-600">This field is required</span>
+                                {errors.re_password && errors.re_password.type === "required" && (
+                                    <span className="text-red-600" role="alert">
+                                        This field is required
+                                    </span>
+                                )}
+                                {errors.re_password && errors.re_password.type === "minLength" && (
+                                    <span className="text-red-600" role="alert">
+                                        Minimum length is 8
+                                    </span>
+                                )}
+                                {errors.re_password && errors.re_password.type === "validate" && (
+                                    <span className="text-red-600" role="alert">
+                                        Password and Re-Password must be the same
+                                    </span>
                                 )}
                             </label>
                         </div>
@@ -153,7 +176,6 @@ function RegisterPage() {
                                     type="submit"
                                     data-mdb-ripple="true"
                                     data-mdb-ripple-color="light"
-                                    onClick={() => setIsLoading(true)}
                                     className="inline-flex justify-center py-2 px-4 border border-transparent
                                     shadow-sm text-sm font-medium rounded-md text-white bg-purple-700
                                     hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
