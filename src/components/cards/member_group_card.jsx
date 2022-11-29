@@ -1,8 +1,10 @@
+import axios from "axios";
 import PropTypes from "prop-types";
 import { AiOutlineUserDelete } from "react-icons/ai";
 import { MdAssignmentInd } from "react-icons/md";
 
 function MemberGroupCard({
+    groupName,
     memberName,
     memberAvatar,
     memberRole,
@@ -10,6 +12,19 @@ function MemberGroupCard({
     isLastRow,
     onChangeRoleBtnClick
 }) {
+    function onDeleteUser() {
+        axios
+            .get(
+                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/kickUser?groupname=${groupName}username=${memberName}`
+            )
+            .then((response) => {
+                console.log(response);
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
     function renderButton(btnType) {
         const isRoleBtn = btnType.toLocaleLowerCase() === "role".toLocaleLowerCase();
         const btnDisabled = isRoleBtn
@@ -33,6 +48,8 @@ function MemberGroupCard({
                 onClick={() => {
                     if (isRoleBtn) {
                         onChangeRoleBtnClick({ name: memberName, role: memberRole });
+                    } else {
+                        onDeleteUser({ name: memberName, role: memberRole });
                     }
                 }}
             >
@@ -72,6 +89,7 @@ function MemberGroupCard({
 }
 
 MemberGroupCard.propTypes = {
+    groupName: PropTypes.string.isRequired,
     memberName: PropTypes.string.isRequired,
     memberAvatar: PropTypes.string.isRequired,
     memberRole: PropTypes.number.isRequired,

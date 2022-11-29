@@ -1,100 +1,189 @@
 import { useParams } from "react-router-dom";
 import { BsPeopleFill } from "react-icons/bs";
 import { MdQuiz } from "react-icons/md";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
+import { useQuery } from "react-query";
+import axios from "axios";
 import MainHeader from "../../components/header/main_header/main_header";
 import SimpleMenuBar from "../../components/side_bars/simple_menu_bar";
 import TableMember from "./member_table";
 import ModalFrame from "../../components/modals/modal_frame";
 import AddMemberModalBody from "../../components/modals/add_member_modal_body";
 import ChangeMemberRoleModalBody from "../../components/modals/change_member_role_modal_body";
+import AuthContext from "../../components/contexts/auth_context";
 
 function GroupDetailPage() {
     const { groupname } = useParams();
+    const { user } = useContext(AuthContext);
+
     const [viewIndex, setViewIndex] = useState(0);
     const [showAddGroupModal, setShowAddGroupModal] = useState(false);
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
 
-    const userRole = 1;
-    const listOwnerandCo = [
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 1
+    const { data, refetch } = useQuery({
+        queryKey: ["get_memes"],
+        enabled: false,
+        queryFn: async () => {
+            return axios
+                .get(
+                    `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/get?group=study`
+                )
+                .then((response) => {
+                    return response;
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 2
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 2
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 2
-        }
-    ];
-    const listManager = [
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 3
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 3
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 3
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 3
-        }
-    ];
-    const listMember = [
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 4
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 4
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 4
-        },
-        {
-            memberName: "Nguyen Khanh Huy",
-            memberAvatar:
-                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-            memberRole: 4
-        }
-    ];
+        refetchInterval: 60 * 10 * 1000
+    });
+
+    useEffect(() => {
+        refetch();
+    }, []);
+
+    let userRole = 0;
+
+    function renderGroupMems() {
+        if (!data) return null;
+
+        console.log(data);
+        const dataList = data.data.data.members;
+        const userInList = dataList.find((element) => {
+            return element.username === user.name;
+        });
+        userRole = userInList.isOwner === 1 ? 1 : 4;
+        const listOwnerandCo = dataList.filter((mem) => {
+            return mem.isOwner === 1;
+        });
+        const listMember = dataList.filter((mem) => {
+            return mem.isOwner === 0;
+        });
+        console.log(listOwnerandCo);
+        console.log(listMember);
+        return (
+            <>
+                {userRole < 4 ? (
+                    <button
+                        type="button"
+                        data-mdb-ripple="true"
+                        data-mdb-ripple-color="light"
+                        onClick={() => setShowAddGroupModal(true)}
+                        className="flex items-center mb-3 px-4 py-4 bg-emerald-300 text-white font-medium text-md leading-tight rounded-lg shadow-md hover:bg-emerald-300/75 hover:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
+                    >
+                        <RiUserAddFill size={20} className="text-white mr-1" />
+                        Add member
+                    </button>
+                ) : null}
+                <TableMember
+                    groupName={groupname}
+                    title="Owner and Co-owners"
+                    userRole={userRole}
+                    dataList={listOwnerandCo}
+                    onSelectMemberChangeRole={(memberSelected) =>
+                        setMemberToChangeRole(memberSelected)
+                    }
+                />
+                {/* <TableMember
+                    title="Managers"
+                    userRole={userRole}
+                    dataList={listManager}
+                    onSelectMemberChangeRole={(memberSelected) =>
+                        setMemberToChangeRole(memberSelected)
+                    }
+                /> */}
+                <TableMember
+                    groupName={groupname}
+                    title="Members"
+                    userRole={userRole}
+                    dataList={listMember}
+                    onSelectMemberChangeRole={(memberSelected) =>
+                        setMemberToChangeRole(memberSelected)
+                    }
+                />
+            </>
+        );
+    }
+
+    // const listOwnerandCo = [
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 1
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 2
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 2
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 2
+    //     }
+    // ];
+    // const listManager = [
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 3
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 3
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 3
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 3
+    //     }
+    // ];
+    // const listMember = [
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 4
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 4
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 4
+    //     },
+    //     {
+    //         memberName: "Nguyen Khanh Huy",
+    //         memberAvatar:
+    //             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+    //         memberRole: 4
+    //     }
+    // ];
 
     return (
         <>
@@ -124,7 +213,8 @@ function GroupDetailPage() {
                         </div>
                     </aside>
                     <div className="ml-5 w-full px-2 bg-white">
-                        {userRole < 4 ? (
+                        {renderGroupMems()}
+                        {/* {userRole < 4 ? (
                             <button
                                 type="button"
                                 data-mdb-ripple="true"
@@ -159,7 +249,7 @@ function GroupDetailPage() {
                             onSelectMemberChangeRole={(memberSelected) =>
                                 setMemberToChangeRole(memberSelected)
                             }
-                        />
+                        /> */}
                     </div>
                 </div>
             </div>

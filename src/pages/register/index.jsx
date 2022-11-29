@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
+import axios from "axios";
 import ModalFrame from "../../components/modals/modal_frame";
 import AuthResultModalBody from "../../components/modals/auth_result_modal_body";
 
@@ -20,11 +21,25 @@ function RegisterPage() {
     const [showRePass, setShowRePass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showResultModal, setShowResultModal] = useState(false);
+    const [registerError, setRegisterError] = useState(null);
+
+    const navigate = useNavigate();
 
     const onSubmit = (data) => {
         setIsLoading(true);
-        console.log(data);
-        setIsLoading(false);
+        axios
+            .get(
+                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/register?clientId=123&email=${data.email}&username=${data.username}&password=${data.password}`
+            )
+            .then((response) => {
+                console.log(response);
+                setShowResultModal(true);
+                setIsLoading(false);
+            })
+            .catch((registerErr) => {
+                setRegisterError(registerErr.response.data.error);
+                setIsLoading(false);
+            });
     };
 
     return (
@@ -202,14 +217,23 @@ function RegisterPage() {
                                 </div>
                             </div>
                         </div>
+                        <p className="text-red-600">{registerError}</p>
                     </form>
                 </div>
             </div>
-            <ModalFrame isVisible={showResultModal} onClose={() => setShowResultModal(false)}>
+            <ModalFrame
+                width="20%"
+                isVisible={showResultModal}
+                onClose={() => {
+                    navigate("/login");
+                }}
+            >
                 <AuthResultModalBody
                     authStatus={1}
-                    message="Succeeded."
-                    onClose={() => setShowResultModal(false)}
+                    message="Please verify your email to active this account before signing in with it."
+                    onClose={() => {
+                        navigate("/login");
+                    }}
                 />
             </ModalFrame>
         </>

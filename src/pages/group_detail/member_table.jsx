@@ -2,22 +2,23 @@ import PropTypes from "prop-types";
 import { Fragment } from "react";
 import MemberGroupCard from "../../components/cards/member_group_card";
 
-function TableMember({ title, dataList, onSelectMemberChangeRole, userRole }) {
-    console.log(title);
-    console.log(dataList);
+function TableMember({ groupName, title, dataList, onSelectMemberChangeRole, userRole }) {
+    // console.log(title);
+    // console.log(dataList);
     const { length } = dataList;
 
     function renderRows() {
         const rowToRender = [];
         for (let index = 0; index < length; index += 1) {
-            const { memberName, memberAvatar, memberRole } = dataList[index];
+            const { username, useravatar, isOwner } = dataList[index];
             rowToRender.push(
                 <MemberGroupCard
-                    key={`${memberRole}_${index}_card`}
+                    key={`${isOwner === 1 ? 1 : 4}_${index}_card`}
+                    groupName={groupName}
                     userRole={userRole}
-                    memberName={memberName}
-                    memberAvatar={memberAvatar}
-                    memberRole={memberRole}
+                    memberName={username}
+                    memberAvatar={useravatar}
+                    memberRole={isOwner === 1 ? 1 : 4}
                     isLastRow={index === length - 1}
                     onChangeRoleBtnClick={onSelectMemberChangeRole}
                 />
@@ -42,6 +43,7 @@ function TableMember({ title, dataList, onSelectMemberChangeRole, userRole }) {
 }
 
 TableMember.propTypes = {
+    groupName: PropTypes.string.isRequired,
     title: PropTypes.string,
     userRole: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types

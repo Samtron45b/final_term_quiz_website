@@ -18,7 +18,7 @@ function AddGroupModalBody() {
         console.log(data);
         axios
             .get(
-                `http://127.0.0.1:8000/group/create?username=${user.name}&groupname=${data.groupname}`
+                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/create?username=${user.name}&groupname=${data.groupname}`
             )
             .then((response) => {
                 console.log(response);

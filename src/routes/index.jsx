@@ -33,7 +33,7 @@ const ViewRoutes = [
         component: <AccountPage />
     },
     {
-        path: "/activate_account/:username",
+        path: "/activate_account/:username_email",
         exact: true,
         component: <ActiveAccountPage />
     }

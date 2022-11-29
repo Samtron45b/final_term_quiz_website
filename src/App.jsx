@@ -16,12 +16,15 @@ function App() {
     const accessToken = getToken();
     console.log(`accessToken ${accessToken}`);
     const [isInitialWeb, setIsInitialWeb] = useState(true);
-    const [user, setUser] = useState({});
+    const [user, setUser] = useState({
+        name: "anon",
+        avatar: "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
+    });
 
     if (isInitialWeb) {
         if (accessToken !== null) {
             setUser({
-                name: "Nguyen Khanh Huy",
+                name: "anon",
                 avatar: "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
             });
         }
@@ -38,6 +41,8 @@ function App() {
         setShowAddGroupModal
     }));
 
+    // console.log(window.location.pathname);
+
     return (
         <AuthContext.Provider value={authContextValue}>
             <AddGroupModalContext.Provider value={addGroupModalContextValue}>
@@ -52,8 +57,6 @@ function App() {
                                         if (accessToken) {
                                             firstComponent = <Navigate to="/" />;
                                         }
-                                    } else if (!accessToken) {
-                                        firstComponent = <Navigate to="/login" />;
                                     }
 
                                     return (

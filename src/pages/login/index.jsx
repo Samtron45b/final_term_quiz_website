@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
@@ -21,20 +21,23 @@ function LoginPage() {
     const [showPass, setShowPass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [showResultModal, setShowResultModal] = useState(false);
-    const navigate = useNavigate();
+    // const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         setIsLoading(true);
         console.log(data);
         axios
-            .post("http://localhost:5000/auth/login", data)
+            .get(
+                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/login?clientId=123&username=${data.username}&password=${data.password}`
+            )
             .then((response) => {
-                const { token } = response.data.user;
-                localStorage.setItem("token", token);
-                navigate("/", { replace: true });
+                console.log(response);
+                setShowResultModal(true);
+                setIsLoading(false);
             })
-            .catch((loginError) => {
-                console.log(loginError);
+            .catch((registerErr) => {
+                console.log(registerErr);
+                // setRegisterError(registerErr.response.data.error);
                 setIsLoading(false);
             });
     };
