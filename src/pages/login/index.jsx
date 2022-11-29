@@ -13,7 +13,10 @@ function LoginPage() {
         register,
         handleSubmit,
         formState: { errors }
-    } = useForm();
+    } = useForm({
+        mode: "onSubmit",
+        reValidateMode: "onSubmit"
+    });
 
     const [showPass, setShowPass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -59,11 +62,9 @@ function LoginPage() {
                                     id="username"
                                     type="text"
                                     placeholder="Quamon"
-                                    {...register("username", { required: true })}
+                                    {...register("username", { required: "Username is required" })}
                                 />
-                                {errors.username && (
-                                    <span className="text-red-600">This field is required</span>
-                                )}
+                                <p className="text-red-600">{errors.username?.message}</p>
                             </label>
                         </div>
                         <div className="password-input mb-3">
@@ -81,7 +82,7 @@ function LoginPage() {
                                     px-2 py-2 bg-white border rounded-md "
                                     id="password"
                                     placeholder="********"
-                                    {...register("password", { required: true }, { minLength: 8 })}
+                                    {...register("password", { required: true })}
                                 />
                                 <div
                                     className="icon_button absolute right-4 top-8"
@@ -96,9 +97,7 @@ function LoginPage() {
                                         <FaEyeSlash className="w-5 h-5" />
                                     )}
                                 </div>
-                                {errors.password && (
-                                    <span className="text-red-600">This field is required</span>
-                                )}
+                                <p className="text-red-600">{errors.password?.message}</p>
                             </label>
                         </div>
                         <div className="forgot-pwd-btn mb-2">

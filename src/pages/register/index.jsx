@@ -12,7 +12,9 @@ function RegisterPage() {
         handleSubmit,
         formState: { errors },
         getValues
-    } = useForm();
+    } = useForm({
+        mode: "onChange"
+    });
 
     const [showPass, setShowPass] = useState(false);
     const [showRePass, setShowRePass] = useState(false);
@@ -48,11 +50,15 @@ function RegisterPage() {
                                     focus:ring-indigo-500 focus:border-indigo-500 mt-1
                                     block w-full sm:text-sm border-gray-300
                                     px-2 py-2 bg-white border rounded-md "
-                                    {...register("email", { required: true })}
+                                    {...register("email", {
+                                        required: "Email is required.",
+                                        pattern: {
+                                            value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                                            message: "Invalid email"
+                                        }
+                                    })}
                                 />
-                                {errors.email && (
-                                    <span className="text-red-600">This field is required</span>
-                                )}
+                                <p className="text-red-600">{errors.email?.message}</p>
                             </label>
                         </div>
                         <div className="username-input mb-3">
@@ -70,11 +76,9 @@ function RegisterPage() {
                                     id="username"
                                     type="text"
                                     placeholder="Quamon"
-                                    {...register("username", { required: true })}
+                                    {...register("username", { required: "Username is required." })}
                                 />
-                                {errors.username && (
-                                    <span className="text-red-600">This field is required</span>
-                                )}
+                                <p className="text-red-600">{errors.username?.message}</p>
                             </label>
                         </div>
                         <div className="mb-3">
@@ -92,7 +96,14 @@ function RegisterPage() {
                                     px-2 py-2 bg-white border rounded-md "
                                     id="password"
                                     placeholder="********"
-                                    {...register("password", { required: true, minLength: 8 })}
+                                    {...register("password", {
+                                        required: "Password is required.",
+                                        pattern: {
+                                            value: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
+                                            message:
+                                                "Password Must Contain Atleast 8 Characters with One Uppercase, One Lowercase, One Number and One Special Case Character"
+                                        }
+                                    })}
                                 />
                                 <div
                                     className="icon_button absolute right-4 top-8"
@@ -107,16 +118,7 @@ function RegisterPage() {
                                         <FaEyeSlash className="w-5 h-5" />
                                     )}
                                 </div>
-                                {errors.password && errors.password.type === "required" && (
-                                    <span className="text-red-600" role="alert">
-                                        This field is required
-                                    </span>
-                                )}
-                                {errors.password && errors.password.type === "minLength" && (
-                                    <span className="text-red-600" role="alert">
-                                        Minimum length is 8
-                                    </span>
-                                )}
+                                <p className="text-red-600">{errors.password?.message}</p>
                             </label>
                         </div>
                         <div className="mb-3">
@@ -135,7 +137,7 @@ function RegisterPage() {
                                     id="re_password"
                                     placeholder="********"
                                     {...register("re_password", {
-                                        required: true,
+                                        required: "true",
                                         minLength: 8,
                                         validate: (value) => value === getValues("password")
                                     })}
@@ -155,7 +157,7 @@ function RegisterPage() {
                                 </div>
                                 {errors.re_password && errors.re_password.type === "required" && (
                                     <span className="text-red-600" role="alert">
-                                        This field is required
+                                        Repassword is required
                                     </span>
                                 )}
                                 {errors.re_password && errors.re_password.type === "minLength" && (
