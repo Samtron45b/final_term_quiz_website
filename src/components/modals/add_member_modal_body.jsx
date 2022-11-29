@@ -1,8 +1,10 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
+import PropTypes from "prop-types";
 
-function AddMemberModalBody() {
+function AddMemberModalBody({ groupName }) {
     const {
         register,
         reset,
@@ -11,8 +13,22 @@ function AddMemberModalBody() {
     } = useForm();
     const [isLoading, setIsLoading] = useState(false);
 
-    const onSubmit = (data) => console.log(data);
-
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        console.log(data);
+        axios
+            .get(
+                `http://127.0.0.1:8000/group/inviteUser?groupname=${groupName}&membername=${data.membername}`
+            )
+            .then((response) => {
+                console.log(response);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoading(false);
+            });
+    };
     useEffect(() => {
         reset({
             grouplink: "grouplink"
@@ -24,7 +40,7 @@ function AddMemberModalBody() {
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="grouplink-input mb-3">
                     <label className="block text-sm font-medium text-gray-700" htmlFor="grouplink">
-                        Member name
+                        Group link
                         <input
                             disabled
                             name="grouplink"
@@ -40,18 +56,18 @@ function AddMemberModalBody() {
                     </label>
                 </div>
                 <div className="username-input mb-3">
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="username">
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="membername">
                         Member name
                         <input
-                            name="username"
+                            name="membername"
                             className="shadow-sm
                                     focus:ring-indigo-500 focus:border-indigo-500 mt-1
                                     block w-full sm:text-sm border-gray-300
                                     px-2 py-2 bg-white border rounded-md "
-                            id="username"
+                            id="membername"
                             type="text"
                             placeholder="ABC"
-                            {...register("username", { required: true })}
+                            {...register("membername", { required: true })}
                         />
                         {errors.username && (
                             <span className="text-red-600">This field is required</span>
@@ -80,5 +96,9 @@ function AddMemberModalBody() {
         </div>
     );
 }
+
+AddMemberModalBody.propTypes = {
+    groupName: PropTypes.string.isRequired
+};
 
 export default AddMemberModalBody;

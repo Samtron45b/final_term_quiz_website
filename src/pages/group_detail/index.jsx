@@ -138,6 +138,7 @@ function GroupDetailPage() {
                         ) : null}
                         <TableMember
                             title="Owner and Co-owners"
+                            userRole={userRole}
                             dataList={listOwnerandCo}
                             onSelectMemberChangeRole={(memberSelected) =>
                                 setMemberToChangeRole(memberSelected)
@@ -145,6 +146,7 @@ function GroupDetailPage() {
                         />
                         <TableMember
                             title="Managers"
+                            userRole={userRole}
                             dataList={listManager}
                             onSelectMemberChangeRole={(memberSelected) =>
                                 setMemberToChangeRole(memberSelected)
@@ -152,6 +154,7 @@ function GroupDetailPage() {
                         />
                         <TableMember
                             title="Members"
+                            userRole={userRole}
                             dataList={listMember}
                             onSelectMemberChangeRole={(memberSelected) =>
                                 setMemberToChangeRole(memberSelected)
@@ -166,7 +169,7 @@ function GroupDetailPage() {
                 clickOutSideToClose={false}
                 onClose={() => setShowAddGroupModal(false)}
             >
-                <AddMemberModalBody />
+                <AddMemberModalBody groupName={groupname} />
             </ModalFrame>
             <ModalFrame
                 width="40%"
@@ -175,8 +178,8 @@ function GroupDetailPage() {
                 onClose={() => setMemberToChangeRole(null)}
             >
                 <ChangeMemberRoleModalBody
-                    memberName={memberToChangeRole?.name}
-                    memberRole={memberToChangeRole?.role}
+                    memberName={memberToChangeRole?.name ?? ""}
+                    memberRole={memberToChangeRole?.role ?? 0}
                     userRole={userRole}
                 />
             </ModalFrame>

@@ -1,6 +1,8 @@
-import { useState } from "react";
+import axios from "axios";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
+import AuthContext from "../contexts/auth_context";
 
 function AddGroupModalBody() {
     const {
@@ -9,8 +11,24 @@ function AddGroupModalBody() {
         formState: { errors }
     } = useForm();
     const [isLoading, setIsLoading] = useState(false);
+    const { user } = useContext(AuthContext);
 
-    const onSubmit = (data) => console.log(data);
+    const onSubmit = async (data) => {
+        setIsLoading(true);
+        console.log(data);
+        axios
+            .get(
+                `http://127.0.0.1:8000/group/create?username=${user.name}&groupname=${data.groupname}`
+            )
+            .then((response) => {
+                console.log(response);
+                setIsLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+                setIsLoading(false);
+            });
+    };
 
     return (
         <div className="rounded-md w-full flex flex-col">

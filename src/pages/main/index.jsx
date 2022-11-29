@@ -8,45 +8,65 @@ function Main() {
     const listCreatedGroup = [
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         }
     ];
     const listJoinnedGroup = [
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         },
         {
             groupName: "Group Web Nang Cao",
-            ownerName: "Nguyen Khanh Huy"
+            ownerName: "Nguyen Khanh Huy",
+            ownerAvatar:
+                "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
         }
     ];
 
@@ -58,6 +78,7 @@ function Main() {
                     key={`homeGroup${index}`}
                     groupName={listGroupToRender[index].groupName}
                     ownerName={listGroupToRender[index].ownerName}
+                    ownerAvatar={listGroupToRender[index].ownerAvatar}
                 />
             );
         }

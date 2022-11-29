@@ -1,12 +1,13 @@
 import { Link } from "react-router-dom";
 import { MdLogout } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useContext } from "react";
+import AuthContext from "../../contexts/auth_context";
 
 function ProfileMenu() {
     const wrapperRef = useRef(null);
+    const { user } = useContext(AuthContext);
     const [isProfileMenuOpen, setIsProFileMenuOpen] = useState(false);
-    const username = "Nguyen Khanh Huy";
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -29,11 +30,7 @@ function ProfileMenu() {
                 aria-hidden="true"
                 onClick={() => setIsProFileMenuOpen(!isProfileMenuOpen)}
             >
-                <img
-                    className="w-5/6 h-5/6 rounded-full"
-                    src="https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
-                    alt=""
-                />
+                <img className="w-5/6 h-5/6 rounded-full" src={user.avatar} alt="" />
             </div>
             <div
                 hidden={!isProfileMenuOpen}
@@ -44,7 +41,7 @@ function ProfileMenu() {
                 tabIndex="-1"
             >
                 <Link
-                    to={`/account/${username}`}
+                    to={`/account/${user.name}`}
                     className="flex items-center px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex="-1"

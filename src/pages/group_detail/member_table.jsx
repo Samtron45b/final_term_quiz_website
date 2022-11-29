@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { Fragment } from "react";
 import MemberGroupCard from "../../components/cards/member_group_card";
 
-function TableMember({ title, dataList, onSelectMemberChangeRole }) {
+function TableMember({ title, dataList, onSelectMemberChangeRole, userRole }) {
     console.log(title);
     console.log(dataList);
     const { length } = dataList;
@@ -13,7 +13,8 @@ function TableMember({ title, dataList, onSelectMemberChangeRole }) {
             const { memberName, memberAvatar, memberRole } = dataList[index];
             rowToRender.push(
                 <MemberGroupCard
-                    userRole={1}
+                    key={`${memberRole}_${index}_card`}
+                    userRole={userRole}
                     memberName={memberName}
                     memberAvatar={memberAvatar}
                     memberRole={memberRole}
@@ -42,6 +43,7 @@ function TableMember({ title, dataList, onSelectMemberChangeRole }) {
 
 TableMember.propTypes = {
     title: PropTypes.string,
+    userRole: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
     onSelectMemberChangeRole: PropTypes.func

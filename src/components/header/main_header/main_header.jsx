@@ -10,7 +10,7 @@ function MainHeader() {
     return (
         <header className="head_container sticky top-0 z-30 mb-5 w-full md:p-5 px-4 py-5 bg-white shadow-md">
             <div className="header_items flex items-center justify-between mx-auto w-full">
-                <Link href="/">
+                <Link to="/">
                     <span className="header_item_left text-2xl font-extrabold text-gray-500 hover:text-purple-700">
                         Let&#39;s play
                     </span>

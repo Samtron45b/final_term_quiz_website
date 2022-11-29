@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
@@ -17,7 +17,8 @@ function LoginPage() {
 
     const [showPass, setShowPass] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
-    const [showResultModal, setShowResultModal] = useState(true);
+    const [showResultModal, setShowResultModal] = useState(false);
+    const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         setIsLoading(true);
@@ -27,7 +28,7 @@ function LoginPage() {
             .then((response) => {
                 const { token } = response.data.user;
                 localStorage.setItem("token", token);
-                window.location.href = "/";
+                navigate("/", { replace: true });
             })
             .catch((loginError) => {
                 console.log(loginError);

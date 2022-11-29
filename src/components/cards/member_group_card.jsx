@@ -10,8 +10,6 @@ function MemberGroupCard({
     isLastRow,
     onChangeRoleBtnClick
 }) {
-    console.log(memberRole, userRole);
-
     function renderButton(btnType) {
         const isRoleBtn = btnType.toLocaleLowerCase() === "role".toLocaleLowerCase();
         const btnDisabled = isRoleBtn
@@ -23,25 +21,25 @@ function MemberGroupCard({
         // const roleIconColor = `text-${roleBtnDisabled ? "transparent" : "cyan-400"}`;
         // const deleteIconColor = `text-${deleteBtnDisabled ? "transparent" : "red-500"}`;
         const bgHoverColor = "bg-gray-100";
+        const className = `rounded-full p-3 hover:${
+            btnDisabled ? "bg-transparent" : bgHoverColor
+        } cursor-${btnDisabled ? "default" : "pointer"}`;
+        const iconColor = `${btnDisabled ? "text-transparent" : btnIconActiveColor}`;
         return (
             <button
-                disabled={isRoleBtn}
+                disabled={btnDisabled}
                 type="button"
-                className={`rounded-full p-3 hover:${
-                    btnDisabled ? "bg-transparent" : bgHoverColor
-                } cursor-${btnDisabled ? "default" : "pointer"}`}
+                className={className}
+                onClick={() => {
+                    if (isRoleBtn) {
+                        onChangeRoleBtnClick({ name: memberName, role: memberRole });
+                    }
+                }}
             >
                 {isRoleBtn ? (
-                    <MdAssignmentInd
-                        size={20}
-                        onClick={() => onChangeRoleBtnClick({ name: memberName, role: memberRole })}
-                        className={`${btnDisabled ? "text-transparent" : btnIconActiveColor}`}
-                    />
+                    <MdAssignmentInd size={20} className={iconColor} />
                 ) : (
-                    <AiOutlineUserDelete
-                        size={20}
-                        className={`${btnDisabled ? "text-transparent" : btnIconActiveColor}`}
-                    />
+                    <AiOutlineUserDelete size={20} className={iconColor} />
                 )}
             </button>
         );
