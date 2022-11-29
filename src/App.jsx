@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-d
 import { QueryClient, QueryClientProvider } from "react-query";
 import jwtDecode from "jwt-decode";
 import ViewRoutes from "./routes";
+import { getToken } from "./auth";
 import "./App.css";
 import AddGroupModalContext from "./components/contexts/add_group_context";
 import ModalFrame from "./components/modals/modal_frame";
@@ -59,9 +60,16 @@ function App() {
                         <Routes>
                             {ViewRoutes.map(({ path, exact, component }, key) => {
                                 const routeKey = `route${key}`;
-                                const accessToken = localStorage.getItem("accessToken");
+                                const accessToken = getToken();
                                 let firstComponent = component;
-                                if ((path === "/login" || path === "/register") && accessToken) {
+                                console.log(accessToken);
+                                if (
+                                    (path === "/login" ||
+                                        path === "/register" ||
+                                        path === "/group_detail/:groupname" ||
+                                        path === "/account/:username") &&
+                                    accessToken
+                                ) {
                                     firstComponent = <Navigate to="/" />;
                                 }
 
