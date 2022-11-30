@@ -98,16 +98,19 @@ function ProfileViewEdit() {
                     </label>
                 </div>
                 <div className="username-input mb-5 w-1/2">
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="username">
-                        Username
+                    <label
+                        className="block text-sm font-medium text-gray-700"
+                        htmlFor="displayname"
+                    >
+                        Display name
                         <input
-                            name="username"
+                            name="displayname"
                             className={getInputClassName()}
                             disabled={!isEditing}
-                            id="username"
+                            id="displayname"
                             type="text"
                             placeholder="Quamon"
-                            {...register("username", { required: true })}
+                            {...register("displayname", { required: true })}
                         />
                         {errors.username && (
                             <span className="text-red-600">This field is required</span>

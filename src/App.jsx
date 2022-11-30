@@ -2,6 +2,7 @@
 import React, { useMemo, useState } from "react";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
+import jwtDecode from "jwt-decode";
 import ViewRoutes from "./routes";
 import { getToken } from "./auth";
 import "./App.css";
@@ -27,10 +28,12 @@ function App() {
 
     if (isInitialWeb) {
         if (accessToken !== null) {
+            const decode = jwtDecode(accessToken, "letsplay");
             setUser({
-                username: "anon",
-                displayedName: "anon",
-                avatar: "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
+                username: decode.name,
+                avatar: decode.avatar
+                    ? decode.avatar
+                    : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
             });
         }
         setIsInitialWeb(false);
@@ -61,7 +64,11 @@ function App() {
                                             if (accessToken) {
                                                 firstComponent = <Navigate to="/" />;
                                             }
-                                        } else if (!path.includes("/invite") && !accessToken) {
+                                        } else if (
+                                            (!path.includes("/invite") ||
+                                                !path.includes("/active_account")) &&
+                                            !accessToken
+                                        ) {
                                             firstComponent = <Navigate to="/login" replace />;
                                         }
 

@@ -7,7 +7,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
-import SocialSignInBtns from "./socialSignInBtns";
+// import SocialSignInBtns from "./socialSignInBtns";
 
 function LoginPage() {
     const { location, setLocation } = useContext(LocationContext);
@@ -35,7 +35,7 @@ function LoginPage() {
         console.log(data);
         axios
             .get(
-                `http://localhost:5000/user/login?clientId=123&username=${data.username}&password=${data.password}`
+                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/login?clientId=123&username=${data.username}&password=${data.password}`
             )
             .then((response) => {
                 console.log(response);
@@ -44,18 +44,17 @@ function LoginPage() {
                 const decode = jwtDecode(accessToken, "letsplay");
                 setUser({
                     username: decode.name,
-                    avatar:
-                        decode.avatar !== null && decode.avatar.length > 0
-                            ? decode.avatar
-                            : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
+                    avatar: decode.avatar
+                        ? decode.avatar
+                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
                 });
                 navigate(location ?? "/", { replace: true });
                 setLoginError(null);
                 setIsLoading(false);
             })
             .catch((loginErr) => {
-                console.log(loginErr);
-                if (loginErr.response.data.isActive === false) {
+                console.log(!loginErr.response.data.isActive);
+                if (!loginErr.response.data.isActive) {
                     setLoginError(
                         "This account has not been activated. Please active by verify your email first then try to sign in again."
                     );
@@ -175,7 +174,7 @@ function LoginPage() {
                     <div className="text-center mt-4 text-purple-600 font-semibold">
                         Sign in with
                     </div>
-                    <SocialSignInBtns />
+                    {/* <SocialSignInBtns /> */}
                 </form>
             </div>
         </div>

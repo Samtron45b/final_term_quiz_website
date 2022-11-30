@@ -2,24 +2,18 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
 import { MdDone, MdError } from "react-icons/md";
-import { useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 function ActiveAccountPage() {
-    useEffect(() =>
-        axios.get(
-            // eslint-disable-next-line react/destructuring-assignment, react/no-this-in-sfc
-            `http://localhost:5000/user/active?username=${this.props.match.params.username}`
-        )
-    );
-
+    const { username } = useParams();
     const callActivateAccountApi = async () => {
-        const res = await axios.get("https://api.quotable.io/random");
+        const res = await axios.get(
+            `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/active?username=${username}`
+        );
         return res.data;
     };
 
-    const { data, error, isLoading } = useQuery("randomQuotes", callActivateAccountApi, {
-        refetchInterval: 6000
-    });
+    const { data, error, isLoading } = useQuery("active_account_request", callActivateAccountApi);
 
     function renderIcon() {
         const size = 100;

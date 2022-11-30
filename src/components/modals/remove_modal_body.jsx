@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { ImSpinner10 } from "react-icons/im";
 
-function ChangeMemberRoleModalBody({ objectToRemove, message, onConfirmRemove }) {
+function RemoveModalBody({ objectToRemove, message, onConfirmRemove }) {
     console.log(objectToRemove, message);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -38,15 +38,15 @@ function ChangeMemberRoleModalBody({ objectToRemove, message, onConfirmRemove })
     );
 }
 
-ChangeMemberRoleModalBody.propTypes = {
+RemoveModalBody.propTypes = {
     objectToRemove: PropTypes.string.isRequired,
     message: PropTypes.string,
     // eslint-disable-next-line react/require-default-props
     onConfirmRemove: PropTypes.func
 };
-ChangeMemberRoleModalBody.defaultProps = {
+RemoveModalBody.defaultProps = {
     message: null,
     onConfirmRemove: null
 };
 
-export default ChangeMemberRoleModalBody;
+export default RemoveModalBody;
