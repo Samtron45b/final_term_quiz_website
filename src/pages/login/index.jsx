@@ -7,7 +7,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
-// import SocialSignInBtns from "./socialSignInBtns";
+import SocialSignInBtns from "./socialSignInBtns";
 
 function LoginPage() {
     const { location, setLocation } = useContext(LocationContext);
@@ -35,7 +35,7 @@ function LoginPage() {
         console.log(data);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/login?clientId=123&username=${data.username}&password=${data.password}`
+                `http://localhost:5000/user/login?clientId=123&username=${data.username}&password=${data.password}`
             )
             .then((response) => {
                 console.log(response);
@@ -55,7 +55,7 @@ function LoginPage() {
             })
             .catch((loginErr) => {
                 console.log(loginErr);
-                if (loginErr.response.data.isActive) {
+                if (loginErr.response.data.isActive === false) {
                     setLoginError(
                         "This account has not been activated. Please active by verify your email first then try to sign in again."
                     );
@@ -175,7 +175,7 @@ function LoginPage() {
                     <div className="text-center mt-4 text-purple-600 font-semibold">
                         Sign in with
                     </div>
-                    {/* <SocialSignInBtns /> */}
+                    <SocialSignInBtns />
                 </form>
             </div>
         </div>

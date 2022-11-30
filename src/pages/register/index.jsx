@@ -29,7 +29,7 @@ function RegisterPage() {
         setIsLoading(true);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/register?clientId=030&email=${data.email}&username=${data.username}&password=${data.password}`
+                `http://localhost:5000/user/register?clientId=030&email=${data.email}&username=${data.username}&password=${data.password}`
             )
             .then((response) => {
                 console.log(response);

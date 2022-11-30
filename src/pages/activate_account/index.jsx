@@ -2,8 +2,16 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
 import { MdDone, MdError } from "react-icons/md";
+import { useEffect } from "react";
 
 function ActiveAccountPage() {
+    useEffect(() =>
+        axios.get(
+            // eslint-disable-next-line react/destructuring-assignment, react/no-this-in-sfc
+            `http://localhost:5000/user/active?username=${this.props.match.params.username}`
+        )
+    );
+
     const callActivateAccountApi = async () => {
         const res = await axios.get("https://api.quotable.io/random");
         return res.data;

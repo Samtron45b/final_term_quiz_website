@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
 
 const useFetch = (url) => {
@@ -8,6 +9,9 @@ const useFetch = (url) => {
 
     const handleGoogle = async (response) => {
         setLoading(true);
+
+        console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
+
         axios(url, {
             method: "POST",
             headers: {
@@ -37,14 +41,15 @@ const useFetch = (url) => {
 function SocialSignInBtns() {
     const { handleGoogle, loading, error } = useFetch("http://localhost:5000/auth/login/google");
 
-    const google = () => {
+    useEffect(() => {
         if (window.google) {
             google.accounts.id.initialize({
                 client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
                 callback: handleGoogle
             });
+            google.accounts.id.renderButton(document.getElementById("googleBtn"), {});
         }
-    };
+    }, [handleGoogle]);
 
     return (
         <div className="flex justify-center mt-4 gap-x-2">
@@ -64,9 +69,7 @@ function SocialSignInBtns() {
                     data-mdb-ripple="true"
                     data-mdb-ripple-color="light"
                     className="text-white bg-[#ea4335] font-medium rounded-full text-sm p-3 text-center inline-flex items-center mr-2 mb-2 "
-                    onClick={() => {
-                        google();
-                    }}
+                    id="googleBtn"
                 >
                     <FaGoogle className="w-5 h-5" />
                 </button>
