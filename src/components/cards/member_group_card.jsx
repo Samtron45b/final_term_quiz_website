@@ -8,6 +8,7 @@ function MemberGroupCard({
     memberName,
     memberAvatar,
     memberRole,
+    memberDisplayName,
     userRole,
     isLastRow,
     onChangeRoleBtnClick
@@ -47,7 +48,11 @@ function MemberGroupCard({
                 className={className}
                 onClick={() => {
                     if (isRoleBtn) {
-                        onChangeRoleBtnClick({ name: memberName, role: memberRole });
+                        onChangeRoleBtnClick({
+                            name: memberName,
+                            role: memberRole,
+                            displayName: memberDisplayName
+                        });
                     } else {
                         onDeleteUser({ name: memberName, role: memberRole });
                     }
@@ -67,7 +72,7 @@ function MemberGroupCard({
             <td className="w-[87%]">
                 <div className="flex items-center">
                     <img className="w-8 h-8 rounded-full mr-4 bg-black" src={memberAvatar} alt="" />
-                    <p className="text-lg text-gray-700 truncate">{`${memberName} ${
+                    <p className="text-lg text-gray-700 truncate">{`${memberDisplayName} ${
                         memberRole === 2 ? "(Co-owner)" : ""
                     }`}</p>
                 </div>
@@ -93,6 +98,7 @@ MemberGroupCard.propTypes = {
     memberName: PropTypes.string.isRequired,
     memberAvatar: PropTypes.string.isRequired,
     memberRole: PropTypes.number.isRequired,
+    memberDisplayName: PropTypes.string.isRequired,
     userRole: PropTypes.number.isRequired,
     isLastRow: PropTypes.bool.isRequired,
     onChangeRoleBtnClick: PropTypes.func

@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import PropTypes from "prop-types";
 import { ImSpinner10 } from "react-icons/im";
 
-function ChangeMemberRoleModalBody({ memberRole, userRole, memberName }) {
+function ChangeMemberRoleModalBody({ memberRole, userRole, memberName, memberDisplayName }) {
     console.log(memberRole, userRole, memberName);
     const { handleSubmit } = useForm();
     const [memSelectedRole, setMemSelectedRole] = useState(`${memberRole}`);
@@ -12,7 +12,7 @@ function ChangeMemberRoleModalBody({ memberRole, userRole, memberName }) {
 
     return (
         <div className="rounded-md w-full flex flex-col">
-            <h3 className="mb-2 text-md font-bold">Change role for {memberName}</h3>
+            <h3 className="mb-2 text-md font-bold">Change role for {memberDisplayName}</h3>
             <form onSubmit={handleSubmit(onSubmit)}>
                 {userRole === 1 ? (
                     <div className="flex items-top space-x-2">
@@ -73,7 +73,8 @@ function ChangeMemberRoleModalBody({ memberRole, userRole, memberName }) {
 ChangeMemberRoleModalBody.propTypes = {
     memberRole: PropTypes.number.isRequired,
     userRole: PropTypes.number.isRequired,
-    memberName: PropTypes.string.isRequired
+    memberName: PropTypes.string.isRequired,
+    memberDisplayName: PropTypes.string.isRequired
 };
 
 export default ChangeMemberRoleModalBody;

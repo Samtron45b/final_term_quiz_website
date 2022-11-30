@@ -2,9 +2,10 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
+import PropTypes from "prop-types";
 import AuthContext from "../contexts/auth_context";
 
-function AddGroupModalBody() {
+function AddGroupModalBody({ errorMessage }) {
     const {
         register,
         handleSubmit,
@@ -18,7 +19,7 @@ function AddGroupModalBody() {
         console.log(data);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/create?username=${user.name}&groupname=${data.groupname}`
+                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/create?username=${user.username}&groupname=${data.groupname}`
             )
             .then((response) => {
                 console.log(response);
@@ -52,6 +53,7 @@ function AddGroupModalBody() {
                         )}
                     </label>
                 </div>
+                <p className="text-red-400 text-sm">{errorMessage}</p>
                 <button
                     type="submit"
                     data-mdb-ripple="true"
@@ -74,5 +76,12 @@ function AddGroupModalBody() {
         </div>
     );
 }
+
+AddGroupModalBody.propTypes = {
+    errorMessage: PropTypes.string
+};
+AddGroupModalBody.defaultProps = {
+    errorMessage: null
+};
 
 export default AddGroupModalBody;

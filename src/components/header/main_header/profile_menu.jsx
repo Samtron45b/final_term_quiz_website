@@ -41,7 +41,7 @@ function ProfileMenu() {
                 tabIndex="-1"
             >
                 <Link
-                    to={`/account/${user.name}`}
+                    to={`/account/${user.username}`}
                     className="flex items-center px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex="-1"

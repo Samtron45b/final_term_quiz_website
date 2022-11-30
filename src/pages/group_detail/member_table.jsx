@@ -10,7 +10,7 @@ function TableMember({ groupName, title, dataList, onSelectMemberChangeRole, use
     function renderRows() {
         const rowToRender = [];
         for (let index = 0; index < length; index += 1) {
-            const { username, useravatar, isOwner } = dataList[index];
+            const { username, useravatar, isOwner, displayName } = dataList[index];
             rowToRender.push(
                 <MemberGroupCard
                     key={`${isOwner === 1 ? 1 : 4}_${index}_card`}
@@ -19,6 +19,7 @@ function TableMember({ groupName, title, dataList, onSelectMemberChangeRole, use
                     memberName={username}
                     memberAvatar={useravatar}
                     memberRole={isOwner === 1 ? 1 : 4}
+                    memberDisplayName={displayName}
                     isLastRow={index === length - 1}
                     onChangeRoleBtnClick={onSelectMemberChangeRole}
                 />

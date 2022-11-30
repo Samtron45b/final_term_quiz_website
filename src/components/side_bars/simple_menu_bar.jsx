@@ -7,15 +7,14 @@ function SimpleMenuBar({ viewIndex, setViewIndex, listItem }) {
         const { length } = listItem;
         for (let index = 0; index < length; index += 1) {
             const { text, icon } = listItem[index];
-            const color = `text-${viewIndex === index ? "purple-600" : "gray-500"}`;
-            // const borderColor = `border-${viewIndex === index ? "purple-700" : "transparent"}`;
-            // const borderHoverColor = `border-${
-            //     viewIndex === index ? "transparent" : "neutral-400"
-            // }`;
+            const color = viewIndex === index ? "text-purple-600" : "text-gray-500";
+            const borderColor = viewIndex === index ? "border-purple-700" : "border-transparent";
+            const borderHoverColor =
+                viewIndex === index ? "hover:border-purple-700" : "hover:border-neutral-400";
             listToRender.push(
                 <li
                     key={`simple_menu_bar_${icon.name}`}
-                    className="flex items-center p-2 text-base font-normal text-gray-900 rounded-r-md dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+                    className={`flex border-l-2 ${borderColor} hover:border-l-2 ${borderHoverColor} items-center p-2 text-base font-normal text-gray-900 rounded-r-md dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer`}
                     onClick={() => {
                         if (viewIndex !== index) {
                             setViewIndex(index);

@@ -35,16 +35,12 @@ function ModalFrame({
     return (
         <div
             id="outSideModal"
-            className="fixed inset-0 z-50 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center"
+            className="fixed inset-0 z-50 bg-black bg-opacity-30 backdrop-blur-sm flex justify-center items-center break-words"
             onClick={handleClickOutSide}
             aria-hidden="true"
         >
             <div
-                className="modal_body px-3 py-2 bg-white rounded-md flex flex-col justify-center items-center"
-                style={{
-                    width,
-                    height
-                }}
+                className={`modal_body ${width} ${height} px-3 py-2 bg-white rounded-md flex flex-col justify-center items-center`}
             >
                 {renderXCloseBtn()}
                 {children}

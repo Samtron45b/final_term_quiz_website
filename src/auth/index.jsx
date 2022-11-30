@@ -7,9 +7,9 @@ export const saveToken = (token) => {
 
 // get token from localStorage
 export const getToken = () => {
-    const tokenJson = localStorage.getItem("token");
-    if (tokenJson) {
-        return JSON.parse(tokenJson).token;
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+        return accessToken;
     }
     return null;
 };

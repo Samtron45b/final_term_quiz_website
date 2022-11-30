@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { BsPeopleFill } from "react-icons/bs";
 import { MdQuiz } from "react-icons/md";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
 import { useQuery } from "react-query";
 import axios from "axios";
@@ -11,11 +11,12 @@ import TableMember from "./member_table";
 import ModalFrame from "../../components/modals/modal_frame";
 import AddMemberModalBody from "../../components/modals/add_member_modal_body";
 import ChangeMemberRoleModalBody from "../../components/modals/change_member_role_modal_body";
-import AuthContext from "../../components/contexts/auth_context";
+import RemoveModalBody from "../../components/modals/remove_modal_body";
+// import AuthContext from "../../components/contexts/auth_context";
 
 function GroupDetailPage() {
     const { groupname } = useParams();
-    const { user } = useContext(AuthContext);
+    // const { user } = useContext(AuthContext);
 
     const [viewIndex, setViewIndex] = useState(0);
     const [showAddGroupModal, setShowAddGroupModal] = useState(false);
@@ -51,7 +52,7 @@ function GroupDetailPage() {
         console.log(data);
         const dataList = data.data.data.members;
         const userInList = dataList.find((element) => {
-            return element.username === user.name;
+            return element.username === "anon";
         });
         userRole = userInList.isOwner === 1 ? 1 : 4;
         const listOwnerandCo = dataList.filter((mem) => {
@@ -254,7 +255,7 @@ function GroupDetailPage() {
                 </div>
             </div>
             <ModalFrame
-                width="40%"
+                width="w-2/5"
                 isVisible={showAddGroupModal}
                 clickOutSideToClose={false}
                 onClose={() => setShowAddGroupModal(false)}
@@ -262,7 +263,7 @@ function GroupDetailPage() {
                 <AddMemberModalBody groupName={groupname} />
             </ModalFrame>
             <ModalFrame
-                width="40%"
+                width="w-2/5"
                 isVisible={memberToChangeRole !== null}
                 clickOutSideToClose={false}
                 onClose={() => setMemberToChangeRole(null)}
@@ -271,6 +272,20 @@ function GroupDetailPage() {
                     memberName={memberToChangeRole?.name ?? ""}
                     memberRole={memberToChangeRole?.role ?? 0}
                     userRole={userRole}
+                    memberDisplayName={memberToChangeRole?.displayName ?? ""}
+                />
+            </ModalFrame>
+            <ModalFrame
+                width="w-2/5"
+                isVisible={memberToChangeRole !== null}
+                clickOutSideToClose={false}
+                onClose={() => setMemberToChangeRole(null)}
+            >
+                <RemoveModalBody
+                    memberName={memberToChangeRole?.name ?? ""}
+                    memberRole={memberToChangeRole?.role ?? 0}
+                    userRole={userRole}
+                    memberDisplayName={memberToChangeRole?.displayName ?? ""}
                 />
             </ModalFrame>
         </>
