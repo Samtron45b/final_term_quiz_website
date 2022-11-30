@@ -2,9 +2,10 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
+import PropTypes from "prop-types";
 import AuthContext from "../contexts/auth_context";
 
-function AddGroupModalBody() {
+function AddGroupModalBody({ setShowModal }) {
     const {
         register,
         handleSubmit,
@@ -24,6 +25,10 @@ function AddGroupModalBody() {
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
+                setShowModal(false);
+                if (window.location.pathname === "/") {
+                    window.location.replace();
+                }
             })
             .catch((error) => {
                 console.log(error);
@@ -76,5 +81,12 @@ function AddGroupModalBody() {
         </div>
     );
 }
+
+AddGroupModalBody.propTypes = {
+    setShowModal: PropTypes.func
+};
+AddGroupModalBody.defaultProps = {
+    setShowModal: null
+};
 
 export default AddGroupModalBody;
