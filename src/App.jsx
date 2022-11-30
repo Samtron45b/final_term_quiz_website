@@ -65,8 +65,7 @@ function App() {
                                                 firstComponent = <Navigate to="/" />;
                                             }
                                         } else if (
-                                            (!path.includes("/invite") ||
-                                                !path.includes("/active_account")) &&
+                                            !path.includes("/activate_account") &&
                                             !accessToken
                                         ) {
                                             firstComponent = <Navigate to="/login" replace />;
