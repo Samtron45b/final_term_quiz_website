@@ -7,7 +7,7 @@ function ChangeMemberRoleModalBody({ objectToRemove, message, onConfirmRemove })
     const [isLoading, setIsLoading] = useState(false);
 
     return (
-        <div className="rounded-md w-full flex flex-col">
+        <div className="rounded-md w-full">
             <h2 className="mb-2 text-lg font-bold">
                 Are you sure you want to remove {objectToRemove}
             </h2>
@@ -23,7 +23,7 @@ function ChangeMemberRoleModalBody({ objectToRemove, message, onConfirmRemove })
                 }}
                 className="inline-flex float-right justify-center py-2 px-4 border border-transparent
                         shadow-sm text-sm font-medium rounded-md text-white bg-purple-700
-                        hover:bg-purple-600 focus:outline-none focus:bg-purple-600 w-1/5"
+                        hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
             >
                 {isLoading ? (
                     <div className="flex justify-center items-center">
