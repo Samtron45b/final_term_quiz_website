@@ -53,8 +53,8 @@ function LoginPage() {
                 setIsLoading(false);
             })
             .catch((loginErr) => {
-                console.log(!loginErr.response.data.isActive);
-                if (!loginErr.response.data.isActive) {
+                console.log(loginErr.response);
+                if (loginErr.response.data.isActive !== false) {
                     setLoginError(
                         "This account has not been activated. Please active by verify your email first then try to sign in again."
                     );

@@ -10,15 +10,18 @@ function TableMember({ groupName, title, dataList, onSelectMemberChangeRole, use
     function renderRows() {
         const rowToRender = [];
         for (let index = 0; index < length; index += 1) {
-            const { username, useravatar, isOwner, displayName } = dataList[index];
+            const { username, useravatar, role, displayName } = dataList[index];
             rowToRender.push(
                 <MemberGroupCard
-                    key={`${isOwner === 1 ? 1 : 4}_${index}_card`}
+                    key={`${userRole}_${index}_card`}
                     groupName={groupName}
                     userRole={userRole}
                     memberName={username}
-                    memberAvatar={useravatar}
-                    memberRole={isOwner === 1 ? 1 : 4}
+                    memberAvatar={
+                        useravatar ??
+                        "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
+                    }
+                    memberRole={role}
                     memberDisplayName={displayName}
                     isLastRow={index === length - 1}
                     onChangeRoleBtnClick={onSelectMemberChangeRole}

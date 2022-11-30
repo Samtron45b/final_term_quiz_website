@@ -36,6 +36,11 @@ const ViewRoutes = [
         path: "/activate_account/:username",
         exact: true,
         component: <ActiveAccountPage />
+    },
+    {
+        path: "/invite/:groupname",
+        exact: true,
+        component: <ActiveAccountPage />
     }
 ];
 

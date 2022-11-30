@@ -2,10 +2,9 @@ import axios from "axios";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
-import PropTypes from "prop-types";
 import AuthContext from "../contexts/auth_context";
 
-function AddGroupModalBody({ errorMessage }) {
+function AddGroupModalBody() {
     const {
         register,
         handleSubmit,
@@ -13,6 +12,7 @@ function AddGroupModalBody({ errorMessage }) {
     } = useForm();
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useContext(AuthContext);
+    const [errorMess, setErrorMess] = useState(null);
 
     const onSubmit = async (data) => {
         setIsLoading(true);
@@ -27,6 +27,7 @@ function AddGroupModalBody({ errorMessage }) {
             })
             .catch((error) => {
                 console.log(error);
+                setErrorMess(error);
                 setIsLoading(false);
             });
     };
@@ -48,12 +49,11 @@ function AddGroupModalBody({ errorMessage }) {
                             placeholder="ABC"
                             {...register("groupname", { required: true })}
                         />
-                        {errors.groupname && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
                     </label>
                 </div>
-                <p className="text-red-400 text-sm">{errorMessage}</p>
+                <p className="text-red-400 mt-2 text-sm">
+                    {errors.groupname?.message || errorMess}
+                </p>
                 <button
                     type="submit"
                     data-mdb-ripple="true"
@@ -76,12 +76,5 @@ function AddGroupModalBody({ errorMessage }) {
         </div>
     );
 }
-
-AddGroupModalBody.propTypes = {
-    errorMessage: PropTypes.string
-};
-AddGroupModalBody.defaultProps = {
-    errorMessage: null
-};
 
 export default AddGroupModalBody;

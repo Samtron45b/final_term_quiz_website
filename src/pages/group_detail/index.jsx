@@ -13,10 +13,12 @@ import AddMemberModalBody from "../../components/modals/add_member_modal_body";
 import ChangeMemberRoleModalBody from "../../components/modals/change_member_role_modal_body";
 import RemoveModalBody from "../../components/modals/remove_modal_body";
 import AuthContext from "../../components/contexts/auth_context";
+import LocationContext from "../../components/contexts/location_context";
 
 function GroupDetailPage() {
     const { groupname } = useParams();
     const { user } = useContext(AuthContext);
+    const { location, setLocation } = useContext(LocationContext);
 
     const [viewIndex, setViewIndex] = useState(0);
     const [showAddGroupModal, setShowAddGroupModal] = useState(false);
@@ -43,6 +45,9 @@ function GroupDetailPage() {
     });
 
     useEffect(() => {
+        if (location !== window.location.pathname) {
+            setLocation(window.location.pathname);
+        }
         if (viewIndex === 0) {
             console.log("Run this");
             memberListQueryRefetch();
@@ -59,12 +64,12 @@ function GroupDetailPage() {
         const userInList = dataList.find((element) => {
             return element.username === user.username;
         });
-        userRole = userInList.isOwner === 1 ? 1 : 4;
+        userRole = userInList.role;
         const listOwnerandCo = dataList.filter((mem) => {
             return mem.role === 1 || mem.role === 2;
         });
         const listMember = dataList.filter((mem) => {
-            return mem.isOwner === 3;
+            return mem.role === 3;
         });
         console.log(listOwnerandCo);
         console.log(listMember);

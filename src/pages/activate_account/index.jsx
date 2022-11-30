@@ -3,10 +3,10 @@ import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
 import { MdDone, MdError } from "react-icons/md";
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 
 function ActiveAccountPage() {
     const { username } = useParams();
-    console.log(username);
     const callActivateAccountApi = async () => {
         const res = await axios.get(
             `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/active?username=${username}`
@@ -14,7 +14,17 @@ function ActiveAccountPage() {
         return res.data;
     };
 
-    const { data, error, isLoading } = useQuery("active_account_request", callActivateAccountApi);
+    const { data, error, isLoading, refetch } = useQuery(
+        "active_account_request",
+        callActivateAccountApi,
+        {
+            enabled: false
+        }
+    );
+
+    useEffect(() => {
+        refetch();
+    }, []);
 
     function renderIcon() {
         const size = 100;
