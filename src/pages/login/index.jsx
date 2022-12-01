@@ -35,7 +35,7 @@ function LoginPage() {
         console.log(data);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/login?clientId=123&username=${data.username}&password=${data.password}`
+                `${process.env.REACT_APP_BASE_URL}user/login?clientId=123&username=${data.username}&password=${data.password}`
             )
             .then((response) => {
                 console.log(response);

@@ -9,7 +9,7 @@ function ActiveAccountPage() {
     const { username } = useParams();
     const callActivateAccountApi = async () => {
         const res = await axios.get(
-            `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/active?username=${username}`
+            `${process.env.REACT_APP_BASE_URL}user/active?username=${username}`
         );
         return res.data;
     };

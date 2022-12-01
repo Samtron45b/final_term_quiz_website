@@ -14,9 +14,7 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             return axios
-                .get(
-                    `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/createdBy?username=${user.username}`
-                )
+                .get(`${process.env.REACT_APP_BASE_URL}group/createdBy?username=${user.username}`)
                 .then((response) => {
                     return response;
                 })
@@ -30,9 +28,7 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             return axios
-                .get(
-                    `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/joinedBy?username=${user.username}`
-                )
+                .get(`${process.env.REACT_APP_BASE_URL}group/joinedBy?username=${user.username}`)
                 .then((response) => {
                     return response;
                 })
@@ -55,11 +51,19 @@ function Main() {
         console.log(joinedGroupListQueryRes);
     }
 
-    function renderListGroup(listGroupToRender) {
-        const listGroupView = [];
-        if (listGroupToRender) {
+    function renderListGroup(listGroupData, isJoined) {
+        let listGroupToRender = [...listGroupData];
+        if (isJoined) {
+            listGroupToRender = listGroupData.filter((group) => {
+                return group.creator !== user.username;
+            });
+        }
+        const listGroupCard = [];
+        let hasGroup = false;
+        if (listGroupToRender.length > 0) {
             for (let index = 0; index < listGroupToRender.length; index += 1) {
-                listGroupView.push(
+                hasGroup = true;
+                listGroupCard.push(
                     <MainGroupCard
                         key={`homeGroup${index}`}
                         groupName={listGroupToRender[index].name}
@@ -71,8 +75,36 @@ function Main() {
                     />
                 );
             }
+        } else {
+            listGroupCard.push(
+                <p
+                    key={`${user.username}_${
+                        isJoined ? "empty_joined_group" : "empty_created_group"
+                    }`}
+                    className="text-gray-300 text-center text-xl font-bold text-ellipsis"
+                >
+                    {isJoined ? "Let join in someone group." : "Let create a group."}
+                </p>
+            );
         }
-        return listGroupView;
+
+        const listGroupView = hasGroup
+            ? [
+                  <div className="grid lg:grid-cols-4 lg:gap-x-5 md:grid-cols-2 md:gap-x-2 grid-cols-1">
+                      {listGroupCard}
+                  </div>
+              ]
+            : [...listGroupCard];
+
+        return [
+            <h3
+                key={`${user.username}_${isJoined ? "joinedGroup" : "createdGroup"}`}
+                className="font-semibold text-lg"
+            >
+                {isJoined ? "Joined group" : "Created group"}
+            </h3>,
+            [...listGroupView]
+        ];
     }
 
     // Show the response if everything is fine
@@ -84,20 +116,10 @@ function Main() {
             </div>
             <div className="px-40 mt-5">
                 {createdGroupListQueryRes?.data?.data?.length > 0 ? (
-                    <div>
-                        <h3 className="font-semibold text-lg">Created group</h3>
-                        <div className="grid lg:grid-cols-4 lg:gap-x-5 md:grid-cols-2 md:gap-x-2 grid-cols-1">
-                            {renderListGroup(createdGroupListQueryRes?.data?.data)}
-                        </div>
-                    </div>
+                    <>{renderListGroup(createdGroupListQueryRes?.data?.data)}</>
                 ) : null}
                 {joinedGroupListQueryRes?.data?.data?.length > 0 ? (
-                    <div>
-                        <h3 className="font-semibold text-lg">Joined group</h3>
-                        <div className="grid lg:grid-cols-4 lg:gap-x-5 md:grid-cols-2 md:gap-x-2 grid-cols-1">
-                            {renderListGroup(joinedGroupListQueryRes?.data?.data)}
-                        </div>
-                    </div>
+                    <>{renderListGroup(joinedGroupListQueryRes?.data?.data, true)}</>
                 ) : null}
                 {createdGroupListQueryRes?.data?.data?.length === 0 &&
                 joinedGroupListQueryRes?.data?.data?.length === 0 ? (

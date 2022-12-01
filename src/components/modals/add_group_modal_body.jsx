@@ -20,19 +20,19 @@ function AddGroupModalBody({ setShowModal }) {
         console.log(data);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/create?username=${user.username}&groupname=${data.groupname}`
+                `${process.env.REACT_APP_BASE_URL}group/create?username=${user.username}&groupname=${data.groupname}`
             )
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
                 setShowModal(false);
                 if (window.location.pathname === "/") {
-                    window.location.replace();
+                    window.location.reload();
                 }
             })
             .catch((error) => {
                 console.log(error);
-                setErrorMess(error);
+                setErrorMess(error.response.data.error);
                 setIsLoading(false);
             });
     };
@@ -56,7 +56,7 @@ function AddGroupModalBody({ setShowModal }) {
                         />
                     </label>
                 </div>
-                <p className="text-red-400 mt-2 text-sm">
+                <p className="text-red-400 mb-1 text-sm">
                     {errors.groupname?.message || errorMess}
                 </p>
                 <button

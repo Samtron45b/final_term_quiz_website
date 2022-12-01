@@ -90,7 +90,7 @@ function App() {
                         clickOutSideToClose={false}
                         onClose={() => setShowAddGroupModal(false)}
                     >
-                        <AddGroupModalBody setShowAModal={setShowAddGroupModal} />
+                        <AddGroupModalBody setShowModal={setShowAddGroupModal} />
                     </ModalFrame>
                 </AddGroupModalContext.Provider>
             </AuthContext.Provider>

@@ -29,9 +29,7 @@ function GroupDetailPage() {
         enabled: false,
         queryFn: async () => {
             return axios
-                .get(
-                    `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/get?group=${groupname}`
-                )
+                .get(`${process.env.REACT_APP_BASE_URL}group/get?group=${groupname}`)
                 .then((response) => {
                     console.log(response);
                     return response;

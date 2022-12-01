@@ -10,8 +10,6 @@ const useFetch = (url) => {
     const handleGoogle = async (response) => {
         setLoading(true);
 
-        console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID);
-
         axios(url, {
             method: "POST",
             headers: {

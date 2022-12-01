@@ -18,7 +18,7 @@ function AddMemberModalBody({ groupName }) {
         console.log(data);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/inviteUser?groupname=${groupName}&membername=${data.membername}`
+                `${process.env.REACT_APP_BASE_URL}group/inviteUser?groupname=${groupName}&membername=${data.membername}`
             )
             .then((response) => {
                 console.log(response);

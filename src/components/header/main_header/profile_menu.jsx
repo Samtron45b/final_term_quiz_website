@@ -1,13 +1,18 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { MdLogout } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import { useState, useRef, useEffect, useContext } from "react";
+import axios from "axios";
 import AuthContext from "../../contexts/auth_context";
+import LocationContext from "../../contexts/location_context";
 
 function ProfileMenu() {
     const wrapperRef = useRef(null);
     const { user } = useContext(AuthContext);
+    const { setLocation } = useContext(LocationContext);
     const [isProfileMenuOpen, setIsProFileMenuOpen] = useState(false);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -22,6 +27,17 @@ function ProfileMenu() {
             document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [wrapperRef]);
+
+    async function signout() {
+        axios
+            .get(`${process.env.REACT_APP_BASE_URL}user/logout?clientId=123`)
+            .then(() => {
+                localStorage.removeItem("accessToken");
+                setLocation(null);
+                navigate("/login", { replace: true });
+            })
+            .catch((err) => console.log(err));
+    }
 
     return (
         <div className="relative" ref={wrapperRef}>
@@ -51,16 +67,17 @@ function ProfileMenu() {
                     My account
                 </Link>
 
-                <Link
-                    href="/"
+                <button
+                    type="button"
                     className="flex items-center px-4 py-2 text-sm text-gray-700"
                     role="menuitem"
                     tabIndex="-1"
                     id="user-menu-item-2"
+                    onClick={signout}
                 >
                     <MdLogout className="mr-1 w-4 h-4" />
                     Sign out
-                </Link>
+                </button>
             </div>
         </div>
     );

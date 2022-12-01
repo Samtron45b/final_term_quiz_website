@@ -16,7 +16,7 @@ function MemberGroupCard({
     function onDeleteUser() {
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/group/kickUser?groupname=${groupName}username=${memberName}`
+                `${process.env.REACT_APP_BASE_URL}group/kickUser?groupname=${groupName}username=${memberName}`
             )
             .then((response) => {
                 console.log(response);
