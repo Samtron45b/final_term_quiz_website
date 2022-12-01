@@ -17,7 +17,7 @@ function InviteGroupPage() {
             )
             .then((response) => {
                 console.log(response);
-                navigate(`/group/${response?.data?.data?.groupname}`, { replace: true });
+                navigate(`/group_detail/${response?.data?.data?.name}`, { replace: true });
             });
         return res.data;
     };
@@ -39,7 +39,7 @@ function InviteGroupPage() {
 
     function getMessage() {
         if (isLoading) return "Processing...";
-        if (error) return `${error}`;
+        if (error) return `${error.response.data.error}`;
         return `${data?.data}`;
     }
 

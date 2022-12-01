@@ -28,7 +28,7 @@ function ChangeMemberRoleModalBody({ memberRole, userRole, memberName, memberDis
                         </p>
                     </div>
                 ) : null}
-                <div className="flex items-top space-x-2">
+                {/* <div className="flex items-top space-x-2">
                     <input
                         type="radio"
                         value="3"
@@ -36,12 +36,12 @@ function ChangeMemberRoleModalBody({ memberRole, userRole, memberName, memberDis
                         onChange={(e) => setMemSelectedRole(e.target.value)}
                     />
                     <p>Manager &#40;Can add, delete normal memberr&#41;</p>
-                </div>
+                </div> */}
                 <div className="flex items-top space-x-2">
                     <input
                         type="radio"
-                        value="4"
-                        checked={memSelectedRole === "4"}
+                        value="3"
+                        checked={memSelectedRole === "3"}
                         onChange={(e) => setMemSelectedRole(e.target.value)}
                     />
                     <p>Normal member &#40;Lowest role&#41;</p>

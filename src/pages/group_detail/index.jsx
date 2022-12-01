@@ -74,7 +74,7 @@ function GroupDetailPage() {
         console.log(listMember);
         return (
             <>
-                {userRole < 4 ? (
+                {userRole < 3 ? (
                     <button
                         type="button"
                         data-mdb-ripple="true"
@@ -94,7 +94,7 @@ function GroupDetailPage() {
                     onSelectMemberChangeRole={(memberSelected) =>
                         setMemberToChangeRole(memberSelected)
                     }
-                    onSelectMemberRemove={(memberSelected) => setMemberToChangeRole(memberSelected)}
+                    onSelectMemberRemove={(memberSelected) => setMemberToRemove(memberSelected)}
                 />
                 {/* <TableMember
                     title="Managers"
@@ -112,7 +112,7 @@ function GroupDetailPage() {
                     onSelectMemberChangeRole={(memberSelected) =>
                         setMemberToChangeRole(memberSelected)
                     }
-                    onSelectMemberRemove={(memberSelected) => setMemberToChangeRole(memberSelected)}
+                    onSelectMemberRemove={(memberSelected) => setMemberToRemove(memberSelected)}
                 />
             </>
         );

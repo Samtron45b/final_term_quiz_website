@@ -36,8 +36,9 @@ function LoginPage() {
         console.log(data);
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}user/login?clientId=${uuidv4()}
-                &username=${data.username}&password=${data.password}`
+                `${process.env.REACT_APP_BASE_URL}user/login?clientId=${uuidv4()}&username=${
+                    data.username
+                }&password=${data.password}`
             )
             .then((response) => {
                 console.log(response);

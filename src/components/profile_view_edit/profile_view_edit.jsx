@@ -1,23 +1,47 @@
-import { useState } from "react";
+import axios from "axios";
+import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import AuthContext from "../contexts/auth_context";
 
 function ProfileViewEdit() {
-    const username = "Nguyen Khanh Huy";
-    const email = "nkhuy@gmail.com";
+    const { user } = useContext(AuthContext);
     const {
         register,
         handleSubmit,
         reset,
         formState: { errors }
-    } = useForm({
-        defaultValues: {
-            username,
-            email
-        }
-    });
+    } = useForm();
+
+    useEffect(() => {
+        axios
+            .get(`${process.env.REACT_APP_BASE_URL}user/get?username=${user.username}`)
+            .then((response) => {
+                reset({
+                    displayName: response.data.data.displayName,
+                    email: response.data.data.email
+                });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }, []);
 
     const onSubmit = (data) => {
         console.log(data);
+        axios
+            .get(
+                `${process.env.REACT_APP_BASE_URL}user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`
+            )
+            .then((response) => {
+                console.log(response);
+                reset({
+                    displayName: data.displayName,
+                    email: data.email
+                });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     };
     const [isEditing, setIsEditing] = useState(false);
     if (isEditing === null) {
@@ -50,7 +74,7 @@ function ProfileViewEdit() {
         return (
             <div className="flex w-1/2">
                 <button
-                    type="button"
+                    type="submit"
                     data-mdb-ripple="true"
                     data-mdb-ripple-color="light"
                     className="inline-flex justify-center py-2 px-4 mr-2
@@ -100,17 +124,17 @@ function ProfileViewEdit() {
                 <div className="username-input mb-5 w-1/2">
                     <label
                         className="block text-sm font-medium text-gray-700"
-                        htmlFor="displayname"
+                        htmlFor="displayName"
                     >
                         Display name
                         <input
-                            name="displayname"
+                            name="displayName"
                             className={getInputClassName()}
                             disabled={!isEditing}
-                            id="displayname"
+                            id="displayName"
                             type="text"
                             placeholder="Quamon"
-                            {...register("displayname", { required: true })}
+                            {...register("displayName", { required: true })}
                         />
                         {errors.username && (
                             <span className="text-red-600">This field is required</span>
