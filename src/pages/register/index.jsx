@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
 import ModalFrame from "../../components/modals/modal_frame";
 import AuthResultModalBody from "../../components/modals/auth_result_modal_body";
 
@@ -29,7 +30,9 @@ function RegisterPage() {
         setIsLoading(true);
         axios
             .get(
-                `https://45d6-2402-800-63b6-df31-61e7-55fc-79cc-bfa1.ap.ngrok.io/user/register?clientId=030&email=${data.email}&username=${data.username}&password=${data.password}&displayname=${data.username}`
+                `${process.env.REACT_APP_BASE_URL}user/register?clientId=${uuidv4()}
+                &email=${data.email}&username=${data.username}
+                &password=${data.password}&displayName=${data.username}`
             )
             .then((response) => {
                 console.log(response);

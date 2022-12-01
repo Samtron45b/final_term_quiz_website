@@ -11,7 +11,8 @@ function MemberGroupCard({
     memberDisplayName,
     userRole,
     isLastRow,
-    onChangeRoleBtnClick
+    onChangeRoleBtnClick,
+    onSelectMemberRemove
 }) {
     function onDeleteUser() {
         axios
@@ -54,6 +55,10 @@ function MemberGroupCard({
                             displayName: memberDisplayName
                         });
                     } else {
+                        onSelectMemberRemove({
+                            displayname: memberDisplayName,
+                            isGroupMember: true
+                        });
                         onDeleteUser({ name: memberName, role: memberRole });
                     }
                 }}
@@ -101,10 +106,12 @@ MemberGroupCard.propTypes = {
     memberDisplayName: PropTypes.string.isRequired,
     userRole: PropTypes.number.isRequired,
     isLastRow: PropTypes.bool.isRequired,
-    onChangeRoleBtnClick: PropTypes.func
+    onChangeRoleBtnClick: PropTypes.func,
+    onSelectMemberRemove: PropTypes.func
 };
 MemberGroupCard.defaultProps = {
-    onChangeRoleBtnClick: null
+    onChangeRoleBtnClick: null,
+    onSelectMemberRemove: null
 };
 
 export default MemberGroupCard;

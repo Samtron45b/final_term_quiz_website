@@ -2,7 +2,14 @@ import PropTypes from "prop-types";
 import { Fragment } from "react";
 import MemberGroupCard from "../../components/cards/member_group_card";
 
-function TableMember({ groupName, title, dataList, onSelectMemberChangeRole, userRole }) {
+function TableMember({
+    groupName,
+    title,
+    dataList,
+    onSelectMemberChangeRole,
+    onSelectMemberRemove,
+    userRole
+}) {
     // console.log(title);
     // console.log(dataList);
     const { length } = dataList;
@@ -25,6 +32,7 @@ function TableMember({ groupName, title, dataList, onSelectMemberChangeRole, use
                     memberDisplayName={displayName}
                     isLastRow={index === length - 1}
                     onChangeRoleBtnClick={onSelectMemberChangeRole}
+                    onRemoveBtnClick={onSelectMemberRemove}
                 />
             );
         }
@@ -52,12 +60,14 @@ TableMember.propTypes = {
     userRole: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
-    onSelectMemberChangeRole: PropTypes.func
+    onSelectMemberChangeRole: PropTypes.func,
+    onSelectMemberRemove: PropTypes.func
 };
 TableMember.defaultProps = {
     title: "",
     dataList: [],
-    onSelectMemberChangeRole: null
+    onSelectMemberChangeRole: null,
+    onSelectMemberRemove: null
 };
 
 export default TableMember;

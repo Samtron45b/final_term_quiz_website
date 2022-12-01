@@ -6,10 +6,18 @@ function RemoveModalBody({ objectToRemove, message, onConfirmRemove }) {
     console.log(objectToRemove, message);
     const [isLoading, setIsLoading] = useState(false);
 
+    function renderObjectToRemove() {
+        let view = objectToRemove?.name;
+        if (objectToRemove.isGroupMember) {
+            view = objectToRemove?.displayname;
+        }
+        return view;
+    }
+
     return (
         <div className="rounded-md w-full">
             <h2 className="mb-2 text-lg font-bold">
-                Are you sure you want to remove {objectToRemove}
+                Are you sure you want to remove {renderObjectToRemove()}
             </h2>
             <p className="text-md font-semibold">{message ? `Note: ${message}` : null}</p>
             <button
@@ -39,9 +47,9 @@ function RemoveModalBody({ objectToRemove, message, onConfirmRemove }) {
 }
 
 RemoveModalBody.propTypes = {
-    objectToRemove: PropTypes.string.isRequired,
+    // eslint-disable-next-line react/forbid-prop-types
+    objectToRemove: PropTypes.object.isRequired,
     message: PropTypes.string,
-    // eslint-disable-next-line react/require-default-props
     onConfirmRemove: PropTypes.func
 };
 RemoveModalBody.defaultProps = {

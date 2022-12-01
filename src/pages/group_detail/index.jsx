@@ -23,6 +23,7 @@ function GroupDetailPage() {
     const [viewIndex, setViewIndex] = useState(0);
     const [showAddGroupModal, setShowAddGroupModal] = useState(false);
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
+    const [memberToRemove, setMemberToRemove] = useState(null);
 
     const { data: memberListQueryRes, refetch: memberListQueryRefetch } = useQuery({
         queryKey: ["get_member_list"],
@@ -93,6 +94,7 @@ function GroupDetailPage() {
                     onSelectMemberChangeRole={(memberSelected) =>
                         setMemberToChangeRole(memberSelected)
                     }
+                    onSelectMemberRemove={(memberSelected) => setMemberToChangeRole(memberSelected)}
                 />
                 {/* <TableMember
                     title="Managers"
@@ -110,6 +112,7 @@ function GroupDetailPage() {
                     onSelectMemberChangeRole={(memberSelected) =>
                         setMemberToChangeRole(memberSelected)
                     }
+                    onSelectMemberRemove={(memberSelected) => setMemberToChangeRole(memberSelected)}
                 />
             </>
         );
@@ -151,7 +154,10 @@ function GroupDetailPage() {
                 clickOutSideToClose={false}
                 onClose={() => setShowAddGroupModal(false)}
             >
-                <AddMemberModalBody groupName={groupname} />
+                <AddMemberModalBody
+                    groupName={groupname}
+                    inviteId={memberListQueryRes?.data?.data?.inviteId ?? ""}
+                />
             </ModalFrame>
             <ModalFrame
                 width="w-2/5"
@@ -168,14 +174,12 @@ function GroupDetailPage() {
             </ModalFrame>
             <ModalFrame
                 width="w-2/5"
-                isVisible={memberToChangeRole !== null}
+                isVisible={memberToRemove !== null}
                 clickOutSideToClose={false}
-                onClose={() => setMemberToChangeRole(null)}
+                onClose={() => setMemberToRemove(null)}
             >
                 <RemoveModalBody
-                    memberName={memberToChangeRole?.name ?? ""}
-                    memberRole={memberToChangeRole?.role ?? 0}
-                    userRole={userRole}
+                    objectToRemove={memberToRemove}
                     memberDisplayName={memberToChangeRole?.displayName ?? ""}
                 />
             </ModalFrame>

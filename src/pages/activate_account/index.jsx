@@ -36,7 +36,7 @@ function ActiveAccountPage() {
     function getMessage() {
         if (isLoading) return "Activating...";
         if (error) return `${error}`;
-        return `${data?.content}`;
+        return `${data?.data}`;
     }
 
     return (

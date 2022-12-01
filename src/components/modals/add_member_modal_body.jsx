@@ -1,16 +1,20 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
 
-function AddMemberModalBody({ groupName }) {
+function AddMemberModalBody({ groupName, inviteId }) {
+    const { user } = useContext;
     const {
         register,
-        reset,
         handleSubmit,
         formState: { errors }
-    } = useForm();
+    } = useForm({
+        defaultValues: {
+            grouplink: `${process.env.REACT_APP_BASE_URL}invite/${inviteId}`
+        }
+    });
     const [isLoading, setIsLoading] = useState(false);
 
     const onSubmit = async (data) => {
@@ -18,7 +22,7 @@ function AddMemberModalBody({ groupName }) {
         console.log(data);
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}group/inviteUser?groupname=${groupName}&membername=${data.membername}`
+                `${process.env.REACT_APP_BASE_URL}group/invite?groupname=${groupName}$inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`
             )
             .then((response) => {
                 console.log(response);
@@ -29,11 +33,6 @@ function AddMemberModalBody({ groupName }) {
                 setIsLoading(false);
             });
     };
-    useEffect(() => {
-        reset({
-            grouplink: "grouplink"
-        });
-    }, []);
 
     return (
         <div className="rounded-md w-full flex flex-col">
@@ -46,7 +45,7 @@ function AddMemberModalBody({ groupName }) {
                             name="grouplink"
                             className="shadow-sm italic font-normal
                                     focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-1/2 sm:text-sm border-gray-300
+                                    block w-full sm:text-sm border-gray-300
                                     px-2 py-2 bg-white border rounded-md "
                             id="grouplink"
                             type="text"
@@ -98,7 +97,8 @@ function AddMemberModalBody({ groupName }) {
 }
 
 AddMemberModalBody.propTypes = {
-    groupName: PropTypes.string.isRequired
+    groupName: PropTypes.string.isRequired,
+    inviteId: PropTypes.string.isRequired
 };
 
 export default AddMemberModalBody;

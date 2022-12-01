@@ -5,6 +5,7 @@ import LoginPage from "../pages/login/index";
 import GroupDetailPage from "../pages/group_detail/index";
 import AccountPage from "../pages/account/index";
 import ActiveAccountPage from "../pages/activate_account";
+import InviteGroupPage from "../pages/invite_group";
 
 const ViewRoutes = [
     {
@@ -38,9 +39,9 @@ const ViewRoutes = [
         component: <ActiveAccountPage />
     },
     {
-        path: "/invite/:groupname",
+        path: "/invite/:inviteId",
         exact: true,
-        component: <ActiveAccountPage />
+        component: <InviteGroupPage />
     }
 ];
 

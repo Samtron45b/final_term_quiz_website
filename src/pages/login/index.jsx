@@ -5,6 +5,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
 import axios from "axios";
 import jwtDecode from "jwt-decode";
+import { v4 as uuidv4 } from "uuid";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
 // import SocialSignInBtns from "./socialSignInBtns";
@@ -35,7 +36,8 @@ function LoginPage() {
         console.log(data);
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}user/login?clientId=123&username=${data.username}&password=${data.password}`
+                `${process.env.REACT_APP_BASE_URL}user/login?clientId=${uuidv4()}
+                &username=${data.username}&password=${data.password}`
             )
             .then((response) => {
                 console.log(response);
@@ -43,6 +45,7 @@ function LoginPage() {
                 localStorage.setItem("accessToken", accessToken);
                 const decode = jwtDecode(accessToken, "letsplay");
                 setUser({
+                    displayName: decode.displayName,
                     username: decode.name,
                     avatar: decode.avatar
                         ? decode.avatar
@@ -54,7 +57,10 @@ function LoginPage() {
             })
             .catch((loginErr) => {
                 console.log(loginErr.response);
-                if (loginErr.response.data.isActive !== false) {
+                if (
+                    loginErr.response.data.isActive !== undefined &&
+                    !loginErr.response.data.isActive
+                ) {
                     setLoginError(
                         "This account has not been activated. Please active by verify your email first then try to sign in again."
                     );
