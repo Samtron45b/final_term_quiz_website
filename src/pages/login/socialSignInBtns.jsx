@@ -1,11 +1,19 @@
 /* eslint-disable no-undef */
 import axios from "axios";
-import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import React, { useContext, useState, useEffect } from "react";
 import { FaFacebookF, FaGoogle } from "react-icons/fa";
+import { v4 as uuidv4 } from "uuid";
+import jwtDecode from "jwt-decode";
+import AuthContext from "../../components/contexts/auth_context";
 
 const useFetch = (url) => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+
+    const { setUser } = useContext(AuthContext);
+
+    const navigate = useNavigate();
 
     const handleGoogle = async (response) => {
         setLoading(true);
@@ -15,18 +23,22 @@ const useFetch = (url) => {
             headers: {
                 "Content-Type": "application/json"
             },
-            data: { credential: response.credential }
+            data: { credential: response.credential, clientId: uuidv4() }
         })
             .then((res) => {
+                const { accessToken } = res.data;
+                localStorage.setItem("accessToken", accessToken);
+                const decode = jwtDecode(accessToken, "letsplay");
+                setUser({
+                    displayName: decode.displayName,
+                    username: decode.name,
+                    avatar: decode.avatar
+                        ? decode.avatar
+                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
+                });
+                navigate("/", { replace: true });
+                setError(null);
                 setLoading(false);
-                return res.json();
-            })
-            .then((data) => {
-                if (data?.user) {
-                    localStorage.setItem("user", JSON.stringify(data?.user));
-                    // window.location.reload();
-                }
-                throw new Error(data?.message || data);
             })
             .catch((dataError) => {
                 setError(dataError?.message);
