@@ -13,8 +13,13 @@ function ProfileViewEdit() {
     } = useForm();
 
     useEffect(() => {
+        const token = localStorage.getItem("accessToken");
         axios
-            .get(`${process.env.REACT_APP_BASE_URL}user/get?username=${user.username}`)
+            .get(`${process.env.REACT_APP_BASE_URL}user/get?username=${user.username}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             .then((response) => {
                 reset({
                     displayName: response.data.data.displayName,
@@ -28,9 +33,15 @@ function ProfileViewEdit() {
 
     const onSubmit = (data) => {
         console.log(data);
+        const token = localStorage.getItem("accessToken");
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`
+                `${process.env.REACT_APP_BASE_URL}user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             )
             .then((response) => {
                 console.log(response);

@@ -29,8 +29,13 @@ function ProfileMenu() {
     }, [wrapperRef]);
 
     async function signout() {
+        const token = localStorage.getItem("accessToken");
         axios
-            .get(`${process.env.REACT_APP_BASE_URL}user/logout?clientId=123`)
+            .get(`${process.env.REACT_APP_BASE_URL}user/logout?clientId=123`, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            })
             .then(() => {
                 localStorage.removeItem("accessToken");
                 setLocation(null);

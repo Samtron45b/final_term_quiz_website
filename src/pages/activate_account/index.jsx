@@ -9,7 +9,7 @@ function ActiveAccountPage() {
     const { username } = useParams();
     const callActivateAccountApi = async () => {
         const res = await axios.get(
-            `${process.env.REACT_APP_BASE_URL}user/active?username=${username}`
+            `${process.env.REACT_APP_BASE_URL}auth/active?username=${username}`
         );
         return res.data;
     };

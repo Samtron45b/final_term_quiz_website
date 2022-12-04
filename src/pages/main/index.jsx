@@ -14,8 +14,13 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             console.log("run created by");
+            const token = localStorage.getItem("accessToken");
             return axios
-                .get(`${process.env.REACT_APP_BASE_URL}group/createdBy?username=${user.username}`)
+                .get(`${process.env.REACT_APP_BASE_URL}group/createdBy?username=${user.username}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
                 .then((response) => {
                     return response;
                 })
@@ -29,8 +34,14 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             console.log("run joined by");
+            const token = localStorage.getItem("accessToken");
+
             return axios
-                .get(`${process.env.REACT_APP_BASE_URL}group/joinedBy?username=${user.username}`)
+                .get(`${process.env.REACT_APP_BASE_URL}group/joinedBy?username=${user.username}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
                 .then((response) => {
                     return response;
                 })

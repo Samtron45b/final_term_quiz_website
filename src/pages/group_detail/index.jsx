@@ -29,8 +29,13 @@ function GroupDetailPage() {
         queryKey: ["get_member_list"],
         enabled: false,
         queryFn: async () => {
+            const token = localStorage.getItem("accessToken");
             return axios
-                .get(`${process.env.REACT_APP_BASE_URL}group/get?group=${groupname}`)
+                .get(`${process.env.REACT_APP_BASE_URL}group/get?group=${groupname}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
                 .then((response) => {
                     console.log(response);
                     return response;

@@ -15,9 +15,15 @@ function MemberGroupCard({
     onSelectMemberRemove
 }) {
     function onDeleteUser() {
+        const token = localStorage.getItem("accessToken");
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}group/kickUser?groupname=${groupName}username=${memberName}`
+                `${process.env.REACT_APP_BASE_URL}group/kickUser?groupname=${groupName}username=${memberName}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             )
             .then((response) => {
                 console.log(response);

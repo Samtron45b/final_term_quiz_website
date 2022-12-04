@@ -18,9 +18,15 @@ function AddGroupModalBody({ setShowModal }) {
     const onSubmit = async (data) => {
         setIsLoading(true);
         console.log(data);
+        const token = localStorage.getItem("accessToken");
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}group/create?username=${user.username}&groupname=${data.groupname}`
+                `${process.env.REACT_APP_BASE_URL}group/create?username=${user.username}&groupname=${data.groupname}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             )
             .then((response) => {
                 console.log(response);

@@ -8,7 +8,7 @@ import jwtDecode from "jwt-decode";
 import { v4 as uuidv4 } from "uuid";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
-// import SocialSignInBtns from "./socialSignInBtns";
+import SocialSignInBtns from "./socialSignInBtns";
 
 function LoginPage() {
     const { location, setLocation } = useContext(LocationContext);
@@ -36,7 +36,7 @@ function LoginPage() {
         console.log(data);
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}user/login?clientId=${uuidv4()}&username=${
+                `${process.env.REACT_APP_BASE_URL}auth/login?clientId=${uuidv4()}&username=${
                     data.username
                 }&password=${data.password}`
             )
@@ -181,7 +181,7 @@ function LoginPage() {
                     <div className="text-center mt-4 text-purple-600 font-semibold">
                         Sign in with
                     </div>
-                    {/* <SocialSignInBtns /> */}
+                    <SocialSignInBtns />
                 </form>
             </div>
         </div>

@@ -22,9 +22,15 @@ function AddMemberModalBody({ groupName, inviteId }) {
     const onSubmit = async (data) => {
         setIsLoading(true);
         console.log(data);
+        const token = localStorage.getItem("accessToken");
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}group/invite?groupname=${groupName}&inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`
+                `${process.env.REACT_APP_BASE_URL}group/invite?groupname=${groupName}&inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             )
             .then((response) => {
                 console.log(response);

@@ -11,9 +11,15 @@ function InviteGroupPage() {
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const callAddUserApi = async () => {
+        const token = localStorage.getItem("accessToken");
         const res = await axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}group/addUser?inviteId=${inviteId}&username=${user.username}`
+                `${process.env.REACT_APP_BASE_URL}group/addUser?inviteId=${inviteId}&username=${user.username}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
             )
             .then((response) => {
                 console.log(response);

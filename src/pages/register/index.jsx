@@ -30,7 +30,7 @@ function RegisterPage() {
         setIsLoading(true);
         axios
             .get(
-                `${process.env.REACT_APP_BASE_URL}user/register?clientId=${uuidv4()}&email=${
+                `${process.env.REACT_APP_BASE_URL}auth/register?clientId=${uuidv4()}&email=${
                     data.email
                 }&username=${data.username}&password=${data.password}&displayName=${data.username}`
             )
