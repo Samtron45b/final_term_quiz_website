@@ -21,14 +21,18 @@ function ProfileViewEdit() {
                 }
             })
             .then((response) => {
+                console.log(response);
                 reset({
-                    displayName: response.data.data.displayName,
-                    email: response.data.data.email
+                    displayName: response.data.displayName,
+                    email: response.data.email
                 });
             })
             .catch((error) => {
                 console.log(error);
             });
+        return function cleanup() {
+            console.log("Profile is uinmounted");
+        };
     }, []);
 
     const onSubmit = (data) => {

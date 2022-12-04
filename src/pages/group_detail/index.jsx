@@ -64,7 +64,7 @@ function GroupDetailPage() {
         if (!memberListQueryRes) return null;
 
         console.log(memberListQueryRes);
-        const dataList = memberListQueryRes.data.data.members;
+        const dataList = memberListQueryRes.data.members;
         const userInList = dataList.find((element) => {
             return element.username === user.username;
         });

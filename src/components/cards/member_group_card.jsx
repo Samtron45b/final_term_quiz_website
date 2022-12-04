@@ -12,7 +12,7 @@ function MemberGroupCard({
     userRole,
     isLastRow,
     onChangeRoleBtnClick,
-    onSelectMemberRemove
+    onRemoveBtnClick
 }) {
     function onDeleteUser() {
         const token = localStorage.getItem("accessToken");
@@ -61,7 +61,7 @@ function MemberGroupCard({
                             displayName: memberDisplayName
                         });
                     } else {
-                        onSelectMemberRemove({
+                        onRemoveBtnClick({
                             displayname: memberDisplayName,
                             isGroupMember: true
                         });
@@ -113,11 +113,11 @@ MemberGroupCard.propTypes = {
     userRole: PropTypes.number.isRequired,
     isLastRow: PropTypes.bool.isRequired,
     onChangeRoleBtnClick: PropTypes.func,
-    onSelectMemberRemove: PropTypes.func
+    onRemoveBtnClick: PropTypes.func
 };
 MemberGroupCard.defaultProps = {
     onChangeRoleBtnClick: null,
-    onSelectMemberRemove: null
+    onRemoveBtnClick: null
 };
 
 export default MemberGroupCard;

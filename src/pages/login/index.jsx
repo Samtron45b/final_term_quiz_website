@@ -42,7 +42,7 @@ function LoginPage() {
             )
             .then((response) => {
                 console.log(response);
-                const { accessToken } = response.data.data;
+                const { accessToken } = response.data;
                 localStorage.setItem("accessToken", accessToken);
                 const decode = jwtDecode(accessToken, "letsplay");
                 setUser({

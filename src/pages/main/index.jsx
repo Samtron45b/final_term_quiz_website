@@ -64,13 +64,9 @@ function Main() {
         console.log(joinedGroupListQueryRes);
     }
 
-    function renderListGroup(listGroupData, creator) {
-        let listGroupToRender = [...listGroupData];
-        if (!creator) {
-            listGroupToRender = listGroupData.filter((group) => {
-                return group.creator.username !== user.username;
-            });
-        }
+    function renderListGroup(listGroupData, isCreatedByGroup) {
+        console.log(listGroupData);
+        const listGroupToRender = listGroupData !== undefined ? [...listGroupData] : [];
         const listGroupCard = [];
         let hasGroup = false;
         if (listGroupToRender.length > 0) {
@@ -80,13 +76,9 @@ function Main() {
                     <MainGroupCard
                         key={`homeGroup${index}`}
                         groupName={listGroupToRender[index].name}
-                        ownerDisplayName={
-                            !creator
-                                ? listGroupToRender[index]?.creator?.displayName ?? ""
-                                : creator.displayName
-                        }
+                        ownerDisplayName={listGroupToRender[index]?.creator?.displayName ?? ""}
                         ownerAvatar={
-                            listGroupToRender[index].ownerAvatar ??
+                            listGroupToRender[index].creator?.avatarUrl ??
                             "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
                         }
                     />
@@ -96,11 +88,11 @@ function Main() {
             listGroupCard.push(
                 <p
                     key={`${user.username}_${
-                        !creator ? "empty_joined_group" : "empty_created_group"
+                        !isCreatedByGroup ? "empty_joined_group" : "empty_created_group"
                     }`}
-                    className="text-gray-300 text-center text-xl font-bold text-ellipsis"
+                    className="text-gray-300 text-center text-xl font-bold text-ellipsis mb-3"
                 >
-                    {!creator ? "Let join in someone group." : "Let create a group."}
+                    {!isCreatedByGroup ? "Let join in someone group." : "Let create a group."}
                 </p>
             );
         }
@@ -115,10 +107,10 @@ function Main() {
 
         return [
             <h3
-                key={`${user.username}_${!creator ? "joinedGroup" : "createdGroup"}`}
+                key={`${user.username}_${!isCreatedByGroup ? "joinedGroup" : "createdGroup"}`}
                 className="font-semibold text-lg"
             >
-                {!creator ? "Joined group" : "Created group"}
+                {!isCreatedByGroup ? "Joined group" : "Created group"}
             </h3>,
             [...listGroupView]
         ];
@@ -132,23 +124,17 @@ function Main() {
                 <h1 className="text-purple-700 font-extrabold text-3xl">List Groups</h1>
             </div>
             <div className="px-40 mt-5">
-                {createdGroupListQueryRes?.data?.data?.groups?.length > 0 ? (
-                    <>
-                        {renderListGroup(
-                            createdGroupListQueryRes?.data?.data?.groups,
-                            createdGroupListQueryRes?.data?.data?.creator
-                        )}
-                    </>
-                ) : null}
-                {joinedGroupListQueryRes?.data?.data?.length > 0 ? (
-                    <>{renderListGroup(joinedGroupListQueryRes?.data?.data)}</>
-                ) : null}
-                {createdGroupListQueryRes?.data?.data?.groups?.length === 0 &&
-                joinedGroupListQueryRes?.data?.data?.length === 0 ? (
+                {!createdGroupListQueryRes?.data?.length &&
+                !joinedGroupListQueryRes?.data?.length ? (
                     <p className="text-gray-300 text-center text-xl font-bold text-ellipsis">
                         Your group list is empty. Let create one or join in someone group.
                     </p>
-                ) : null}
+                ) : (
+                    <>
+                        {renderListGroup(createdGroupListQueryRes?.data, true)}
+                        {renderListGroup(joinedGroupListQueryRes?.data)}
+                    </>
+                )}
             </div>
         </div>
     );
