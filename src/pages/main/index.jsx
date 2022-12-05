@@ -60,7 +60,9 @@ function Main() {
     }, []);
 
     if (createdGroupListQueryRes && joinedGroupListQueryRes) {
+        console.log("createdGroupListQueryRes");
         console.log(createdGroupListQueryRes);
+        console.log("joinedGroupListQueryRes");
         console.log(joinedGroupListQueryRes);
     }
 
