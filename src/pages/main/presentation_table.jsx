@@ -6,12 +6,9 @@ function TablePresentation({
     dataList,
     onSelectMemberChangeRole,
     onSelectMemberRemove,
-    ownerName,
-    ownerDisplayName
+    ownerName
 }) {
     const { length } = dataList;
-
-    console.log(ownerDisplayName);
 
     function renderRows() {
         const rowToRender = [];
@@ -54,7 +51,7 @@ function TablePresentation({
                         scope="col"
                         className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
                     >
-                        Email
+                        Owner
                     </th>
                     <th
                         scope="col"
@@ -78,7 +75,6 @@ function TablePresentation({
 TablePresentation.propTypes = {
     presentationName: PropTypes.string,
     ownerName: PropTypes.string,
-    ownerDisplayName: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
     onSelectMemberChangeRole: PropTypes.func,
@@ -88,7 +84,6 @@ TablePresentation.defaultProps = {
     presentationName: "",
     dataList: [],
     ownerName: "",
-    ownerDisplayName: "",
     onSelectMemberChangeRole: null,
     onSelectMemberRemove: null
 };
