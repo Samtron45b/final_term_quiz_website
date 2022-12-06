@@ -43,9 +43,9 @@ function AddGroupPresentationModalBody({ addingType, setShowModal }) {
                 console.log(response);
                 setIsLoading(false);
                 setShowModal(0);
-                // if (window.location.pathname === "/") {
-                //     window.location.reload();
-                // }
+                if (window.location.pathname === "/") {
+                    window.location.reload();
+                }
             })
             .catch((error) => {
                 console.log(error);
