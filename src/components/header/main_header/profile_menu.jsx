@@ -30,8 +30,9 @@ function ProfileMenu() {
 
     async function signout() {
         const token = localStorage.getItem("accessToken");
+        console.log(user.clientId);
         axios
-            .get(`${process.env.REACT_APP_BASE_URL}user/logout?clientId=123`, {
+            .get(`${process.env.REACT_APP_BASE_URL}user/logout?clientId=${user.clientId}`, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

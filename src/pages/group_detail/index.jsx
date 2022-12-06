@@ -21,7 +21,7 @@ function GroupDetailPage() {
     const { location, setLocation } = useContext(LocationContext);
 
     const [viewIndex, setViewIndex] = useState(0);
-    const [showAddGroupModal, setShowAddGroupModal] = useState(false);
+    const [addingType, setAddingType] = useState(false);
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
     const [memberToRemove, setMemberToRemove] = useState(null);
 
@@ -84,7 +84,7 @@ function GroupDetailPage() {
                         type="button"
                         data-mdb-ripple="true"
                         data-mdb-ripple-color="light"
-                        onClick={() => setShowAddGroupModal(true)}
+                        onClick={() => setAddingType(true)}
                         className="flex items-center mb-3 px-4 py-4 bg-emerald-300 text-white font-medium text-md leading-tight rounded-lg shadow-md hover:bg-emerald-300/75 hover:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
                     >
                         <RiUserAddFill size={20} className="text-white mr-1" />
@@ -155,9 +155,9 @@ function GroupDetailPage() {
             </div>
             <ModalFrame
                 width="w-2/5"
-                isVisible={showAddGroupModal}
+                isVisible={addingType}
                 clickOutSideToClose={false}
-                onClose={() => setShowAddGroupModal(false)}
+                onClose={() => setAddingType(false)}
             >
                 <AddMemberModalBody
                     groupName={groupname}

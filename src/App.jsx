@@ -8,7 +8,7 @@ import { getToken } from "./auth";
 import "./App.css";
 import AddGroupModalContext from "./components/contexts/add_group_context";
 import ModalFrame from "./components/modals/modal_frame";
-import AddGroupModalBody from "./components/modals/add_group_modal_body";
+import AddGroupPresentationModalBody from "./components/modals/add_group_presentation_modal_body";
 import AuthContext from "./components/contexts/auth_context";
 import LocationContext from "./components/contexts/location_context";
 
@@ -43,10 +43,10 @@ function App() {
         user,
         setUser
     }));
-    const [showAddGroupModal, setShowAddGroupModal] = useState(false);
+    const [addingType, setAddingType] = useState(0);
     const addGroupModalContextValue = useMemo(() => ({
-        showAddGroupModal,
-        setShowAddGroupModal
+        addingType,
+        setAddingType
     }));
 
     return (
@@ -86,11 +86,14 @@ function App() {
                     </div>
                     <ModalFrame
                         width="40%"
-                        isVisible={showAddGroupModal}
+                        isVisible={addingType > 0}
                         clickOutSideToClose={false}
-                        onClose={() => setShowAddGroupModal(false)}
+                        onClose={() => setAddingType(0)}
                     >
-                        <AddGroupModalBody setShowModal={setShowAddGroupModal} />
+                        <AddGroupPresentationModalBody
+                            addingType={addingType}
+                            setShowModal={setAddingType}
+                        />
                     </ModalFrame>
                 </AddGroupModalContext.Provider>
             </AuthContext.Provider>

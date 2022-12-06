@@ -46,6 +46,7 @@ function LoginPage() {
                 localStorage.setItem("accessToken", accessToken);
                 const decode = jwtDecode(accessToken, "letsplay");
                 setUser({
+                    clientId: decode.clientId,
                     displayName: decode.displayName,
                     username: decode.name,
                     avatar: decode.avatar

@@ -2,7 +2,7 @@
 import { useContext, useEffect, useState } from "react";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { ImProfile } from "react-icons/im";
-import { HiUserGroup } from "react-icons/hi2";
+import { MdGroups } from "react-icons/md";
 import MainHeader from "../../components/header/main_header/main_header";
 import SimpleMenuBar from "../../components/side_bars/simple_menu_bar";
 import ProfileViewEdit from "../../components/profile_view_edit/profile_view_edit";
@@ -52,7 +52,7 @@ function AccountPage() {
                                 },
                                 {
                                     text: "Group setting",
-                                    icon: HiUserGroup
+                                    icon: MdGroups
                                 }
                             ]}
                         />

@@ -1,12 +1,8 @@
 import { Link } from "react-router-dom";
-import { IoMdAdd } from "react-icons/io";
-import { useContext } from "react";
 import ProfileMenu from "./profile_menu";
-import AddGroupModalContext from "../../contexts/add_group_context";
+import AddGroupPresentationMenu from "./add_group_presentation_menu";
 
 function MainHeader() {
-    const { setShowAddGroupModal } = useContext(AddGroupModalContext);
-
     return (
         <header className="head_container sticky top-0 z-30 mb-5 w-full md:p-5 px-4 py-5 bg-white shadow-md">
             <div className="header_items flex items-center justify-between mx-auto w-full">
@@ -59,15 +55,7 @@ function MainHeader() {
                             }
                         `}
                     </style>
-                    <div
-                        className="plus_group_container cursor-pointer flex justify-center items-center w-12 h-12 rounded-full hover:bg-gray-100 "
-                        aria-hidden="true"
-                        onClick={() => {
-                            setShowAddGroupModal(true);
-                        }}
-                    >
-                        <IoMdAdd className="plus_group_icon w-8 h-8 " />
-                    </div>
+                    <AddGroupPresentationMenu />
                     <ProfileMenu />
                 </div>
             </div>

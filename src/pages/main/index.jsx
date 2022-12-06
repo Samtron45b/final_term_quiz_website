@@ -9,7 +9,11 @@ import MainHeader from "../../components/header/main_header/main_header";
 function Main() {
     const { user } = useContext(AuthContext);
     const { location, setLocation } = useContext(LocationContext);
-    const { data: createdGroupListQueryRes, refetch: createdGroupListQueryRefetch } = useQuery({
+    const {
+        isFetching: isCreatedGroupFetching,
+        data: createdGroupListQueryRes,
+        refetch: createdGroupListQueryRefetch
+    } = useQuery({
         queryKey: ["get_created_group_list"],
         enabled: false,
         queryFn: async () => {
@@ -29,7 +33,11 @@ function Main() {
                 });
         }
     });
-    const { data: joinedGroupListQueryRes, refetch: joinedGroupListQueryRefetch } = useQuery({
+    const {
+        isFetching: isJoinedGroupFetching,
+        data: joinedGroupListQueryRes,
+        refetch: joinedGroupListQueryRefetch
+    } = useQuery({
         queryKey: ["get_joined_group_list"],
         enabled: false,
         queryFn: async () => {
@@ -59,7 +67,12 @@ function Main() {
         joinedGroupListQueryRefetch();
     }, []);
 
-    if (createdGroupListQueryRes && joinedGroupListQueryRes) {
+    if (
+        !isCreatedGroupFetching &&
+        !isJoinedGroupFetching &&
+        createdGroupListQueryRes &&
+        joinedGroupListQueryRes
+    ) {
         console.log("createdGroupListQueryRes");
         console.log(createdGroupListQueryRes);
         console.log("joinedGroupListQueryRes");
@@ -118,6 +131,41 @@ function Main() {
         ];
     }
 
+    const listPresentation = [
+        {
+            id: "1",
+            name: "temp presentation",
+            creatorDisplayName: "lvmnhat"
+        },
+        {
+            id: "2",
+            name: "temp presentation2",
+            creatorDisplayName: "lvmnhat"
+        },
+        {
+            id: "3",
+            name: "temp presentation3",
+            creatorDisplayName: "lvmnhat"
+        }
+    ];
+
+    function renderListPresentation() {
+        console.log(listPresentation);
+        const listPresentationCard = [];
+        const { length } = listPresentation;
+        for (let i = 0; i < length; i += 1) {
+            listPresentationCard.push(i);
+        }
+        return (
+            <>
+                <h3 key={`${user.username}_"presentations"`} className="font-semibold text-lg mt-2">
+                    Presentations
+                </h3>
+                {listPresentationCard}
+            </>
+        );
+    }
+
     // Show the response if everything is fine
     return (
         <div>
@@ -137,6 +185,7 @@ function Main() {
                         {renderListGroup(joinedGroupListQueryRes?.data)}
                     </>
                 )}
+                {renderListPresentation()}
             </div>
         </div>
     );
