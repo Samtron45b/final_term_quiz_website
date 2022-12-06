@@ -169,9 +169,9 @@ function Main() {
 
     // Show the response if everything is fine
     return (
-        <div>
+        <>
             <MainHeader />
-            <div className="flex justify-center items-center w-full">
+            <div className="flex justify-center items-center w-full mt-5">
                 <h1 className="text-purple-700 font-extrabold text-3xl">List Groups</h1>
             </div>
             <div className="px-40 mt-5">
@@ -188,7 +188,7 @@ function Main() {
                 )}
                 {renderListPresentation()}
             </div>
-        </div>
+        </>
     );
 }
 

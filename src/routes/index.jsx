@@ -6,6 +6,7 @@ import GroupDetailPage from "../pages/group_detail/index";
 import AccountPage from "../pages/account/index";
 import ActiveAccountPage from "../pages/activate_account";
 import InviteGroupPage from "../pages/invite_group";
+import PresentationEditPage from "../pages/presentation/edit/presentation_edit";
 
 const ViewRoutes = [
     {
@@ -42,7 +43,22 @@ const ViewRoutes = [
         path: "/invite/:inviteId",
         exact: true,
         component: <InviteGroupPage />
+    },
+    {
+        path: "/presentation/:presentationId/edit",
+        exact: true,
+        component: <PresentationEditPage />
     }
+    // {
+    //     path: "/presentation/:presentationId/host",
+    //     exact: true,
+    //     component: <InviteGroupPage />
+    // },
+    // {
+    //     path: "/presentation/:presentationId/play",
+    //     exact: true,
+    //     component: <InviteGroupPage />
+    // }
 ];
 
 export default ViewRoutes;

@@ -34,7 +34,7 @@ function AccountPage() {
     return (
         <div className="flex flex-col justify-center items-center">
             <MainHeader />
-            <div className="content_box flex w-4/5 items-top mt-5">
+            <div className="content_box flex w-4/5 items-top mt-10">
                 <aside aria-label="Sidebar">
                     <div className="overflow-y-auto w-56 py-3 px-3 bg-white rounded dark:bg-gray-800 border border-neutral-800 shadow-md">
                         <h3 className="font-semibold">Account menu</h3>

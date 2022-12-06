@@ -127,7 +127,7 @@ function GroupDetailPage() {
         <>
             <div className="flex flex-col justify-center items-center">
                 <MainHeader />
-                <div className="flex justify-center items-center w-full">
+                <div className="flex justify-center items-center w-full mt-5">
                     <h1 className="font-extrabold text-3xl">{groupname}</h1>
                 </div>
                 <div className="content_box flex w-4/5 items-top mt-5">
