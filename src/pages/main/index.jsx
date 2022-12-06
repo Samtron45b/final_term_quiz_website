@@ -5,6 +5,7 @@ import MainGroupCard from "../../components/cards/main_group_card";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
 import MainHeader from "../../components/header/main_header/main_header";
+import TablePresentation from "./presentation_table";
 
 function Main() {
     const { user } = useContext(AuthContext);
@@ -161,7 +162,7 @@ function Main() {
                 <h3 key={`${user.username}_"presentations"`} className="font-semibold text-lg mt-2">
                     Presentations
                 </h3>
-                {listPresentationCard}
+                <TablePresentation groupName="a" userRole={1} />
             </>
         );
     }
