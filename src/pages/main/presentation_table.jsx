@@ -1,32 +1,21 @@
 import PropTypes from "prop-types";
-import MemberGroupCard from "../../components/cards/member_group_card";
+import PresentationCard from "../../components/cards/presentation_card";
 
-function TablePresentation({
-    presentationName,
-    dataList,
-    onSelectMemberChangeRole,
-    onSelectMemberRemove,
-    ownerName
-}) {
+function TablePresentation({ dataList, onSelectMemberChangeRole, onSelectMemberRemove }) {
     const { length } = dataList;
 
     function renderRows() {
         const rowToRender = [];
         for (let index = 0; index < length; index += 1) {
-            const { username, useravatar, role, displayName } = dataList[index];
+            const { groupname, groupId, canUserEdit, id, name } = dataList[index];
             rowToRender.push(
-                <MemberGroupCard
-                    key={`${ownerName}_${index}_card`}
-                    presentationName={presentationName}
-                    ownerName={ownerName}
-                    memberName={username}
-                    memberAvatar={
-                        useravatar ??
-                        "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
-                    }
-                    memberRole={role}
-                    memberDisplayName={displayName}
-                    isLastRow={index === length - 1}
+                <PresentationCard
+                    key={`${name}_card`}
+                    presentationId={`${id}`}
+                    presentationName={name}
+                    groupName={groupname ?? "test group lvmnhat"}
+                    groupId={groupId ?? "lvmnhatTempGroup"}
+                    userCanEdit={canUserEdit ?? true}
                     onChangeRoleBtnClick={onSelectMemberChangeRole}
                     onRemoveBtnClick={onSelectMemberRemove}
                 />
@@ -39,32 +28,11 @@ function TablePresentation({
 
     return (
         <table className="mb-2 w-full border-collapse table-auto">
-            <thead className="bg-gray-50">
+            <thead className="bg-gray-100 text-xs font-bold text-left text-gray-500 uppercase">
                 <tr>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
-                    >
-                        Name
-                    </th>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-xs font-bold text-left text-gray-500 uppercase "
-                    >
-                        Owner
-                    </th>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-xs font-bold text-right text-gray-500 uppercase "
-                    >
-                        Edit
-                    </th>
-                    <th
-                        scope="col"
-                        className="px-6 py-3 text-xs font-bold text-right text-gray-500 uppercase "
-                    >
-                        Delete
-                    </th>
+                    <th className="px-6 py-3 ">Name</th>
+                    <th className="px-6 py-3 ">Group</th>
+                    <th className="px-6 py-3  ">Action</th>
                 </tr>
             </thead>
             <tbody>{renderRows()}</tbody>
@@ -73,17 +41,13 @@ function TablePresentation({
 }
 
 TablePresentation.propTypes = {
-    presentationName: PropTypes.string,
-    ownerName: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
     onSelectMemberChangeRole: PropTypes.func,
     onSelectMemberRemove: PropTypes.func
 };
 TablePresentation.defaultProps = {
-    presentationName: "",
     dataList: [],
-    ownerName: "",
     onSelectMemberChangeRole: null,
     onSelectMemberRemove: null
 };

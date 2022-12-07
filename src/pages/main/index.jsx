@@ -145,7 +145,14 @@ function Main() {
 
         const listGroupView = hasGroup
             ? [
-                  <div className="grid lg:grid-cols-4 lg:gap-x-5 md:grid-cols-2 md:gap-x-2 grid-cols-1">
+                  <div
+                      key={`${user.username}_${
+                          !isCreatedByGroup
+                              ? "empty_joined_group_title"
+                              : "empty_created_group_title"
+                      }`}
+                      className="grid lg:grid-cols-4 lg:gap-x-5 md:grid-cols-2 md:gap-x-2 grid-cols-1"
+                  >
                       {listGroupCard}
                   </div>
               ]
@@ -162,37 +169,14 @@ function Main() {
         ];
     }
 
-    const listPresentation = [
-        {
-            id: "1",
-            name: "temp presentation",
-            creatorDisplayName: "lvmnhat"
-        },
-        {
-            id: "2",
-            name: "temp presentation2",
-            creatorDisplayName: "lvmnhat"
-        },
-        {
-            id: "3",
-            name: "temp presentation3",
-            creatorDisplayName: "lvmnhat"
-        }
-    ];
-
     function renderListPresentation() {
-        console.log(listPresentation);
-        const listPresentationCard = [];
-        const { length } = listPresentation;
-        for (let i = 0; i < length; i += 1) {
-            listPresentationCard.push(i);
-        }
+        console.log(presentationListQueryRes?.data ?? []);
         return (
             <>
                 <h3 key={`${user.username}_"presentations"`} className="font-semibold text-lg mt-2">
                     Presentations
                 </h3>
-                <TablePresentation groupName="a" userRole={1} />
+                <TablePresentation groupName="a" dataList={presentationListQueryRes?.data ?? []} />
             </>
         );
     }
