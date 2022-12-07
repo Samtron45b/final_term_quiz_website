@@ -59,6 +59,31 @@ function Main() {
                 });
         }
     });
+    const {
+        isFetching: isPresentationFetching,
+        data: presentationListQueryRes,
+        refetch: presentationListQueryRefetch
+    } = useQuery({
+        queryKey: ["get_presentation_list"],
+        enabled: false,
+        queryFn: async () => {
+            console.log("run presentation");
+            const token = localStorage.getItem("accessToken");
+
+            return axios
+                .get(`${process.env.REACT_APP_BASE_URL}presentation/get`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                .then((response) => {
+                    return response;
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        }
+    });
 
     useEffect(() => {
         if (location !== window.location.pathname) {
@@ -66,18 +91,23 @@ function Main() {
         }
         createdGroupListQueryRefetch();
         joinedGroupListQueryRefetch();
+        presentationListQueryRefetch();
     }, []);
 
     if (
         !isCreatedGroupFetching &&
         !isJoinedGroupFetching &&
+        !isPresentationFetching &&
         createdGroupListQueryRes &&
-        joinedGroupListQueryRes
+        joinedGroupListQueryRes &&
+        presentationListQueryRes
     ) {
         console.log("createdGroupListQueryRes");
         console.log(createdGroupListQueryRes);
         console.log("joinedGroupListQueryRes");
         console.log(joinedGroupListQueryRes);
+        console.log("presentationListQueryRes");
+        console.log(presentationListQueryRes);
     }
 
     function renderListGroup(listGroupData, isCreatedByGroup) {

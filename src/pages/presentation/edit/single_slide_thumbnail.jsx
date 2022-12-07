@@ -1,7 +1,27 @@
 import PropTypes from "prop-types";
 import { RiBarChart2Fill } from "react-icons/ri";
+import { BiGridVertical } from "react-icons/bi";
+import { FiTrash2 } from "react-icons/fi";
+import { useState, useEffect, useRef } from "react";
 
 function PresentationSingleSlideThumbNail({ isSelected, onClick, id, index, question }) {
+    const [showDeleteMenu, setShowDeleteMenu] = useState(false);
+    const wrapperRef = useRef(null);
+
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+                setShowDeleteMenu(false);
+            }
+        }
+        // Bind the event listener
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            // Unbind the event listener on clean up
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [wrapperRef]);
+
     return (
         <div
             key={id}
@@ -12,11 +32,40 @@ function PresentationSingleSlideThumbNail({ isSelected, onClick, id, index, ques
             onClick={() => onClick()}
         >
             <div
-                className={`w-2 h-1/2 mr-2 self-center ${
+                className={`w-2 h-20 mr-2 self-center ${
                     isSelected ? "bg-purple-600" : "bg-transparent"
                 }`}
             />
-            <p className="text-gray-500 mr-4">{index}</p>
+            <div ref={wrapperRef} className="flex-col flex relative justify-between pb-2">
+                <p className="text-gray-500 mr-4">{index + 1}</p>
+                <BiGridVertical
+                    className="text-gray-300 cursor-pointer"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowDeleteMenu(!showDeleteMenu);
+                    }}
+                />
+                <div
+                    hidden={!showDeleteMenu}
+                    className="absolute left-0 bottom-0 translate-y-[2.8rem] z-50 mt-1.5 w-44 origin-top-left rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+                    role="menu"
+                    aria-orientation="vertical"
+                    aria-labelledby="add-group-presentation-menu-button"
+                    tabIndex="-1"
+                >
+                    <button
+                        type="button"
+                        className="flex items-center px-2 py-3 text-sm text-red-500"
+                        role="menuitem"
+                        tabIndex="-1"
+                        id="add-group-presentation-menu-item-1"
+                        onClick={() => setShowDeleteMenu(false)}
+                    >
+                        <FiTrash2 className="mr-1 w-4 h-4" />
+                        Delete
+                    </button>
+                </div>
+            </div>
             <div className="flex flex-col justify-center py-5 items-center w-full bg-white border border-black rounded-lg">
                 <RiBarChart2Fill size={50} className="text-gray-400" />
                 <p className="text-gray-400 mt-1 text-center">{question}</p>

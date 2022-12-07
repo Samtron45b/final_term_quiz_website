@@ -53,7 +53,7 @@ function App() {
         <LocationContext.Provider value={locationContextValue}>
             <AuthContext.Provider value={authContextValue}>
                 <AddGroupModalContext.Provider value={addGroupModalContextValue}>
-                    <div className="pb-5">
+                    <div className="pb-5 h-screen">
                         <QueryClientProvider client={queryClient}>
                             <Router>
                                 <Routes>

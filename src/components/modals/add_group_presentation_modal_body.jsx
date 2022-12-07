@@ -5,7 +5,8 @@ import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
 import AuthContext from "../contexts/auth_context";
 
-function AddGroupPresentationModalBody({ addingType, setShowModal }) {
+function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
+    console.log(params);
     const {
         register,
         handleSubmit,
@@ -98,11 +99,14 @@ function AddGroupPresentationModalBody({ addingType, setShowModal }) {
 
 AddGroupPresentationModalBody.propTypes = {
     addingType: PropTypes.number,
-    setShowModal: PropTypes.func
+    setShowModal: PropTypes.func,
+    // eslint-disable-next-line react/forbid-prop-types
+    params: PropTypes.object
 };
 AddGroupPresentationModalBody.defaultProps = {
     addingType: 0,
-    setShowModal: null
+    setShowModal: null,
+    params: null
 };
 
 export default AddGroupPresentationModalBody;
