@@ -86,7 +86,8 @@ function PresentationSingleSlideThumbNail({
                         role="menuitem"
                         tabIndex="-1"
                         id="add-group-presentation-menu-item-1"
-                        onClick={() => {
+                        onClick={(e) => {
+                            e.stopPropagation();
                             deleteSlide();
                             setShowDeleteMenu(false);
                         }}

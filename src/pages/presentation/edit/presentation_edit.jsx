@@ -69,7 +69,13 @@ function PresentationEditPage() {
                 const newSlide = response?.data;
                 setPresentationData({
                     ...presentationData,
-                    slides: (presentationData?.slides ?? []).concat([newSlide])
+                    slides: (presentationData?.slides ?? []).concat([
+                        {
+                            id: newSlide.id,
+                            presentationId: newSlide.presentationId,
+                            question: newSlide.question
+                        }
+                    ])
                 });
                 return response;
             })
@@ -115,16 +121,21 @@ function PresentationEditPage() {
         const slideList = presentationData?.slides ?? [];
         const { length } = slideList;
         const updateSlideListAfterRemoveSlide = (slideId) => {
+            console.log(slideId);
             const currentSlideList = presentationData?.slides?.concat() ?? [];
-            const slideIdIndex = currentSlideList.findIndex((slide) => slide.id === slideId);
-            const newSlideList = currentSlideList.filter((slide) => slide.id !== slideId);
+            console.log(currentSlideList);
+            const slideIdIndex = currentSlideList.findIndex((slide) => `${slide.id}` === slideId);
+            const newSlideList = currentSlideList.filter((slide) => `${slide.id}` !== slideId);
+            console.log(slideIdIndex);
+            console.log(curIndexView);
+            console.log(newSlideList);
+            if (slideIdIndex === curIndexView && slideIdIndex === currentSlideList.length - 1) {
+                setCurIndexView(newSlideList.length - 1);
+            }
             setPresentationData({
                 ...presentationData,
                 slides: newSlideList
             });
-            if (slideIdIndex === curIndexView && slideIdIndex === newSlideList.length - 1) {
-                setCurIndexView(newSlideList.length - 1);
-            }
         };
         for (let i = 0; i < length; i += 1) {
             listSlideThumbnails.push(

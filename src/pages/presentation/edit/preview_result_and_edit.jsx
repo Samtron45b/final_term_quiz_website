@@ -20,12 +20,10 @@ import axios from "axios";
 
 function PreviewResultAndEdit({
     id,
-    question,
     parentSelectedIndex,
     parentCurIndexView,
     parentSetSelectedIndexView
 }) {
-    console.log(id, question);
     const { register, handleSubmit, setValue } = useForm();
 
     const onSubmit = (dataSubmit) => console.log(dataSubmit);
@@ -65,7 +63,7 @@ function PreviewResultAndEdit({
             }
         }
         fectchData();
-    }, [parentCurIndexView]);
+    }, [id]);
 
     // const quizData = {
     //     question: "Nà ní",
@@ -114,12 +112,12 @@ function PreviewResultAndEdit({
     };
 
     function renderOptionInputs() {
-        const listOptions = slideQueryRes?.data?.answers ?? [];
+        const listOptions = slideQueryRes?.data?.options ?? [];
         const listOptionInputs = [];
         const { length } = listOptions;
         for (let i = 0; i < length; i += 1) {
             const name = `option${i + 1}`;
-            setValue(name, listOptions[i].answerText ?? "");
+            setValue(name, listOptions[i].optionText ?? "");
             listOptionInputs.push(
                 <div key={name} className="flex flex-row items-center mt-2">
                     <input
@@ -154,12 +152,12 @@ function PreviewResultAndEdit({
                     <BarChart
                         width={150}
                         height={40}
-                        data={slideQueryRes?.data?.answers ?? []}
+                        data={slideQueryRes?.data?.options ?? []}
                         margin={{ top: 30 }}
                     >
-                        <XAxis dataKey="answerText" tick={{ fill: "rgb(163 163 163)" }} />
-                        <Bar dataKey="amount" fill="#8884d8">
-                            <LabelList dataKey="amount" content={renderCustomizedLabel} />
+                        <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
+                        <Bar dataKey="answerAmount" fill="#8884d8">
+                            <LabelList dataKey="answerAmount" content={renderCustomizedLabel} />
                         </Bar>
                     </BarChart>
                 </ResponsiveContainer>
@@ -204,7 +202,6 @@ function PreviewResultAndEdit({
 
 PreviewResultAndEdit.propTypes = {
     id: PropTypes.string,
-    question: PropTypes.string,
     parentSelectedIndex: PropTypes.number,
     parentCurIndexView: PropTypes.number,
     parentSetSelectedIndexView: PropTypes.func
@@ -212,7 +209,6 @@ PreviewResultAndEdit.propTypes = {
 
 PreviewResultAndEdit.defaultProps = {
     id: "",
-    question: "",
     parentSelectedIndex: 0,
     parentCurIndexView: 0,
     parentSetSelectedIndexView: null
