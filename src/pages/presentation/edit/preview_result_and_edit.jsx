@@ -1,6 +1,6 @@
-// import PropTypes from "prop-types";
+import PropTypes from "prop-types";
 import { RiCloseFill } from "react-icons/ri";
-
+import { IoMdAdd } from "react-icons/io";
 import { useForm } from "react-hook-form";
 import {
     BarChart,
@@ -14,38 +14,85 @@ import {
     LabelList,
     ResponsiveContainer
 } from "recharts";
+import { useEffect } from "react";
+import { useQuery } from "react-query";
+import axios from "axios";
 
-function PreviewResultAndEdit() {
-    const { register, handleSubmit } = useForm();
+function PreviewResultAndEdit({
+    id,
+    question,
+    parentSelectedIndex,
+    parentCurIndexView,
+    parentSetSelectedIndexView
+}) {
+    console.log(id, question);
+    const { register, handleSubmit, setValue } = useForm();
 
     const onSubmit = (dataSubmit) => console.log(dataSubmit);
 
-    const quizData = {
-        question: "Nà ní",
-        rightAnwser: "Dunno",
-        listOption: [
-            {
-                anwser: "Option1",
-                amount: 10,
-                fill: "#f72585"
-            },
-            {
-                anwser: "Option1",
-                amount: 100,
-                fill: "#7209b7"
-            },
-            {
-                anwser: "Option1",
-                amount: 300,
-                fill: "#3a0ca3"
-            },
-            {
-                anwser: "Option1",
-                amount: 0,
-                fill: "#4361ee"
+    const {
+        data: slideQueryRes,
+        refetch: slideQueryRefetch,
+        isFetching: isSlideQueryFecthcing
+    } = useQuery({
+        queryKey: ["get_slide_detail"],
+        enabled: false,
+        queryFn: async () => {
+            const token = localStorage.getItem("accessToken");
+            return axios
+                .get(`${process.env.REACT_APP_BASE_URL}presentation/getSlide?slideId=${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                })
+                .then((response) => {
+                    console.log(response);
+                    setValue("question", response?.data?.question ?? "");
+                    return response;
+                })
+                .catch((error) => {
+                    console.log("get error");
+                    console.log(error);
+                });
+        }
+    });
+
+    useEffect(() => {
+        async function fectchData() {
+            await slideQueryRefetch();
+            if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
+                parentSetSelectedIndexView(parentCurIndexView);
             }
-        ]
-    };
+        }
+        fectchData();
+    }, [parentCurIndexView]);
+
+    // const quizData = {
+    //     question: "Nà ní",
+    //     rightAnwser: "Dunno",
+    //     listOption: [
+    //         {
+    //             anwser: "Option1",
+    //             amount: 10,
+    //             fill: "#f72585"
+    //         },
+    //         {
+    //             anwser: "Option1",
+    //             amount: 100,
+    //             fill: "#7209b7"
+    //         },
+    //         {
+    //             anwser: "Option1",
+    //             amount: 300,
+    //             fill: "#3a0ca3"
+    //         },
+    //         {
+    //             anwser: "Option1",
+    //             amount: 0,
+    //             fill: "#4361ee"
+    //         }
+    //     ]
+    // };
 
     const renderCustomizedLabel = (propTypes) => {
         const { x, y, width, value } = propTypes;
@@ -67,15 +114,14 @@ function PreviewResultAndEdit() {
     };
 
     function renderOptionInputs() {
+        const listOptions = slideQueryRes?.data?.answers ?? [];
         const listOptionInputs = [];
-        const { length } = quizData.listOption;
+        const { length } = listOptions;
         for (let i = 0; i < length; i += 1) {
-            const wrapperClassName = `flex flex-row items-center ${
-                i === length - 1 ? "mb-0" : "mb-2"
-            }`;
             const name = `option${i + 1}`;
+            setValue(name, listOptions[i].answerText ?? "");
             listOptionInputs.push(
-                <div className={wrapperClassName}>
+                <div key={name} className="flex flex-row items-center mt-2">
                     <input
                         name={name}
                         className="shadow-sm mr-2
@@ -85,7 +131,7 @@ function PreviewResultAndEdit() {
                         id="username"
                         type="text"
                         placeholder="Option4"
-                        {...register(name, { required: "Username is required." })}
+                        {...register(name)}
                     />
                     <RiCloseFill size={30} className="cursor-pointer" />
                 </div>
@@ -94,18 +140,24 @@ function PreviewResultAndEdit() {
         return listOptionInputs;
     }
 
+    if (!slideQueryRes) {
+        return null;
+    }
+
     return (
-        <div className="flex flex-row h-full bg-neutral-300 w-full sm:w-[78%] lg:w-[83%] xl:w-[87.5%]">
+        <div className="flex flex-row max-h-full h-screen bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
             <div className="grow flex flex-col justify-center items-center mx-5 my-10 bg-white">
-                <p className="text-5xl text-slate-500 mb-5">{quizData.question}</p>
+                <p className="text-5xl text-slate-500 mb-5">
+                    {slideQueryRes?.data?.question ?? "Question"}
+                </p>
                 <ResponsiveContainer width="70%" height="80%">
                     <BarChart
                         width={150}
                         height={40}
-                        data={quizData.listOption}
+                        data={slideQueryRes?.data?.answers ?? []}
                         margin={{ top: 30 }}
                     >
-                        <XAxis dataKey="name" tick={{ fill: "rgb(163 163 163)" }} />
+                        <XAxis dataKey="answerText" tick={{ fill: "rgb(163 163 163)" }} />
                         <Bar dataKey="amount" fill="#8884d8">
                             <LabelList dataKey="amount" content={renderCustomizedLabel} />
                         </Bar>
@@ -134,6 +186,14 @@ function PreviewResultAndEdit() {
                     </div>
                     <div className="mb-3">
                         <span className="text-lg font-medium text-gray-700">Options</span>
+                        <button
+                            type="button"
+                            className="bg-neutral-400 opacity-70 w-full flex justify-center items-center px-2 py-3 rounded-md text-white"
+                            onClick={() => {}}
+                        >
+                            <IoMdAdd className="mr-1" />
+                            Add options &#40;up to 4&#41;
+                        </button>
                         {renderOptionInputs()}
                     </div>
                 </form>
@@ -142,18 +202,20 @@ function PreviewResultAndEdit() {
     );
 }
 
-// PreviewResultAndEdit.propTypes = {
-//     id: PropTypes.string,
-//     index: PropTypes.number,
-//     question: PropTypes.string,
-//     isSelected: PropTypes.bool
-// };
+PreviewResultAndEdit.propTypes = {
+    id: PropTypes.string,
+    question: PropTypes.string,
+    parentSelectedIndex: PropTypes.number,
+    parentCurIndexView: PropTypes.number,
+    parentSetSelectedIndexView: PropTypes.func
+};
 
-// PreviewResultAndEdit.defaultProps = {
-//     id: "",
-//     index: 0,
-//     question: "",
-//     isSelected: false
-// };
+PreviewResultAndEdit.defaultProps = {
+    id: "",
+    question: "",
+    parentSelectedIndex: 0,
+    parentCurIndexView: 0,
+    parentSetSelectedIndexView: null
+};
 
 export default PreviewResultAndEdit;

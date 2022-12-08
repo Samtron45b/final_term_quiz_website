@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { AiOutlineLogin } from "react-icons/ai";
 import { BsFillPlayFill } from "react-icons/bs";
 import { RiEdit2Line, RiDeleteBin5Fill } from "react-icons/ri";
+import { useNavigate } from "react-router-dom";
 
 function PresentationCard({
     presentationName,
@@ -14,6 +15,7 @@ function PresentationCard({
     // onRemoveBtnClick
 }) {
     console.log(groupName, groupId, userCanEdit, presentationId);
+    const navigate = useNavigate();
     function onDeletePresentation() {
         const token = localStorage.getItem("accessToken");
         axios
@@ -73,6 +75,8 @@ function PresentationCard({
                 onClick={() => {
                     if (btnType.toLocaleLowerCase() === "delete".toLocaleLowerCase()) {
                         onDeletePresentation();
+                    } else if (btnType.toLocaleLowerCase() === "edit".toLocaleLowerCase()) {
+                        navigate(`/presentation/${presentationId}/edit`);
                     }
                 }}
             >
