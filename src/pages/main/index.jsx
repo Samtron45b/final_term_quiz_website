@@ -1,15 +1,16 @@
-import axios from "axios";
 import React, { useContext, useEffect } from "react";
 import { useQuery } from "react-query";
 import MainGroupCard from "../../components/cards/main_group_card";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
 import MainHeader from "../../components/header/main_header/main_header";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import TablePresentation from "./presentation_table";
 
 function Main() {
     const { user } = useContext(AuthContext);
     const { location, setLocation } = useContext(LocationContext);
+    const privateAxios = usePrivateAxios();
     const {
         isFetching: isCreatedGroupFetching,
         data: createdGroupListQueryRes,
@@ -19,13 +20,8 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             console.log("run created by");
-            const token = localStorage.getItem("accessToken");
-            return axios
-                .get(`${process.env.REACT_APP_BASE_URL}group/createdBy?username=${user.username}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            return privateAxios
+                .get(`group/createdBy?username=${user.username}`)
                 .then((response) => {
                     return response;
                 })
@@ -43,14 +39,8 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             console.log("run joined by");
-            const token = localStorage.getItem("accessToken");
-
-            return axios
-                .get(`${process.env.REACT_APP_BASE_URL}group/joinedBy?username=${user.username}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            return privateAxios
+                .get(`group/joinedBy?username=${user.username}`)
                 .then((response) => {
                     return response;
                 })
@@ -68,14 +58,8 @@ function Main() {
         enabled: false,
         queryFn: async () => {
             console.log("run presentation");
-            const token = localStorage.getItem("accessToken");
-
-            return axios
-                .get(`${process.env.REACT_APP_BASE_URL}presentation/get`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            return privateAxios
+                .get(`presentation/get`)
                 .then((response) => {
                     return response;
                 })

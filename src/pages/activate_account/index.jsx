@@ -1,14 +1,14 @@
-import axios from "axios";
 import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
 import { MdDone, MdError } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import { useEffect } from "react";
+import { publicAxios } from "../../configs/networks/custom_axioses";
 
 function ActiveAccountPage() {
     const { username } = useParams();
     const callActivateAccountApi = async () => {
-        const res = await axios.get(
+        const res = await publicAxios.get(
             `${process.env.REACT_APP_BASE_URL}auth/active?username=${username}`
         );
         return res.data;

@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
-import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import ModalFrame from "../../components/modals/modal_frame";
 import AuthResultModalBody from "../../components/modals/auth_result_modal_body";
+import { publicAxios } from "../../configs/networks/custom_axioses";
 
 function RegisterPage() {
     const {
@@ -28,7 +28,7 @@ function RegisterPage() {
 
     const onSubmit = (data) => {
         setIsLoading(true);
-        axios
+        publicAxios
             .get(
                 `${process.env.REACT_APP_BASE_URL}auth/register?clientId=${uuidv4()}&email=${
                     data.email

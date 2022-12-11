@@ -1,14 +1,12 @@
 import { MdGroups } from "react-icons/md";
 import { IoMdAdd } from "react-icons/io";
 import { HiPresentationChartLine } from "react-icons/hi";
-import { useState, useRef, useEffect, useContext } from "react";
-import AddGroupModalContext from "../../contexts/add_group_context";
+import { useState, useRef, useEffect } from "react";
+import PropsType from "prop-types";
 
-function AddGroupPresentationMenu() {
+function AddGroupPresentationMenu({ setAddingType }) {
     const wrapperRef = useRef(null);
     const [isAddGroupPresentationMenuOpen, setIsAddGroupPresentationMenuOpen] = useState(false);
-    const { setAddingType } = useContext(AddGroupModalContext);
-
     useEffect(() => {
         function handleClickOutside(event) {
             if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
@@ -76,5 +74,13 @@ function AddGroupPresentationMenu() {
         </div>
     );
 }
+
+AddGroupPresentationMenu.propTypes = {
+    setAddingType: PropsType.func
+};
+
+AddGroupPresentationMenu.defaultProps = {
+    setAddingType: null
+};
 
 export default AddGroupPresentationMenu;

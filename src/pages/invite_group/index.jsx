@@ -1,26 +1,19 @@
-import axios from "axios";
 import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
 import { MdDone, MdError } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect } from "react";
 import AuthContext from "../../components/contexts/auth_context";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function InviteGroupPage() {
     const { inviteId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const privateAxios = usePrivateAxios();
     const callAddUserApi = async () => {
-        const token = localStorage.getItem("accessToken");
-        const res = await axios
-            .get(
-                `${process.env.REACT_APP_BASE_URL}group/addUser?inviteId=${inviteId}&username=${user.username}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+        const res = await privateAxios
+            .get(`group/addUser?inviteId=${inviteId}&username=${user.username}`)
             .then((response) => {
                 console.log(response);
                 navigate(`/group_detail/${response?.data?.data?.name}`, { replace: true });

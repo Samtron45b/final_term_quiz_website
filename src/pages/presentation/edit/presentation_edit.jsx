@@ -4,10 +4,10 @@ import { IoMdAdd } from "react-icons/io";
 import { BsFillPlayFill } from "react-icons/bs";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
-import axios from "axios";
 import MainHeader from "../../../components/header/main_header/main_header";
 import PreviewResult from "./preview_result_and_edit";
 import PresentationSingleSlideThumbNail from "./single_slide_thumbnail";
+import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function PresentationEditPage() {
     const { presentationId } = useParams();
@@ -17,20 +17,14 @@ function PresentationEditPage() {
     const { register, reset } = useForm();
     const queryClient = useQueryClient();
 
+    const privateAxios = usePrivateAxios();
+
     const { refetch: presentationQueryRefetch } = useQuery({
         queryKey: ["get_presentation_detail"],
         enabled: false,
         queryFn: async () => {
-            const token = localStorage.getItem("accessToken");
-            return axios
-                .get(
-                    `${process.env.REACT_APP_BASE_URL}presentation/get?presentationId=${presentationId}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                )
+            return privateAxios
+                .get(`presentation/get?presentationId=${presentationId}`)
                 .then((response) => {
                     console.log(response);
                     setPresentationData({ ...response?.data });
@@ -53,18 +47,8 @@ function PresentationEditPage() {
     }, []);
 
     async function addSlide() {
-        const token = localStorage.getItem("accessToken");
-        axios
-            .get(
-                `${process.env.REACT_APP_BASE_URL}presentation/addSlide?presentationId=${
-                    presentationData?.id ?? 0
-                }`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+        privateAxios
+            .get(`presentation/addSlide?presentationId=${presentationData?.id ?? 0}`)
             .then((response) => {
                 const newSlide = response?.data;
                 setPresentationData({

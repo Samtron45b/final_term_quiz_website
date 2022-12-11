@@ -2,17 +2,17 @@ import { Link, useNavigate } from "react-router-dom";
 import { MdLogout } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import { useState, useRef, useEffect, useContext } from "react";
-import axios from "axios";
 import AuthContext from "../../contexts/auth_context";
-import LocationContext from "../../contexts/location_context";
+import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function ProfileMenu() {
     const wrapperRef = useRef(null);
     const { user } = useContext(AuthContext);
-    const { setLocation } = useContext(LocationContext);
+    const { setUser } = useContext(AuthContext);
     const [isProfileMenuOpen, setIsProFileMenuOpen] = useState(false);
 
     const navigate = useNavigate();
+    const privateAxios = usePrivateAxios();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -29,18 +29,14 @@ function ProfileMenu() {
     }, [wrapperRef]);
 
     async function signout() {
-        const token = localStorage.getItem("accessToken");
         console.log(user.clientId);
-        axios
-            .get(`${process.env.REACT_APP_BASE_URL}user/logout?clientId=${user.clientId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+        privateAxios
+            .get(`user/logout?clientId=${user.clientId}`)
             .then(() => {
                 localStorage.removeItem("accessToken");
-                setLocation(null);
-                navigate("/login", { replace: true });
+                localStorage.removeItem("userData");
+                setUser(null);
+                navigate("/login", { state: { from: null }, replace: true });
             })
             .catch((err) => console.log(err));
     }

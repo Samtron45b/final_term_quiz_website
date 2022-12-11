@@ -3,7 +3,7 @@ import { RiBarChart2Fill } from "react-icons/ri";
 import { BiGridVertical } from "react-icons/bi";
 import { FiTrash2 } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
-import axios from "axios";
+import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function PresentationSingleSlideThumbNail({
     isSelected,
@@ -15,6 +15,8 @@ function PresentationSingleSlideThumbNail({
 }) {
     const [showDeleteMenu, setShowDeleteMenu] = useState(false);
     const wrapperRef = useRef(null);
+
+    const privateAxios = usePrivateAxios();
 
     useEffect(() => {
         function handleClickOutside(event) {
@@ -31,13 +33,8 @@ function PresentationSingleSlideThumbNail({
     }, [wrapperRef]);
 
     async function deleteSlide() {
-        const token = localStorage.getItem("accessToken");
-        axios
-            .get(`${process.env.REACT_APP_BASE_URL}presentation/deleteSlide?slideId=${id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+        privateAxios
+            .get(`presentation/deleteSlide?slideId=${id}`)
             .then((response) => {
                 console.log(response);
                 updateListSlide(id);

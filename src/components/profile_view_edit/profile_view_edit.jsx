@@ -1,10 +1,14 @@
-import axios from "axios";
 import { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { ImSpinner10 } from "react-icons/im";
+import { getUserDataFromServer } from "../../auth";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import AuthContext from "../contexts/auth_context";
 
 function ProfileViewEdit() {
     const { user } = useContext(AuthContext);
+    const [isLoading, setLoaditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
     const {
         register,
         handleSubmit,
@@ -13,55 +17,40 @@ function ProfileViewEdit() {
     } = useForm();
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
-        axios
-            .get(`${process.env.REACT_APP_BASE_URL}user/get?username=${user.username}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            .then((response) => {
-                console.log(response);
-                reset({
-                    displayName: response.data.displayName,
-                    email: response.data.email
-                });
-            })
-            .catch((error) => {
-                console.log(error);
-            });
-        return function cleanup() {
-            console.log("Profile is uinmounted");
-        };
+        reset({
+            username: user.username,
+            displayName: user.displayName,
+            email: user.email
+        });
     }, []);
+    const privateAxios = usePrivateAxios();
+    const fetchUserData = getUserDataFromServer();
 
-    const onSubmit = (data) => {
+    const onSubmit = async (data) => {
         console.log(data);
-        const token = localStorage.getItem("accessToken");
-        axios
+        setLoaditing(true);
+        privateAxios
             .get(
-                `${process.env.REACT_APP_BASE_URL}user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+                `user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`
             )
-            .then((response) => {
+            .then(async (response) => {
                 console.log(response);
-                reset({
-                    displayName: data.displayName,
-                    email: data.email
+                fetchUserData().then(() => {
+                    reset({
+                        username: user.username,
+                        displayName: data.displayName,
+                        email: data.email
+                    });
                 });
+                setIsEditing(false);
             })
             .catch((error) => {
                 console.log(error);
+            })
+            .finally(() => {
+                setLoaditing(false);
             });
     };
-    const [isEditing, setIsEditing] = useState(false);
-    if (isEditing === null) {
-        setIsEditing(false);
-    }
 
     function getInputClassName() {
         return `shadow-sm
@@ -71,18 +60,28 @@ function ProfileViewEdit() {
     }
 
     function renderButton() {
-        if (!isEditing) {
+        if (isLoading || !isEditing) {
             return (
                 <button
+                    disabled={isLoading}
                     type="button"
                     data-mdb-ripple="true"
                     data-mdb-ripple-color="light"
-                    className="inline-flex justify-center py-2 px-4 border border-transparent
-                    shadow-sm text-sm font-medium rounded-lg text-white bg-purple-700
-                    hover:bg-purple-600"
+                    className={`inline-flex justify-center py-2 px-4 border border-transparent
+                    shadow-sm text-sm font-medium rounded-lg text-white ${
+                        isLoading ? "bg-neutral-500" : "bg-purple-700"
+                    }
+                    ${isLoading ? "hover:bg-neutral-500" : "hover:bg-purple-600"}`}
                     onClick={() => setIsEditing(true)}
                 >
-                    Edit profile
+                    {isLoading ? (
+                        <div className="flex justify-center items-center">
+                            <ImSpinner10 className="animate-spin h-5 w-5 mr-3" />
+                            Saving changes...
+                        </div>
+                    ) : (
+                        "Edit profile"
+                    )}
                 </button>
             );
         }
@@ -119,6 +118,23 @@ function ProfileViewEdit() {
     return (
         <div className="">
             <form onSubmit={handleSubmit(onSubmit)}>
+                <div className="username-input mb-5 w-1/2">
+                    <label className="block text-sm font-medium text-gray-700" htmlFor="username">
+                        Display name
+                        <input
+                            name="username"
+                            className={getInputClassName()}
+                            disabled
+                            id="username"
+                            type="text"
+                            placeholder="Quamon"
+                            {...register("username")}
+                        />
+                        {errors.username && (
+                            <span className="text-red-600">This field is required</span>
+                        )}
+                    </label>
+                </div>
                 <div className="email-input mb-3 w-1/2">
                     <label className="block text-sm font-medium text-gray-700" htmlFor="email">
                         Email
@@ -136,7 +152,7 @@ function ProfileViewEdit() {
                         )}
                     </label>
                 </div>
-                <div className="username-input mb-5 w-1/2">
+                <div className="displayname-input mb-5 w-1/2">
                     <label
                         className="block text-sm font-medium text-gray-700"
                         htmlFor="displayName"

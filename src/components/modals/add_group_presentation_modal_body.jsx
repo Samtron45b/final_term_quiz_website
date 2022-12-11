@@ -1,9 +1,10 @@
-import axios from "axios";
 import { useContext, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
+import { useLocation, useNavigate } from "react-router-dom";
 import AuthContext from "../contexts/auth_context";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
     console.log(params);
@@ -16,6 +17,9 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
     const { user } = useContext(AuthContext);
     const [errorMess, setErrorMess] = useState(null);
     const [service, setService] = useState("");
+    const navigate = useNavigate();
+    const location = useLocation();
+    const privateAxios = usePrivateAxios();
 
     useEffect(() => {
         if (addingType === 1) {
@@ -28,24 +32,20 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
     const onSubmit = async (data) => {
         setIsLoading(true);
         console.log(data);
-        const token = localStorage.getItem("accessToken");
         const url =
             addingType === 1
-                ? `${process.env.REACT_APP_BASE_URL}group/create?username=${user.username}&groupname=${data.name}`
-                : `${process.env.REACT_APP_BASE_URL}presentation/create?presentationName=${data.name}`;
+                ? `group/create?username=${user.username}&groupname=${data.name}`
+                : `presentation/create?presentationName=${data.name}`;
         console.log(url);
-        axios
-            .get(url, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+        privateAxios
+            .get(url)
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
                 setShowModal(0);
-                if (window.location.pathname === "/") {
-                    window.location.reload();
+                if (location.pathname === "/") {
+                    navigate("/temp");
+                    setTimeout(() => navigate("/", { replace: true }), 100);
                 }
             })
             .catch((error) => {

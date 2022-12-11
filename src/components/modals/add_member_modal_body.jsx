@@ -1,9 +1,9 @@
-import axios from "axios";
 import { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
 import AuthContext from "../contexts/auth_context";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function AddMemberModalBody({ groupName, inviteId }) {
     const { user } = useContext(AuthContext);
@@ -19,18 +19,14 @@ function AddMemberModalBody({ groupName, inviteId }) {
     const [isLoading, setIsLoading] = useState(false);
     const [errorMess, setErrorMess] = useState(null);
 
+    const privateAxios = usePrivateAxios();
+
     const onSubmit = async (data) => {
         setIsLoading(true);
         console.log(data);
-        const token = localStorage.getItem("accessToken");
-        axios
+        privateAxios
             .get(
-                `${process.env.REACT_APP_BASE_URL}group/invite?groupname=${groupName}&inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+                `group/invite?groupname=${groupName}&inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`
             )
             .then((response) => {
                 console.log(response);

@@ -4,7 +4,6 @@ import { MdQuiz } from "react-icons/md";
 import { useContext, useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
 import { useQuery } from "react-query";
-import axios from "axios";
 import MainHeader from "../../components/header/main_header/main_header";
 import SimpleMenuBar from "../../components/side_bars/simple_menu_bar";
 import TableMember from "./member_table";
@@ -14,6 +13,7 @@ import ChangeMemberRoleModalBody from "../../components/modals/change_member_rol
 import RemoveModalBody from "../../components/modals/remove_modal_body";
 import AuthContext from "../../components/contexts/auth_context";
 import LocationContext from "../../components/contexts/location_context";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function GroupDetailPage() {
     const { groupname } = useParams();
@@ -25,17 +25,14 @@ function GroupDetailPage() {
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
     const [memberToRemove, setMemberToRemove] = useState(null);
 
+    const privateAxios = usePrivateAxios();
+
     const { data: memberListQueryRes, refetch: memberListQueryRefetch } = useQuery({
         queryKey: ["get_member_list"],
         enabled: false,
         queryFn: async () => {
-            const token = localStorage.getItem("accessToken");
-            return axios
-                .get(`${process.env.REACT_APP_BASE_URL}group/get?group=${groupname}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            return privateAxios
+                .get(`group/get?group=${groupname}`)
                 .then((response) => {
                     console.log(response);
                     return response;

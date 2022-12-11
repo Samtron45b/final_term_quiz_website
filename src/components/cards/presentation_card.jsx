@@ -1,36 +1,33 @@
-import axios from "axios";
 import PropTypes from "prop-types";
 import { AiOutlineLogin } from "react-icons/ai";
 import { BsFillPlayFill } from "react-icons/bs";
 import { RiEdit2Line, RiDeleteBin5Fill } from "react-icons/ri";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import { convertTimeStampToDate } from "../../utilities";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function PresentationCard({
     presentationName,
     presentationId,
-    groupName,
-    groupId,
+    timeCreated,
     userCanEdit
     // onChangeRoleBtnClick,
     // onRemoveBtnClick
 }) {
-    console.log(groupName, groupId, userCanEdit, presentationId);
+    console.log(timeCreated, userCanEdit, presentationId);
     const navigate = useNavigate();
+    const location = useLocation();
+    const privateAxios = usePrivateAxios();
     function onDeletePresentation() {
-        const token = localStorage.getItem("accessToken");
-        axios
-            .get(
-                `${process.env.REACT_APP_BASE_URL}presentation/delete?presentationId=${presentationId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+        privateAxios
+            .get(`presentation/delete?presentationId=${presentationId}`)
             .then((response) => {
                 console.log(response);
-                if (window.location.pathname === "/") {
-                    window.location.reload();
+                if (location.pathname === "/") {
+                    navigate("/temp");
+                    setTimeout(() => {
+                        navigate("/", { replace: true });
+                    }, 100);
                 }
             })
             .catch((error) => {
@@ -88,7 +85,9 @@ function PresentationCard({
     return (
         <tr>
             <td className="py-2 px-6 text-lg text-gray-500 break-words">{presentationName}</td>
-            <td className="py-2 px-6 text-lg text-gray-500 break-words">{groupName}</td>
+            <td className="py-2 px-6 text-lg text-gray-500 break-words">
+                {convertTimeStampToDate({ date: new Date(timeCreated), showTime: true })}
+            </td>
             <td className="py-2 px-6 flex items-center">
                 {renderButton("join")}
                 {renderButton("present")}
@@ -102,8 +101,7 @@ function PresentationCard({
 PresentationCard.propTypes = {
     presentationName: PropTypes.string,
     presentationId: PropTypes.string,
-    groupName: PropTypes.string,
-    groupId: PropTypes.string,
+    timeCreated: PropTypes.number,
     userCanEdit: PropTypes.bool
     // onChangeRoleBtnClick: PropTypes.func,
     // onRemoveBtnClick: PropTypes.func
@@ -111,8 +109,7 @@ PresentationCard.propTypes = {
 PresentationCard.defaultProps = {
     presentationName: "",
     presentationId: "",
-    groupName: "",
-    groupId: "",
+    timeCreated: "",
     userCanEdit: true
     // onChangeRoleBtnClick: null,
     // onRemoveBtnClick: null

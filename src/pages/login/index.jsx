@@ -1,19 +1,14 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
-import axios from "axios";
-import jwtDecode from "jwt-decode";
 import { v4 as uuidv4 } from "uuid";
-import AuthContext from "../../components/contexts/auth_context";
-import LocationContext from "../../components/contexts/location_context";
 import SocialSignInBtns from "./socialSignInBtns";
+import { publicAxios } from "../../configs/networks/custom_axioses";
+import { getUserDataFromServer } from "../../auth";
 
 function LoginPage() {
-    const { location, setLocation } = useContext(LocationContext);
-
-    const { setUser } = useContext(AuthContext);
     const {
         register,
         handleSubmit,
@@ -26,34 +21,24 @@ function LoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [loginError, setLoginError] = useState(null);
     const navigate = useNavigate();
-
-    useEffect(() => {
-        if (location === "/login") setLocation(null);
-    });
+    const location = useLocation();
+    const fetchUserData = getUserDataFromServer();
 
     const onSubmit = async (data) => {
         setIsLoading(true);
         console.log(data);
-        axios
+        publicAxios
             .get(
-                `${process.env.REACT_APP_BASE_URL}auth/login?clientId=${uuidv4()}&username=${
-                    data.username
-                }&password=${data.password}`
+                `auth/login?clientId=${uuidv4()}&username=${data.username}&password=${
+                    data.password
+                }`
             )
-            .then((response) => {
+            .then(async (response) => {
                 console.log(response);
                 const { accessToken } = response.data;
                 localStorage.setItem("accessToken", accessToken);
-                const decode = jwtDecode(accessToken, "letsplay");
-                setUser({
-                    clientId: decode.clientId,
-                    displayName: decode.displayName,
-                    username: decode.name,
-                    avatar: decode.avatar
-                        ? decode.avatar
-                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
-                });
-                navigate(location ?? "/", { replace: true });
+                await fetchUserData();
+                navigate(location.state?.from ?? "/", { replace: true });
                 setLoginError(null);
                 setIsLoading(false);
             })

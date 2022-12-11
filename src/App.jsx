@@ -2,13 +2,9 @@
 import React, { useMemo, useState } from "react";
 import { BrowserRouter as Router, Navigate, Route, Routes } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "react-query";
-import jwtDecode from "jwt-decode";
 import ViewRoutes from "./routes";
 import { getToken } from "./auth";
 import "./App.css";
-import AddGroupModalContext from "./components/contexts/add_group_context";
-import ModalFrame from "./components/modals/modal_frame";
-import AddGroupPresentationModalBody from "./components/modals/add_group_presentation_modal_body";
 import AuthContext from "./components/contexts/auth_context";
 import LocationContext from "./components/contexts/location_context";
 
@@ -28,13 +24,7 @@ function App() {
 
     if (isInitialWeb) {
         if (accessToken !== null) {
-            const decode = jwtDecode(accessToken, "letsplay");
-            setUser({
-                username: decode.name,
-                avatar: decode.avatar
-                    ? decode.avatar
-                    : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
-            });
+            setUser(JSON.parse(localStorage.getItem("userData")));
         }
         setIsInitialWeb(false);
     }
@@ -43,59 +33,41 @@ function App() {
         user,
         setUser
     }));
-    const [addingType, setAddingType] = useState(0);
-    const addGroupModalContextValue = useMemo(() => ({
-        addingType,
-        setAddingType
-    }));
 
     return (
         <LocationContext.Provider value={locationContextValue}>
             <AuthContext.Provider value={authContextValue}>
-                <AddGroupModalContext.Provider value={addGroupModalContextValue}>
-                    <div className="pb-5 h-screen">
-                        <QueryClientProvider client={queryClient}>
-                            <Router>
-                                <Routes>
-                                    {ViewRoutes.map(({ path, exact, component }, key) => {
-                                        const routeKey = `route${key}`;
-                                        let firstComponent = component;
-                                        if (path === "/login" || path === "/register") {
-                                            if (accessToken) {
-                                                firstComponent = <Navigate to="/" />;
-                                            }
-                                        } else if (
-                                            !path.includes("/activate_account") &&
-                                            !accessToken
-                                        ) {
-                                            firstComponent = <Navigate to="/login" replace />;
+                <div className="pb-5 h-screen">
+                    <QueryClientProvider client={queryClient}>
+                        <Router>
+                            <Routes>
+                                {ViewRoutes.map(({ path, exact, component }, key) => {
+                                    const routeKey = `route${key}`;
+                                    let firstComponent = component;
+                                    if (path === "/login" || path === "/register") {
+                                        if (accessToken) {
+                                            firstComponent = <Navigate to="/" />;
                                         }
+                                    } else if (
+                                        !path.includes("/activate_account") &&
+                                        !accessToken
+                                    ) {
+                                        firstComponent = <Navigate to="/login" replace />;
+                                    }
 
-                                        return (
-                                            <Route
-                                                key={routeKey}
-                                                exact={exact}
-                                                path={path}
-                                                element={firstComponent}
-                                            />
-                                        );
-                                    })}
-                                </Routes>
-                            </Router>
-                        </QueryClientProvider>
-                    </div>
-                    <ModalFrame
-                        width="40%"
-                        isVisible={addingType > 0}
-                        clickOutSideToClose={false}
-                        onClose={() => setAddingType(0)}
-                    >
-                        <AddGroupPresentationModalBody
-                            addingType={addingType}
-                            setShowModal={setAddingType}
-                        />
-                    </ModalFrame>
-                </AddGroupModalContext.Provider>
+                                    return (
+                                        <Route
+                                            key={routeKey}
+                                            exact={exact}
+                                            path={path}
+                                            element={firstComponent}
+                                        />
+                                    );
+                                })}
+                            </Routes>
+                        </Router>
+                    </QueryClientProvider>
+                </div>
             </AuthContext.Provider>
         </LocationContext.Provider>
     );

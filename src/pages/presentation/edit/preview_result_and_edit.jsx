@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { useEffect } from "react";
 import { useQuery } from "react-query";
-import axios from "axios";
+import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function PreviewResultAndEdit({
     id,
@@ -28,6 +28,8 @@ function PreviewResultAndEdit({
 
     const onSubmit = (dataSubmit) => console.log(dataSubmit);
 
+    const privateAxios = usePrivateAxios();
+
     const {
         data: slideQueryRes,
         refetch: slideQueryRefetch,
@@ -36,13 +38,8 @@ function PreviewResultAndEdit({
         queryKey: ["get_slide_detail"],
         enabled: false,
         queryFn: async () => {
-            const token = localStorage.getItem("accessToken");
-            return axios
-                .get(`${process.env.REACT_APP_BASE_URL}presentation/getSlide?slideId=${id}`, {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                })
+            return privateAxios
+                .get(`presentation/getSlide?slideId=${id}`)
                 .then((response) => {
                     console.log(response);
                     setValue("question", response?.data?.question ?? "");

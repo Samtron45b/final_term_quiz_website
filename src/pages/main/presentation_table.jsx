@@ -7,15 +7,14 @@ function TablePresentation({ dataList, onSelectMemberChangeRole, onSelectMemberR
     function renderRows() {
         const rowToRender = [];
         for (let index = 0; index < length; index += 1) {
-            const { groupname, groupId, canUserEdit, id, name } = dataList[index];
+            const { id, name, timeCreated } = dataList[index];
             rowToRender.push(
                 <PresentationCard
                     key={`${name}_card`}
                     presentationId={`${id}`}
                     presentationName={name}
-                    groupName={groupname ?? "test group lvmnhat"}
-                    groupId={groupId ?? "lvmnhatTempGroup"}
-                    userCanEdit={canUserEdit ?? true}
+                    timeCreated={timeCreated}
+                    userCanEdit
                     onChangeRoleBtnClick={onSelectMemberChangeRole}
                     onRemoveBtnClick={onSelectMemberRemove}
                 />
@@ -31,7 +30,7 @@ function TablePresentation({ dataList, onSelectMemberChangeRole, onSelectMemberR
             <thead className="bg-gray-100 text-xs font-bold text-left text-gray-500 uppercase">
                 <tr>
                     <th className="px-6 py-3 ">Name</th>
-                    <th className="px-6 py-3 ">Group</th>
+                    <th className="px-6 py-3 ">Created at</th>
                     <th className="px-6 py-3  ">Action</th>
                 </tr>
             </thead>

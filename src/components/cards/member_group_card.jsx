@@ -1,7 +1,7 @@
-import axios from "axios";
 import PropTypes from "prop-types";
 import { AiOutlineUserDelete } from "react-icons/ai";
 import { MdAssignmentInd } from "react-icons/md";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function MemberGroupCard({
     groupName,
@@ -14,17 +14,11 @@ function MemberGroupCard({
     onChangeRoleBtnClick,
     onRemoveBtnClick
 }) {
+    const privateAxios = usePrivateAxios();
+
     function onDeleteUser() {
-        const token = localStorage.getItem("accessToken");
-        axios
-            .get(
-                `${process.env.REACT_APP_BASE_URL}group/kickUser?groupname=${groupName}username=${memberName}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
-            )
+        privateAxios
+            .get(`group/kickUser?groupname=${groupName}username=${memberName}`)
             .then((response) => {
                 console.log(response);
             })

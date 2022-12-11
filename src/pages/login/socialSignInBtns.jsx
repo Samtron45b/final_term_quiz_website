@@ -56,7 +56,11 @@ function SocialSignInBtns() {
                 client_id: process.env.REACT_APP_GOOGLE_CLIENT_ID,
                 callback: handleGoogle
             });
-            google.accounts.id.renderButton(document.getElementById("googleBtn"), {});
+            google.accounts.id.renderButton(document.getElementById("googleBtn"), {
+                type: "icon",
+                shape: "circle",
+                theme: "outline"
+            });
         }
     }, [handleGoogle]);
 
@@ -64,10 +68,9 @@ function SocialSignInBtns() {
         <div className="flex justify-center mt-4 gap-x-2">
             <button
                 type="button"
-                className="text-white bg-[#3b5998] font-medium rounded-full text-sm p-3 text-center inline-flex items-center mr-2 mb-2"
-                style={{ backgroundColor: "#1877f2" }}
+                className="text-white bg-[#1877f2] font-medium rounded-full text-sm px-[18px] text-center inline-flex items-center mr-2 mb-2"
             >
-                <FaFacebookF className="w-5 h-5" />
+                <FaFacebookF className="w-7 h-7" />
             </button>
             {error && <p style={{ color: "red" }}>{error}</p>}
             {loading ? (
