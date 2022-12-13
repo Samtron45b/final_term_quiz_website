@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import PresentationCard from "../../components/cards/presentation_card";
 
-function TablePresentation({ dataList, onSelectMemberChangeRole, onSelectMemberRemove }) {
+function TablePresentation({ dataList, onSelectPresentationRemove }) {
     const { length } = dataList;
 
     function renderRows() {
@@ -15,8 +15,7 @@ function TablePresentation({ dataList, onSelectMemberChangeRole, onSelectMemberR
                     presentationName={name}
                     timeCreated={timeCreated}
                     userCanEdit
-                    onChangeRoleBtnClick={onSelectMemberChangeRole}
-                    onRemoveBtnClick={onSelectMemberRemove}
+                    onRemoveBtnClick={onSelectPresentationRemove}
                 />
             );
         }
@@ -42,13 +41,11 @@ function TablePresentation({ dataList, onSelectMemberChangeRole, onSelectMemberR
 TablePresentation.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
-    onSelectMemberChangeRole: PropTypes.func,
-    onSelectMemberRemove: PropTypes.func
+    onSelectPresentationRemove: PropTypes.func
 };
 TablePresentation.defaultProps = {
     dataList: [],
-    onSelectMemberChangeRole: null,
-    onSelectMemberRemove: null
+    onSelectPresentationRemove: null
 };
 
 export default TablePresentation;

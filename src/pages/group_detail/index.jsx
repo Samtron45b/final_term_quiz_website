@@ -1,33 +1,32 @@
 import { useParams } from "react-router-dom";
-import { BsPeopleFill } from "react-icons/bs";
-import { MdQuiz } from "react-icons/md";
 import { useContext, useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
+import { ImSpinner10 } from "react-icons/im";
 import { useQuery } from "react-query";
 import MainHeader from "../../components/header/main_header/main_header";
-import SimpleMenuBar from "../../components/side_bars/simple_menu_bar";
 import TableMember from "./member_table";
 import ModalFrame from "../../components/modals/modal_frame";
 import AddMemberModalBody from "../../components/modals/add_member_modal_body";
 import ChangeMemberRoleModalBody from "../../components/modals/change_member_role_modal_body";
 import RemoveModalBody from "../../components/modals/remove_modal_body";
 import AuthContext from "../../components/contexts/auth_context";
-import LocationContext from "../../components/contexts/location_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function GroupDetailPage() {
     const { groupname } = useParams();
     const { user } = useContext(AuthContext);
-    const { location, setLocation } = useContext(LocationContext);
 
-    const [viewIndex, setViewIndex] = useState(0);
     const [showModal, setShowModal] = useState(false);
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
     const [memberToRemove, setMemberToRemove] = useState(null);
 
     const privateAxios = usePrivateAxios();
 
-    const { data: memberListQueryRes, refetch: memberListQueryRefetch } = useQuery({
+    const {
+        isFetching: isMemberListQueryFetching,
+        data: memberListQueryRes,
+        refetch: memberListQueryRefetch
+    } = useQuery({
         queryKey: ["get_member_list"],
         enabled: false,
         queryFn: async () => {
@@ -46,14 +45,8 @@ function GroupDetailPage() {
     });
 
     useEffect(() => {
-        if (location !== window.location.pathname) {
-            setLocation(window.location.pathname);
-        }
-        if (viewIndex === 0) {
-            console.log("Run this");
-            memberListQueryRefetch();
-        }
-    }, [viewIndex]);
+        memberListQueryRefetch();
+    }, []);
 
     let userRole = 0;
 
@@ -120,36 +113,17 @@ function GroupDetailPage() {
         );
     }
 
+    if (isMemberListQueryFetching) {
+        return <ImSpinner10 size={100} className="animate-spin mr-3 mb-2" />;
+    }
+
     return (
         <>
-            <div className="flex flex-col justify-center items-center">
-                <MainHeader />
-                <div className="flex justify-center items-center w-full mt-5">
-                    <h1 className="font-extrabold text-3xl">{groupname}</h1>
-                </div>
-                <div className="content_box flex w-4/5 items-top mt-5">
-                    <aside aria-label="Sidebar">
-                        <div className="w-56 py-3 px-3 bg-white rounded dark:bg-gray-800 border border-neutral-800 shadow-md">
-                            <h3 className="font-semibold">Group menu</h3>
-                            <SimpleMenuBar
-                                viewIndex={viewIndex}
-                                setViewIndex={setViewIndex}
-                                listItem={[
-                                    {
-                                        text: "People",
-                                        icon: BsPeopleFill
-                                    },
-                                    {
-                                        text: "Quizs",
-                                        icon: MdQuiz
-                                    }
-                                ]}
-                            />
-                        </div>
-                    </aside>
-                    <div className="ml-5 w-full px-2 bg-white">{renderGroupMems()}</div>
-                </div>
+            <MainHeader />
+            <div className="flex justify-center items-center w-full mt-5">
+                <h1 className="font-extrabold text-3xl">{`Group ${groupname}`}</h1>
             </div>
+            <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
             <ModalFrame
                 width="w-2/5"
                 isVisible={showModal}
@@ -158,7 +132,7 @@ function GroupDetailPage() {
             >
                 <AddMemberModalBody
                     groupName={groupname}
-                    inviteId={memberListQueryRes?.data?.data?.inviteId ?? ""}
+                    inviteId={memberListQueryRes?.data?.inviteId ?? ""}
                 />
             </ModalFrame>
             <ModalFrame
@@ -178,11 +152,12 @@ function GroupDetailPage() {
                 width="w-2/5"
                 isVisible={memberToRemove !== null}
                 clickOutSideToClose={false}
+                hasXCloseBtn={false}
                 onClose={() => setMemberToRemove(null)}
             >
                 <RemoveModalBody
                     objectToRemove={memberToRemove}
-                    memberDisplayName={memberToChangeRole?.displayName ?? ""}
+                    onClose={() => setMemberToRemove(null)}
                 />
             </ModalFrame>
         </>

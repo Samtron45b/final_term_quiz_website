@@ -10,16 +10,15 @@ function PresentationCard({
     presentationName,
     presentationId,
     timeCreated,
-    userCanEdit
+    userCanEdit,
     // onChangeRoleBtnClick,
-    // onRemoveBtnClick
+    onRemoveBtnClick
 }) {
-    console.log(timeCreated, userCanEdit, presentationId);
     const navigate = useNavigate();
     const location = useLocation();
     const privateAxios = usePrivateAxios();
-    function onDeletePresentation() {
-        privateAxios
+    async function onDeletePresentation() {
+        return privateAxios
             .get(`presentation/delete?presentationId=${presentationId}`)
             .then((response) => {
                 console.log(response);
@@ -29,9 +28,6 @@ function PresentationCard({
                         navigate("/", { replace: true });
                     }, 100);
                 }
-            })
-            .catch((error) => {
-                console.log(error);
             });
     }
 
@@ -71,7 +67,10 @@ function PresentationCard({
                 className="rounded-full p-3 hover:bg-gray-100 cursor-pointer"
                 onClick={() => {
                     if (btnType.toLocaleLowerCase() === "delete".toLocaleLowerCase()) {
-                        onDeletePresentation();
+                        onRemoveBtnClick({
+                            name: `presentation ${presentationName}`,
+                            onConfirmRemove: async () => onDeletePresentation()
+                        });
                     } else if (btnType.toLocaleLowerCase() === "edit".toLocaleLowerCase()) {
                         navigate(`/presentation/${presentationId}/edit`);
                     }
@@ -102,17 +101,17 @@ PresentationCard.propTypes = {
     presentationName: PropTypes.string,
     presentationId: PropTypes.string,
     timeCreated: PropTypes.number,
-    userCanEdit: PropTypes.bool
+    userCanEdit: PropTypes.bool,
     // onChangeRoleBtnClick: PropTypes.func,
-    // onRemoveBtnClick: PropTypes.func
+    onRemoveBtnClick: PropTypes.func
 };
 PresentationCard.defaultProps = {
     presentationName: "",
     presentationId: "",
     timeCreated: "",
-    userCanEdit: true
+    userCanEdit: true,
     // onChangeRoleBtnClick: null,
-    // onRemoveBtnClick: null
+    onRemoveBtnClick: null
 };
 
 export default PresentationCard;
