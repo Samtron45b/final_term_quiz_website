@@ -38,46 +38,27 @@ function MemberGroupCard({
 
     function renderButton(btnType) {
         let btnDisabled;
+        let icon;
         if (btnType === 1) {
             btnDisabled = false;
-        } else {
-            btnDisabled =
-                btnType === 2
-                    ? userRole > 2 || userRole >= memberRole
-                    : userRole > 3 || userRole >= memberRole;
-        }
-        let btnIconActiveColor;
-        if (btnType === 1) {
-            btnIconActiveColor = "text-neutral-500";
+            icon = <ImProfile size={20} className="text-neutral-500" />;
         } else if (btnType === 2) {
-            btnIconActiveColor = "text-cyan-400";
+            btnDisabled = userRole > 2 || userRole >= memberRole;
+            icon = <MdAssignmentInd size={20} className="text-cyan-400" />;
         } else {
-            btnIconActiveColor = "text-red-500";
+            btnDisabled = userRole > 3 || userRole >= memberRole;
+            icon = <AiOutlineUserDelete size={20} className="text-red-500" />;
         }
         // const roleBtnDisabled = userRole > 3;
         // const deleteBtnDisabled = userRole > 4;
         // const roleIconColor = `text-${roleBtnDisabled ? "transparent" : "cyan-400"}`;
         // const deleteIconColor = `text-${deleteBtnDisabled ? "transparent" : "red-500"}`;
-        const bgHoverColor = "bg-gray-100";
-        const className = `rounded-full p-3 hover:${
-            btnDisabled ? "bg-transparent" : bgHoverColor
-        } cursor-${btnDisabled ? "default" : "pointer"}`;
-        const iconColor = `${btnDisabled ? "text-transparent" : btnIconActiveColor}`;
-        let icon;
-        if (btnType === 1) {
-            icon = <ImProfile size={20} className={iconColor} />;
-        } else if (btnType === 2) {
-            icon = <MdAssignmentInd size={20} className={iconColor} />;
-        } else {
-            icon = <AiOutlineUserDelete size={20} className={iconColor} />;
-        }
 
         return (
             <button
-                disabled={btnDisabled}
                 hidden={btnDisabled}
                 type="button"
-                className={className}
+                className="rounded-full p-3 hover:bg-gray-100"
                 onClick={() => {
                     if (btnType === 1) {
                         console.log("btnType = 1");
