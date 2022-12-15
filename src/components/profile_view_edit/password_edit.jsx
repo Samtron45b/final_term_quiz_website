@@ -1,24 +1,27 @@
+import { Form } from "antd";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 function PassswordEdit() {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors }
-    } = useForm();
-
-    const onSubmit = (data) => {
+    const onFinish = (data) => {
         console.log(data);
     };
+    const [form] = Form.useForm();
     const [canChangePass, setCanChangePass] = useState(false);
     const [showCurPass, setShowCurPass] = useState(false);
     const [showNewPass, setShowNewPass] = useState(false);
     const [showConfirmNewPass, setShowConfirmNewPass] = useState(false);
     if (canChangePass === null) {
         setCanChangePass(false);
+    }
+
+    function getPasswordInputClassName(isDisabled) {
+        return `shadow-sm mt-[-4px]
+        focus:ring-purple-600 focus:border-purple-500
+        focus:shadow-purple-300 focus:shadow-md
+        ${isDisabled ? "hoverborder-gray-300" : "hover:border-purple-400"} focus:outline-none
+        block w-full sm:text-sm border-gray-300
+        pl-2 pr-10  py-2 bg-white border rounded-md`;
     }
 
     function renderButton() {
@@ -57,7 +60,7 @@ function PassswordEdit() {
                     shadow-sm text-md font-medium rounded-lg text-white bg-gray-400
                     hover:bg-gray-300"
                     onClick={() => {
-                        reset();
+                        form.resetFields();
                         setCanChangePass(false);
                     }}
                 >
@@ -69,123 +72,149 @@ function PassswordEdit() {
 
     return (
         <div className="">
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="mb-3 w-1/2">
-                    <label
-                        className="block text-sm font-medium text-gray-700 relative"
-                        htmlFor="curpassword"
-                    >
-                        Current password
+            <Form
+                form={form}
+                name="edit_profile_form"
+                layout="vertical"
+                requiredMark="optional"
+                validateTrigger="onChange"
+                onFinish={onFinish}
+            >
+                <Form.Item
+                    validateTrigger="onSubmit"
+                    className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                    label="Current password"
+                    name="curpassword"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Wrong password."
+                        },
+                        {
+                            pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
+                            message: "Wrong password."
+                        }
+                    ]}
+                >
+                    <div className="relative">
                         <input
-                            type={showCurPass ? "text" : "password"}
-                            name="curpassword"
-                            className={`shadow-sm
-                            focus:border-indigo-500 mt-1 text-${
-                                !canChangePass ? "gray-700" : "gray-500"
-                            }
-                            block w-full sm:text-sm border-gray-300
-                            px-2 py-2 bg-white border rounded-md `}
                             disabled={canChangePass}
                             id="curpassword"
+                            className={getPasswordInputClassName(canChangePass)}
+                            type={showCurPass ? "text" : "password"}
                             placeholder="********"
-                            {...register("curpassword", { required: true }, { minLength: 8 })}
                         />
                         <div
-                            className="icon_button absolute right-4 top-8"
+                            className="icon_button absolute right-4 top-2"
                             onClick={() => {
-                                setShowCurPass(!showCurPass);
+                                if (!canChangePass) {
+                                    setShowCurPass(!showCurPass);
+                                }
                             }}
                             aria-hidden="true"
                         >
                             {showCurPass ? (
-                                <FaEye className="w-5 h-5" />
+                                <FaEye className="w-5 h-5 text-purple-400" />
                             ) : (
-                                <FaEyeSlash className="w-5 h-5" />
+                                <FaEyeSlash className="w-5 h-5 text-gray-400" />
                             )}
                         </div>
-                        {errors.password && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
-                    </label>
-                </div>
-                <div className="mb-3 w-1/2">
-                    <label
-                        className="block text-sm font-medium text-gray-700 relative"
-                        htmlFor="newpassword"
-                    >
-                        New password
+                    </div>
+                </Form.Item>
+
+                <Form.Item
+                    className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                    label="New password"
+                    name="newpassword"
+                    rules={[
+                        {
+                            required: true,
+                            message: "New password cannot be empty."
+                        },
+                        {
+                            pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
+                            message:
+                                "Password Must Contain Atleast 8 Characters with One Uppercase, One Lowercase, One Number and One Special Case Character."
+                        }
+                    ]}
+                >
+                    <div className="relative">
                         <input
-                            type={showNewPass ? "text" : "password"}
-                            name="newpassword"
-                            className="shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-full sm:text-sm border-gray-300
-                                px-2 py-2 bg-white border rounded-md "
                             disabled={!canChangePass}
                             id="newpassword"
+                            className={getPasswordInputClassName(!canChangePass)}
+                            type={showNewPass ? "text" : "password"}
                             placeholder="********"
-                            {...register("newpassword", { required: true }, { minLength: 8 })}
                         />
                         <div
-                            className="icon_button absolute right-4 top-8"
+                            className="icon_button absolute right-4 top-2"
                             onClick={() => {
-                                setShowNewPass(!showNewPass);
+                                if (canChangePass) {
+                                    setShowNewPass(!showNewPass);
+                                }
                             }}
                             aria-hidden="true"
                         >
                             {showNewPass ? (
-                                <FaEye className="w-5 h-5" />
+                                <FaEye className="w-5 h-5 text-purple-400" />
                             ) : (
-                                <FaEyeSlash className="w-5 h-5" />
+                                <FaEyeSlash className="w-5 h-5 text-gray-400" />
                             )}
                         </div>
-                        {errors.password && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
-                    </label>
-                </div>
-                <div className="mb-3 w-1/2">
-                    <label
-                        className="block text-sm font-medium text-gray-700 relative"
-                        htmlFor="confirm_new_password"
-                    >
-                        Confirm new password
+                    </div>
+                </Form.Item>
+
+                <Form.Item
+                    className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                    label="Confirm new password"
+                    name="confirm_new_password"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Confirm new password is required."
+                        },
+                        ({ getFieldValue }) => ({
+                            validator(_, value) {
+                                if (!value || getFieldValue("newpassword") === value) {
+                                    return Promise.resolve();
+                                }
+                                return Promise.reject(
+                                    new Error(
+                                        "New password and Confirm new password must be the same."
+                                    )
+                                );
+                            }
+                        })
+                    ]}
+                >
+                    <div className="relative">
                         <input
-                            type={showConfirmNewPass ? "text" : "password"}
-                            name="confirm_new_password"
-                            className="shadow-sm
-                                focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                block w-full sm:text-sm border-gray-300
-                                px-2 py-2 bg-white border rounded-md "
                             disabled={!canChangePass}
                             id="confirm_new_password"
+                            className={getPasswordInputClassName(!canChangePass)}
+                            type={showConfirmNewPass ? "text" : "password"}
                             placeholder="********"
-                            {...register(
-                                "confirm_new_password",
-                                { required: true },
-                                { minLength: 8 }
-                            )}
                         />
                         <div
-                            className="icon_button absolute right-4 top-8"
+                            className="icon_button absolute right-4 top-2"
                             onClick={() => {
-                                setShowConfirmNewPass(!showConfirmNewPass);
+                                if (canChangePass) {
+                                    setShowConfirmNewPass(!showConfirmNewPass);
+                                }
                             }}
                             aria-hidden="true"
                         >
                             {showConfirmNewPass ? (
-                                <FaEye className="w-5 h-5" />
+                                <FaEye className="w-5 h-5 text-purple-400" />
                             ) : (
-                                <FaEyeSlash className="w-5 h-5" />
+                                <FaEyeSlash className="w-5 h-5 text-gray-400" />
                             )}
                         </div>
-                        {errors.re_password && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
-                    </label>
-                </div>
-                {renderButton()}
-            </form>
+                    </div>
+                </Form.Item>
+
+                <Form.Item>{renderButton()}</Form.Item>
+            </Form>
         </div>
     );
 }

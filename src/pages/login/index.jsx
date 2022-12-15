@@ -62,13 +62,12 @@ function LoginPage() {
                     Welcome to Let&apos;sPlay
                 </h1>
                 <Form
-                    name="basic"
+                    name="login_form"
                     layout="vertical"
                     requiredMark="optional"
                     validateTrigger="onSubmit"
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}
-                    autoComplete="off"
                 >
                     <Form.Item
                         className="text-sm font-medium text-gray-700 mb-3"
@@ -85,10 +84,11 @@ function LoginPage() {
                         validateStatus=""
                     >
                         <Input
+                            id="username"
                             className="shadow-sm
-                                 focus:ring-purple-600 focus:border-purple-500
-                                 focus:shadow-purple-300 focus:shadow-md
-                                 hover:border-purple-400
+                                focus:ring-purple-600 focus:border-purple-500
+                                focus:shadow-purple-300 focus:shadow-md
+                                hover:border-purple-400
                                 block w-full sm:text-sm border-gray-300
                                 px-2 py-2 bg-white border rounded-md "
                             placeholder="Quamon"
@@ -114,12 +114,13 @@ function LoginPage() {
                     >
                         <div className="relative">
                             <Input
+                                id="password"
                                 className="shadow-sm
                                 focus:ring-purple-600 focus:border-purple-500
                                 focus:shadow-purple-300 focus:shadow-md
                                 hover:border-purple-400
                                 block w-full sm:text-sm border-gray-300
-                                px-2 py-2 bg-white border rounded-md "
+                                pl-2 pr-10 py-2 bg-white border rounded-md "
                                 type={showPass ? "text" : "password"}
                                 placeholder="********"
                             />
@@ -131,9 +132,9 @@ function LoginPage() {
                                 aria-hidden="true"
                             >
                                 {showPass ? (
-                                    <FaEye className="w-5 h-5" />
+                                    <FaEye className="w-5 h-5 text-purple-400" />
                                 ) : (
-                                    <FaEyeSlash className="w-5 h-5" />
+                                    <FaEyeSlash className="w-5 h-5 text-gray-400" />
                                 )}
                             </div>
                         </div>
@@ -144,7 +145,7 @@ function LoginPage() {
                             <div className="forgot-pwd-btn mb-2">
                                 <Link
                                     to="/register"
-                                    className=" text-sm text-gray-500 no-underline hover:underline hover:text-blue-800"
+                                    className=" text-sm font-medium text-gray-500 no-underline hover:underline hover:decoration-2 hover:text-purple-800"
                                 >
                                     Forgot password?
                                 </Link>

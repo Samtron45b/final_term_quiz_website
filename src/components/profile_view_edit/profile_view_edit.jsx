@@ -1,61 +1,58 @@
+import { Form } from "antd";
 import { useContext, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { ImSpinner10 } from "react-icons/im";
-import { getUserDataFromServer } from "../../auth";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import AuthContext from "../contexts/auth_context";
 
 function ProfileViewEdit() {
-    const { user } = useContext(AuthContext);
-    const [isLoading, setLoaditing] = useState(false);
+    const { user, setUser } = useContext(AuthContext);
+    const [isLoading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors }
-    } = useForm();
-
-    useEffect(() => {
-        reset({
-            username: user.username,
-            displayName: user.displayName,
-            email: user.email
-        });
-    }, []);
+    const [editProfileError, setProfileEditError] = useState(null);
+    const [form] = Form.useForm();
     const privateAxios = usePrivateAxios();
-    const fetchUserData = getUserDataFromServer();
 
-    const onSubmit = async (data) => {
+    function resetProfileEditField(data) {
+        form.setFieldsValue({
+            username: user.username,
+            email: data?.email ?? user.email,
+            displayName: data?.displayName ?? user.displayName
+        });
+    }
+
+    const onFinish = async (data) => {
         console.log(data);
-        setLoaditing(true);
+        setLoading(true);
         privateAxios
             .get(
                 `user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`
             )
             .then(async (response) => {
                 console.log(response);
-                fetchUserData().then(() => {
-                    reset({
-                        username: user.username,
-                        displayName: data.displayName,
-                        email: data.email
-                    });
+                console.log(user);
+                setUser({
+                    ...user,
+                    displayName: data.displayName,
+                    email: data.email
                 });
+                resetProfileEditField(data);
                 setIsEditing(false);
             })
             .catch((error) => {
                 console.log(error);
+                setProfileEditError("Update profile failed.");
             })
             .finally(() => {
-                setLoaditing(false);
+                setLoading(false);
             });
     };
 
-    function getInputClassName() {
-        return `shadow-sm
-        focus:border-indigo-500 mt-1 ${isEditing ? "text-gray-700" : "text-gray-500"}
-        block w-full sm:text-sm border border-gray-300 rounded-md
+    function getInputClassName(isDisabled) {
+        return `shadow-sm mt-[-4px]
+        focus:outline-none focus:border-purple-500
+        focus:shadow-purple-300 focus:shadow-md
+        ${isDisabled ? "hover:border-gray-300" : "hover:border-purple-400"}
+        block w-full sm:text-sm border-gray-300
         px-2 py-2 bg-white border rounded-md `;
     }
 
@@ -67,7 +64,7 @@ function ProfileViewEdit() {
                     type="button"
                     data-mdb-ripple="true"
                     data-mdb-ripple-color="light"
-                    className={`inline-flex justify-center py-2 px-4 border border-transparent
+                    className={`inline-flex mt-1 justify-center py-2 px-4 border border-transparent
                     shadow-sm text-sm font-medium rounded-lg text-white ${
                         isLoading ? "bg-neutral-500" : "bg-purple-700"
                     }
@@ -86,7 +83,7 @@ function ProfileViewEdit() {
             );
         }
         return (
-            <div className="flex w-1/2">
+            <div className="flex w-1/2 mt-1">
                 <button
                     type="submit"
                     data-mdb-ripple="true"
@@ -105,7 +102,8 @@ function ProfileViewEdit() {
                     shadow-sm text-md font-medium rounded-lg text-white bg-gray-400
                     hover:bg-gray-300"
                     onClick={() => {
-                        reset();
+                        resetProfileEditField();
+                        setProfileEditError(null);
                         setIsEditing(false);
                     }}
                 >
@@ -115,65 +113,91 @@ function ProfileViewEdit() {
         );
     }
 
+    useEffect(() => {
+        resetProfileEditField();
+    }, []);
+
     return (
         <div className="">
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="username-input mb-5 w-1/2">
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="username">
-                        Display name
-                        <input
-                            name="username"
-                            className={getInputClassName()}
-                            disabled
-                            id="username"
-                            type="text"
-                            placeholder="Quamon"
-                            {...register("username")}
-                        />
-                        {errors.username && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
-                    </label>
-                </div>
-                <div className="email-input mb-3 w-1/2">
-                    <label className="block text-sm font-medium text-gray-700" htmlFor="email">
-                        Email
-                        <input
-                            disabled={!isEditing}
-                            id="email"
-                            type="email"
-                            name="email"
-                            placeholder="john.doe@example.com"
-                            className={getInputClassName()}
-                            {...register("email", { required: true })}
-                        />
-                        {errors.email && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
-                    </label>
-                </div>
-                <div className="displayname-input mb-5 w-1/2">
-                    <label
-                        className="block text-sm font-medium text-gray-700"
-                        htmlFor="displayName"
-                    >
-                        Display name
-                        <input
-                            name="displayName"
-                            className={getInputClassName()}
-                            disabled={!isEditing}
-                            id="displayName"
-                            type="text"
-                            placeholder="Quamon"
-                            {...register("displayName", { required: true })}
-                        />
-                        {errors.username && (
-                            <span className="text-red-600">This field is required</span>
-                        )}
-                    </label>
-                </div>
-                {renderButton()}
-            </form>
+            <Form
+                form={form}
+                name="edit_profile_form"
+                layout="vertical"
+                requiredMark="optional"
+                validateTrigger="onChange"
+                onFinish={onFinish}
+            >
+                <Form.Item
+                    initialValue=""
+                    className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                    label="Username"
+                    name="username"
+                    rules={[
+                        {
+                            required: true
+                        }
+                    ]}
+                >
+                    <input
+                        disabled
+                        name="username"
+                        className={getInputClassName(true)}
+                        id="username"
+                        type="text"
+                    />
+                </Form.Item>
+                <Form.Item
+                    initialValue=""
+                    className="text-sm font-medium text-gray-700 mb-4 pb-1"
+                    label="Email"
+                    name="email"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Email cannot be empty.",
+                            whitespace: true
+                        },
+                        {
+                            pattern:
+                                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                            message: "Invalid email."
+                        }
+                    ]}
+                >
+                    <input
+                        disabled={!isEditing}
+                        id="email"
+                        type="email"
+                        name="email"
+                        placeholder="john.doe@example.com"
+                        className={getInputClassName(!isEditing)}
+                    />
+                </Form.Item>
+                <Form.Item
+                    initialValue=""
+                    className="text-sm font-medium text-gray-700 mb-4 pb-1"
+                    label="Display name"
+                    name="displayName"
+                    rules={[
+                        {
+                            required: true,
+                            message: "Display name cannot be empty",
+                            whitespace: true
+                        }
+                    ]}
+                >
+                    <input
+                        name="displayName"
+                        className={getInputClassName(!isEditing)}
+                        disabled={!isEditing}
+                        id="displayName"
+                        type="text"
+                        placeholder="Quamon"
+                    />
+                </Form.Item>
+                <p className="text-red-600">{editProfileError}</p>
+                <Form.Item>{renderButton()}</Form.Item>
+            </Form>
         </div>
     );
 }

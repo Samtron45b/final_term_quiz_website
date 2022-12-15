@@ -120,10 +120,12 @@ function GroupDetailPage() {
     return (
         <>
             <MainHeader />
-            <div className="flex justify-center items-center w-full mt-5">
-                <h1 className="font-extrabold text-3xl">{`Group ${groupname}`}</h1>
+            <div className="h-[90%]">
+                <div className="flex justify-center items-center w-full mt-5">
+                    <h1 className="font-extrabold text-3xl">{`Group ${groupname}`}</h1>
+                </div>
+                <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
             </div>
-            <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
             <ModalFrame
                 width="w-2/5"
                 isVisible={showModal}

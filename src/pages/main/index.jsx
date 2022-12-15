@@ -108,11 +108,15 @@ function Main() {
         let listGroupView;
         if (isGroupFectching) {
             listGroupView = [
-                <ImSpinner10
-                    key={`${isCreatedByGroup ? "created_group_loading" : "joined_group_loading"}`}
-                    size={50}
-                    className="animate-spin mr-3 mb-2"
-                />
+                <div className="flex justify-center">
+                    <ImSpinner10
+                        key={`${
+                            isCreatedByGroup ? "created_group_loading" : "joined_group_loading"
+                        }`}
+                        size={50}
+                        className="animate-spin mr-3 mb-2"
+                    />
+                </div>
             ];
         } else {
             const listGroupCard = [];
@@ -180,7 +184,11 @@ function Main() {
                 : [];
         function renderListPresentationData() {
             if (isPresentationFetching) {
-                return <ImSpinner10 size={50} className="animate-spin mr-3 mb-2" />;
+                return (
+                    <div className="flex justify-center ">
+                        <ImSpinner10 size={50} className="animate-spin mr-3 mb-2" />
+                    </div>
+                );
             }
             if (listPresentation.length > 0) {
                 return (

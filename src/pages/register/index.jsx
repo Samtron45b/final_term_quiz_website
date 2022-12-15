@@ -1,22 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useForm } from "react-hook-form";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
 import { v4 as uuidv4 } from "uuid";
+import { Form, Input } from "antd";
 import ModalFrame from "../../components/modals/modal_frame";
 import AuthResultModalBody from "../../components/modals/auth_result_modal_body";
 import { publicAxios } from "../../configs/networks/custom_axioses";
 
 function RegisterPage() {
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-        getValues
-    } = useForm({
-        mode: "onChange"
-    });
+    const [form] = Form.useForm();
 
     const [showPass, setShowPass] = useState(false);
     const [showRePass, setShowRePass] = useState(false);
@@ -26,7 +19,7 @@ function RegisterPage() {
 
     const navigate = useNavigate();
 
-    const onSubmit = (data) => {
+    const onFinish = (data) => {
         setIsLoading(true);
         publicAxios
             .get(
@@ -53,176 +46,196 @@ function RegisterPage() {
                     <h1 className="text-3xl font-semibold text-center text-purple-700 uppercase">
                         Sign up
                     </h1>
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="email-input mb-3">
-                            <label
-                                className="block text-sm font-medium text-gray-700"
-                                htmlFor="email"
-                            >
-                                Email
-                                <input
-                                    id="email"
-                                    type="email"
-                                    name="email"
-                                    placeholder="john.doe@example.com"
-                                    className="shadow-sm
-                                    focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border-gray-300
-                                    px-2 py-2 bg-white border rounded-md "
-                                    {...register("email", {
-                                        required: "Email is required.",
-                                        pattern: {
-                                            value: /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-                                            message: "Invalid email"
-                                        }
-                                    })}
-                                />
-                                <p className="text-red-600">{errors.email?.message}</p>
-                            </label>
-                        </div>
-                        <div className="username-input mb-3">
-                            <label
-                                className="block text-sm font-medium text-gray-700"
-                                htmlFor="username"
-                            >
-                                Username
-                                <input
-                                    name="username"
-                                    className="shadow-sm
-                                    focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border-gray-300
-                                    px-2 py-2 bg-white border rounded-md "
-                                    id="username"
-                                    type="text"
-                                    placeholder="Quamon"
-                                    {...register("username", { required: "Username is required." })}
-                                />
-                                <p className="text-red-600">{errors.username?.message}</p>
-                            </label>
-                        </div>
-                        <div className="mb-3">
-                            <label
-                                className="block text-sm font-medium text-gray-700 relative"
-                                htmlFor="password"
-                            >
-                                Password
-                                <input
-                                    type={showPass ? "text" : "password"}
-                                    name="password"
-                                    className="shadow-sm
-                                    focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border-gray-300
-                                    px-2 py-2 bg-white border rounded-md "
+                    <Form
+                        form={form}
+                        name="register_form"
+                        layout="vertical"
+                        requiredMark="optional"
+                        validateTrigger="onChange"
+                        onFinish={onFinish}
+                    >
+                        <Form.Item
+                            className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                            label="Email"
+                            name="email"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Email is required.",
+                                    whitespace: true
+                                },
+                                {
+                                    pattern:
+                                        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
+                                    message: "Invalid email."
+                                }
+                            ]}
+                        >
+                            <Input
+                                id="email"
+                                className="shadow-sm
+                                focus:ring-purple-600 focus:border-purple-500
+                                focus:shadow-purple-300 focus:shadow-md
+                                hover:border-purple-400
+                                block w-full sm:text-sm border-gray-300
+                                px-2 py-2 bg-white border rounded-md "
+                                type="email"
+                                placeholder="john.doe@example.com"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                            label="Username"
+                            name="username"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Username is required.",
+                                    whitespace: true
+                                }
+                            ]}
+                        >
+                            <Input
+                                id="username"
+                                className="shadow-sm
+                                focus:ring-purple-600 focus:border-purple-500
+                                focus:shadow-purple-300 focus:shadow-md
+                                hover:border-purple-400
+                                block w-full sm:text-sm border-gray-300
+                                px-2 py-2 bg-white border rounded-md "
+                                placeholder="Quamon"
+                            />
+                        </Form.Item>
+
+                        <Form.Item
+                            className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                            label="Password"
+                            name="password"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Password is required."
+                                },
+                                {
+                                    pattern:
+                                        /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
+                                    message:
+                                        "Password Must Contain Atleast 8 Characters with One Uppercase, One Lowercase, One Number and One Special Case Character."
+                                }
+                            ]}
+                        >
+                            <div className="relative">
+                                <Input
                                     id="password"
+                                    className="shadow-sm
+                                        focus:ring-purple-600 focus:border-purple-500
+                                        focus:shadow-purple-300 focus:shadow-md
+                                        hover:border-purple-400
+                                        block w-full sm:text-sm border-gray-300
+                                        pl-2 pr-10  py-2 bg-white border rounded-md "
+                                    type={showPass ? "text" : "password"}
                                     placeholder="********"
-                                    {...register("password", {
-                                        required: "Password is required.",
-                                        pattern: {
-                                            value: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
-                                            message:
-                                                "Password Must Contain Atleast 8 Characters with One Uppercase, One Lowercase, One Number and One Special Case Character"
-                                        }
-                                    })}
                                 />
                                 <div
-                                    className="icon_button absolute right-4 top-8"
+                                    className="icon_button absolute right-4 top-2"
                                     onClick={() => {
                                         setShowPass(!showPass);
                                     }}
                                     aria-hidden="true"
                                 >
                                     {showPass ? (
-                                        <FaEye className="w-5 h-5" />
+                                        <FaEye className="w-5 h-5 text-purple-400" />
                                     ) : (
-                                        <FaEyeSlash className="w-5 h-5" />
+                                        <FaEyeSlash className="w-5 h-5 text-gray-400" />
                                     )}
                                 </div>
-                                <p className="text-red-600">{errors.password?.message}</p>
-                            </label>
-                        </div>
-                        <div className="mb-3">
-                            <label
-                                className="block text-sm font-medium text-gray-700 relative"
-                                htmlFor="re_password"
-                            >
-                                Re-Password
-                                <input
-                                    type={showRePass ? "text" : "password"}
-                                    name="re_password"
-                                    className="shadow-sm
-                                    focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border-gray-300
-                                    px-2 py-2 bg-white border rounded-md "
+                            </div>
+                        </Form.Item>
+
+                        <Form.Item
+                            className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                            label="Re-password"
+                            name="re_password"
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Re-Password is required."
+                                },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (!value || getFieldValue("password") === value) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(
+                                            new Error("Password and Re-Password must be the same.")
+                                        );
+                                    }
+                                })
+                            ]}
+                        >
+                            <div className="relative">
+                                <Input
                                     id="re_password"
+                                    className="shadow-sm
+                                        focus:ring-purple-600 focus:border-purple-500
+                                        focus:shadow-purple-300 focus:shadow-md
+                                        hover:border-purple-400
+                                        block w-full sm:text-sm border-gray-300
+                                        pl-2 pr-10 py-2 bg-white border rounded-md "
+                                    type={showRePass ? "text" : "password"}
                                     placeholder="********"
-                                    {...register("re_password", {
-                                        required: "true",
-                                        minLength: 8,
-                                        validate: (value) => value === getValues("password")
-                                    })}
                                 />
                                 <div
-                                    className="icon_button absolute right-4 top-8"
+                                    className="icon_button absolute right-4 top-2"
                                     onClick={() => {
                                         setShowRePass(!showRePass);
                                     }}
                                     aria-hidden="true"
                                 >
                                     {showRePass ? (
-                                        <FaEye className="w-5 h-5" />
+                                        <FaEye className="w-5 h-5 text-purple-400" />
                                     ) : (
-                                        <FaEyeSlash className="w-5 h-5" />
+                                        <FaEyeSlash className="w-5 h-5 text-gray-400" />
                                     )}
-                                </div>
-                                {errors.re_password && errors.re_password.type === "required" && (
-                                    <span className="text-red-600" role="alert">
-                                        Repassword is required
-                                    </span>
-                                )}
-                                {errors.re_password && errors.re_password.type === "minLength" && (
-                                    <span className="text-red-600" role="alert">
-                                        Minimum length is 8
-                                    </span>
-                                )}
-                                {errors.re_password && errors.re_password.type === "validate" && (
-                                    <span className="text-red-600" role="alert">
-                                        Password and Re-Password must be the same
-                                    </span>
-                                )}
-                            </label>
-                        </div>
-                        <div>
-                            <div className="py-3 text-right flex flex-row justify-between">
-                                <button
-                                    type="submit"
-                                    data-mdb-ripple="true"
-                                    data-mdb-ripple-color="light"
-                                    className="inline-flex justify-center py-2 px-4 border border-transparent
-                                    shadow-sm text-sm font-medium rounded-md text-white bg-purple-700
-                                    hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
-                                >
-                                    {isLoading ? (
-                                        <div className="flex justify-center items-center">
-                                            <ImSpinner10 className="animate-spin h-5 w-5 mr-3" />
-                                            Creating account...
-                                        </div>
-                                    ) : (
-                                        "Create account"
-                                    )}
-                                </button>
-                                <div className="text-center text-gray-500 mt-2">
-                                    <span>Already have an account?</span>&nbsp;
-                                    <Link
-                                        to="/login"
-                                        className="no-underline hover:no-underline hover:text-purple-700 font-bold"
-                                    >
-                                        Sign in
-                                    </Link>
                                 </div>
                             </div>
-                        </div>
-                        <p className="text-red-600">{registerError}</p>
-                    </form>
+                        </Form.Item>
+
+                        <Form.Item>
+                            <>
+                                <div className="py-3 text-right flex flex-row justify-between">
+                                    <button
+                                        type="submit"
+                                        data-mdb-ripple="true"
+                                        data-mdb-ripple-color="light"
+                                        className="inline-flex justify-center py-2 px-4 border border-transparent
+                                    shadow-sm text-sm font-medium rounded-md text-white bg-purple-700
+                                    hover:bg-purple-600 focus:outline-none focus:bg-purple-600"
+                                    >
+                                        {isLoading ? (
+                                            <div className="flex justify-center items-center">
+                                                <ImSpinner10 className="animate-spin h-5 w-5 mr-3" />
+                                                Creating account...
+                                            </div>
+                                        ) : (
+                                            "Create account"
+                                        )}
+                                    </button>
+                                    <div className="text-center text-gray-500 mt-2">
+                                        <span>Already have an account?</span>&nbsp;
+                                        <Link
+                                            to="/login"
+                                            className="no-underline hover:no-underline hover:text-purple-700 font-bold"
+                                        >
+                                            Sign in
+                                        </Link>
+                                    </div>
+                                </div>
+                                <p className="text-red-600">{registerError}</p>
+                            </>
+                        </Form.Item>
+                    </Form>
                 </div>
             </div>
             <ModalFrame
