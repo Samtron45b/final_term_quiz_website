@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
 import { IoMdAdd } from "react-icons/io";
 import { BsFillPlayFill } from "react-icons/bs";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
+import { Form } from "antd";
 import MainHeader from "../../../components/header/main_header/main_header";
 import PreviewResult from "./preview_result_and_edit";
 import PresentationSingleSlideThumbNail from "./single_slide_thumbnail";
@@ -14,7 +14,7 @@ function PresentationEditPage() {
     const [selectedIndexView, setSelectedIndexView] = useState(0);
     const [curIndexView, setCurIndexView] = useState(0);
     const [presentationData, setPresentationData] = useState(null);
-    const { register, reset } = useForm();
+    const [form] = Form.useForm();
     const queryClient = useQueryClient();
 
     const privateAxios = usePrivateAxios();
@@ -28,7 +28,7 @@ function PresentationEditPage() {
                 .then((response) => {
                     console.log(response);
                     setPresentationData({ ...response?.data });
-                    reset({ presentationName: response?.data?.name });
+                    form.setFieldValue("presentationName", response?.data?.name);
                     return response;
                 })
                 .catch((error) => {
@@ -147,29 +147,33 @@ function PresentationEditPage() {
             <MainHeader />
             <div className="flex flex-col w-full h-[90%] overflow-hidden">
                 <div className="flex flex-row items-center justify-between bg-white mt-[-2px] py-2 px-8 border-b-[0.5px] border-b-neutral-500">
-                    <form className="w-[30%]">
-                        <input
-                            name="presentationName"
-                            placeholder="Presentation name"
-                            className="shadow-sm
-                                    focus:ring-indigo-500 focus:border-indigo-500 mt-1
+                    <Form form={form} layout="inline" className="w-[30%]">
+                        <Form.Item name="presentationName" className="mt-1 w-full" initialValue="">
+                            <input
+                                name="presentationName"
+                                placeholder="Presentation name"
+                                className="
+                                    focus:ring-purple-600 focus:border-purple-500
+                                    focus:shadow-purple-300
+                                    focus:shadow-inner
+                                    focus:outline-none hover:border-purple-400
                                     block w-full sm:text-sm border-gray-300
                                     px-2 py-3 bg-white border rounded-md "
-                            {...register("presentationName")}
-                        />
-                    </form>
+                            />
+                        </Form.Item>
+                    </Form>
                     <div className="flex">
                         <button
                             type="button"
                             onClick={() => addSlide()}
-                            className="mr-3 bg-purple-500 flex justify-center items-center px-2 py-3 rounded-md text-white"
+                            className="mr-3 bg-purple-500 flex justify-center items-center px-2 py-2 rounded-md text-white"
                         >
                             <IoMdAdd className="mr-1" />
                             New slide
                         </button>
                         <button
                             type="button"
-                            className="bg-purple-500 flex justify-center items-center px-2 py-3 rounded-md text-white"
+                            className="bg-purple-500 flex justify-center items-center px-2 py-2 rounded-md text-white"
                         >
                             <BsFillPlayFill className="mr-1" />
                             Present
