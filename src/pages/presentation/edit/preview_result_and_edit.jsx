@@ -54,10 +54,18 @@ function PreviewResultAndEdit({
         }
     });
 
+    function setValueForOptionList(listOptions) {
+        const currentOptionMap = listOptions.map((option) => {
+            return Object.fromEntries(new Map([[`${option.id}`, option.optionText]]));
+        });
+        form.setFieldValue(`slide${id}_option`, currentOptionMap);
+    }
+
     useEffect(() => {
         async function fectchData() {
             await slideQueryRefetch().then((response) => {
                 form.setFieldValue("question", response?.data?.data?.question ?? "");
+                setValueForOptionList(response?.data?.data?.options ?? []);
             });
             if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
                 parentSetSelectedIndexView(parentCurIndexView);
@@ -166,13 +174,105 @@ function PreviewResultAndEdit({
         return listOptionInputs;
     }
 
+    function renderOptionInputs2() {
+        const listOptions = slideDetailData?.options ?? [];
+        console.log(form.getFieldsValue(true));
+        return (
+            <Form.List name={`slide${id}_option`}>
+                {(fieldNameHead, { remove }) => {
+                    console.log("a");
+                    console.log(fieldNameHead);
+                    return (
+                        <>
+                            <span className="text-lg font-medium text-gray-700">Options</span>
+                            <button
+                                type="button"
+                                className="bg-neutral-400 opacity-70 w-full flex justify-center items-center px-2 py-3 rounded-md text-white"
+                                onClick={() => {
+                                    const newOptionsList = listOptions.concat([
+                                        {
+                                            answerAmount: 0,
+                                            id: 11,
+                                            isCorrect: "false",
+                                            optionText: "OKOK",
+                                            slideId: id
+                                        }
+                                    ]);
+                                    setSlideDetailData((curSlideDetailData) => {
+                                        return {
+                                            ...curSlideDetailData,
+                                            options: newOptionsList
+                                        };
+                                    });
+                                    setValueForOptionList(newOptionsList);
+                                }}
+                            >
+                                <IoMdAdd className="mr-1" />
+                                Add options &#40;up to 4&#41;
+                            </button>
+                            {fieldNameHead.map((optionField, index) => {
+                                const optionName = [index, `${listOptions[index]?.id}`];
+                                console.log(optionName);
+                                return (
+                                    <div
+                                        key={optionName}
+                                        className="flex flex-row items-center mt-3"
+                                    >
+                                        <Form.Item
+                                            name={optionName}
+                                            className="mr-2 mb-0 w-full"
+                                            initialValue=""
+                                        >
+                                            <input
+                                                name={optionName}
+                                                className="
+                                                    focus:ring-purple-600 focus:border-purple-500
+                                                    focus:shadow-purple-300
+                                                    focus:shadow-inner
+                                                    focus:outline-none hover:border-purple-400
+                                                    block w-full sm:text-sm border-gray-300
+                                                    px-2 py-3 bg-white border rounded-md "
+                                            />
+                                        </Form.Item>
+                                        <RiCloseFill
+                                            size={30}
+                                            className="cursor-pointer"
+                                            onClick={() => {
+                                                const newOptionsList = listOptions.filter(
+                                                    (optioninList) => {
+                                                        return (
+                                                            optioninList.id !==
+                                                            listOptions[index].id
+                                                        );
+                                                    }
+                                                );
+                                                setSlideDetailData((curSlideDetailData) => {
+                                                    return {
+                                                        ...curSlideDetailData,
+                                                        options: newOptionsList
+                                                    };
+                                                });
+                                                // setValueForOptionList(newOptionsList);
+                                                remove(index);
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </>
+                    );
+                }}
+            </Form.List>
+        );
+    }
+
     if (!slideDetailData) {
         return null;
     }
     console.log(slideDetailData);
 
     return (
-        <div className="flex flex-row max-h-full h-screen bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
+        <div className="flex flex-row overflow-auto bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
             <div className="grow flex flex-col justify-center items-center mx-5 my-10 bg-white">
                 <p className="text-5xl text-slate-500 mb-5">
                     {slideDetailData?.question ?? "Question"}
@@ -191,7 +291,7 @@ function PreviewResultAndEdit({
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-            <div className="bg-white w-[440px] px-5 pt-4 pb-8">
+            <div className="bg-white w-[440px] h-screen px-5 pt-4 pb-8">
                 <div className="font-bold text-2xl text-center">Content</div>
                 <Form
                     form={form}
@@ -200,7 +300,6 @@ function PreviewResultAndEdit({
                     onValuesChange={(changedValues) => {
                         console.log(changedValues);
                         const changedField = Object.keys(changedValues)[0];
-                        // eslint-disable-next-line no-constant-condition
                         if (changedField === "question") {
                             debouncePresentatioNnameChanged(changedValues.question);
                         }
@@ -225,6 +324,7 @@ function PreviewResultAndEdit({
                                 px-2 py-3 bg-white border rounded-md "
                         />
                     </Form.Item>
+                    {renderOptionInputs2()}
                 </Form>
                 <form className="mt-7" onSubmit={handleSubmit(onSubmit)}>
                     <div className="mb-3">

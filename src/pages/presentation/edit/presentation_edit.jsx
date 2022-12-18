@@ -161,8 +161,8 @@ function PresentationEditPage() {
             console.log(slideId);
             const currentSlideList = presentationData?.slides?.concat() ?? [];
             console.log(currentSlideList);
-            const slideIdIndex = currentSlideList.findIndex((slide) => `${slide.id}` === slideId);
-            const newSlideList = currentSlideList.filter((slide) => `${slide.id}` !== slideId);
+            const slideIdIndex = currentSlideList.findIndex((slide) => slide.id === slideId);
+            const newSlideList = currentSlideList.filter((slide) => slide.id !== slideId);
             console.log(slideIdIndex);
             console.log(curIndexView);
             console.log(newSlideList);
