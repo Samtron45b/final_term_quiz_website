@@ -52,7 +52,13 @@ function App() {
                                         !path.includes("/activate_account") &&
                                         !accessToken
                                     ) {
-                                        firstComponent = <Navigate to="/login" replace />;
+                                        firstComponent = (
+                                            <Navigate
+                                                to="/login"
+                                                replace
+                                                state={{ from: window.location.pathname }}
+                                            />
+                                        );
                                     }
 
                                     return (

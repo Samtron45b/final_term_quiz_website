@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IoMdAdd } from "react-icons/io";
 import { BsFillPlayFill } from "react-icons/bs";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
 import { Form } from "antd";
+import debounce from "lodash/debounce";
 import MainHeader from "../../../components/header/main_header/main_header";
 import PreviewResult from "./preview_result_and_edit";
 import PresentationSingleSlideThumbNail from "./single_slide_thumbnail";
@@ -38,28 +39,80 @@ function PresentationEditPage() {
         }
     });
 
+    async function changeName(newName) {
+        privateAxios
+            .get(`presentation/update?presentationId=${presentationData?.id ?? 0}&name=${newName}`)
+            .then((response) => {
+                console.log(response);
+                console.log("name changed successfully");
+                setPresentationData((curPresentationData) => {
+                    return {
+                        ...curPresentationData,
+                        name: newName
+                    };
+                });
+                return response;
+            })
+            .catch((error) => {
+                console.log("get error");
+                console.log(error);
+            });
+    }
+
+    const onPresentationNameChanged = async (newName) => {
+        console.log("console.log from debounce");
+        console.log(newName);
+        changeName(newName);
+    };
+    const debouncePresentatioNnameChanged = useMemo(
+        () => debounce(onPresentationNameChanged, 1000),
+        [presentationData?.id]
+    );
+
+    const updateSlideThumbnailText = (newText, slideId, slideType) => {
+        if (slideType === 0) {
+            setPresentationData((curPresentationData) => {
+                return {
+                    ...curPresentationData,
+                    slides: (curPresentationData?.slides ?? []).map((slide) => {
+                        if (slideId === slide.id) {
+                            return {
+                                ...slide,
+                                question: newText
+                            };
+                        }
+                        return { ...slide };
+                    })
+                };
+            });
+        }
+    };
+
     useEffect(() => {
+        console.log(presentationId);
         presentationQueryRefetch();
         return () => {
             queryClient.removeQueries({ queryKey: "get_presentation_detail", exact: true });
             queryClient.removeQueries({ queryKey: "get_slide_detail", exact: true });
         };
-    }, []);
+    }, [presentationId]);
 
     async function addSlide() {
         privateAxios
             .get(`presentation/addSlide?presentationId=${presentationData?.id ?? 0}`)
             .then((response) => {
                 const newSlide = response?.data;
-                setPresentationData({
-                    ...presentationData,
-                    slides: (presentationData?.slides ?? []).concat([
-                        {
-                            id: newSlide.id,
-                            presentationId: newSlide.presentationId,
-                            question: newSlide.question
-                        }
-                    ])
+                setPresentationData((curPresentationData) => {
+                    return {
+                        ...curPresentationData,
+                        slides: (curPresentationData?.slides ?? []).concat([
+                            {
+                                id: newSlide.id,
+                                presentationId: newSlide.presentationId,
+                                question: newSlide.question
+                            }
+                        ])
+                    };
                 });
                 return response;
             })
@@ -116,9 +169,11 @@ function PresentationEditPage() {
             if (slideIdIndex === curIndexView && slideIdIndex === currentSlideList.length - 1) {
                 setCurIndexView(newSlideList.length - 1);
             }
-            setPresentationData({
-                ...presentationData,
-                slides: newSlideList
+            setPresentationData((curPresentationData) => {
+                return {
+                    ...curPresentationData,
+                    slides: newSlideList
+                };
             });
         };
         for (let i = 0; i < length; i += 1) {
@@ -126,7 +181,7 @@ function PresentationEditPage() {
                 <PresentationSingleSlideThumbNail
                     key={`${slideList[i].id}`}
                     isSelected={i === selectedIndexView}
-                    id={`${slideList[i].id}`}
+                    id={slideList[i].id}
                     index={i}
                     question={slideList[i].question}
                     onClick={() => setCurIndexView(i)}
@@ -147,7 +202,14 @@ function PresentationEditPage() {
             <MainHeader />
             <div className="flex flex-col w-full h-[90%] overflow-hidden">
                 <div className="flex flex-row items-center justify-between bg-white mt-[-2px] py-2 px-8 border-b-[0.5px] border-b-neutral-500">
-                    <Form form={form} layout="inline" className="w-[30%]">
+                    <Form
+                        form={form}
+                        layout="inline"
+                        className="w-[30%]"
+                        onValuesChange={(changedValues) => {
+                            debouncePresentatioNnameChanged(changedValues.presentationName);
+                        }}
+                    >
                         <Form.Item name="presentationName" className="mt-1 w-full" initialValue="">
                             <input
                                 name="presentationName"
@@ -188,12 +250,13 @@ function PresentationEditPage() {
                         {renderSlideThumbnails()}
                     </div>
                     <PreviewResult
-                        id={`${presentationData?.slides?.[curIndexView]?.id ?? 0}`}
+                        id={presentationData?.slides?.[curIndexView]?.id ?? 0}
                         parentSelectedIndex={selectedIndexView}
                         parentCurIndexView={curIndexView}
                         parentSetSelectedIndexView={(newSelectedIndexView) =>
                             setSelectedIndexView(newSelectedIndexView)
                         }
+                        parentSetSlideQuestion={updateSlideThumbnailText}
                     />
                 </div>
             </div>

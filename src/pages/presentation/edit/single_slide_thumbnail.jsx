@@ -103,7 +103,7 @@ function PresentationSingleSlideThumbNail({
 }
 
 PresentationSingleSlideThumbNail.propTypes = {
-    id: PropTypes.string,
+    id: PropTypes.number,
     index: PropTypes.number,
     question: PropTypes.string,
     isSelected: PropTypes.bool,
@@ -112,7 +112,7 @@ PresentationSingleSlideThumbNail.propTypes = {
 };
 
 PresentationSingleSlideThumbNail.defaultProps = {
-    id: "",
+    id: 0,
     index: 0,
     question: "",
     isSelected: false,

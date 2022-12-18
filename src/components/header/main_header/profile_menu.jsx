@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { MdLogout } from "react-icons/md";
 import { CgProfile } from "react-icons/cg";
 import { useState, useRef, useEffect, useContext } from "react";
@@ -12,6 +12,7 @@ function ProfileMenu() {
     const [isProfileMenuOpen, setIsProFileMenuOpen] = useState(false);
 
     const navigate = useNavigate();
+    const location = useLocation();
     const privateAxios = usePrivateAxios();
 
     useEffect(() => {
@@ -36,7 +37,7 @@ function ProfileMenu() {
                 localStorage.removeItem("accessToken");
                 localStorage.removeItem("userData");
                 setUser(null);
-                navigate("/login", { state: { from: null }, replace: true });
+                navigate("/login", { state: { from: location.pathname }, replace: true });
             })
             .catch((err) => console.log(err));
     }

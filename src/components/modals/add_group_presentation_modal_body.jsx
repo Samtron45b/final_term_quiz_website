@@ -38,7 +38,9 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
                 console.log(response);
                 setIsLoading(false);
                 setShowModal(0);
-                if (location.pathname === "/") {
+                if (addingType === 2) {
+                    navigate(`/presentation/${response?.data?.presentationId ?? 0}/edit`);
+                } else if (location.pathname === "/") {
                     navigate("/temp");
                     setTimeout(() => navigate("/", { replace: true }), 100);
                 }

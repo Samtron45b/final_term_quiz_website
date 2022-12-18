@@ -14,27 +14,28 @@ import {
     LabelList,
     ResponsiveContainer
 } from "recharts";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
+import { Form } from "antd";
+import debounce from "lodash/debounce";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function PreviewResultAndEdit({
     id,
     parentSelectedIndex,
     parentCurIndexView,
-    parentSetSelectedIndexView
+    parentSetSelectedIndexView,
+    parentSetSlideQuestion
 }) {
+    const [slideDetailData, setSlideDetailData] = useState(null);
     const { register, handleSubmit, setValue } = useForm();
+    const [form] = Form.useForm();
 
     const onSubmit = (dataSubmit) => console.log(dataSubmit);
 
     const privateAxios = usePrivateAxios();
 
-    const {
-        data: slideQueryRes,
-        refetch: slideQueryRefetch,
-        isFetching: isSlideQueryFecthcing
-    } = useQuery({
+    const { refetch: slideQueryRefetch, isFetching: isSlideQueryFecthcing } = useQuery({
         queryKey: ["get_slide_detail"],
         enabled: false,
         queryFn: async () => {
@@ -43,6 +44,7 @@ function PreviewResultAndEdit({
                 .then((response) => {
                     console.log(response);
                     setValue("question", response?.data?.question ?? "");
+                    setSlideDetailData({ ...response?.data });
                     return response;
                 })
                 .catch((error) => {
@@ -54,7 +56,9 @@ function PreviewResultAndEdit({
 
     useEffect(() => {
         async function fectchData() {
-            await slideQueryRefetch();
+            await slideQueryRefetch().then((response) => {
+                form.setFieldValue("question", response?.data?.data?.question ?? "");
+            });
             if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
                 parentSetSelectedIndexView(parentCurIndexView);
             }
@@ -89,6 +93,33 @@ function PreviewResultAndEdit({
     //     ]
     // };
 
+    const onSlideQuestionChanged = async (newQuestion) => {
+        console.log("console.log from debounce (question)");
+        console.log(newQuestion);
+        setSlideDetailData((curSlideDetailData) => {
+            return {
+                ...curSlideDetailData,
+                question: newQuestion
+            };
+        });
+        parentSetSlideQuestion?.(newQuestion, id, 0);
+        privateAxios
+            .get(`presentation/updateSlide?slideId=${id ?? 0}&question=${newQuestion}`)
+            .then((response) => {
+                console.log(response);
+                console.log(`question changed successfully for slide ${id}`);
+                return response;
+            })
+            .catch((error) => {
+                console.log("get error");
+                console.log(error);
+            });
+    };
+    const debouncePresentatioNnameChanged = useMemo(
+        () => debounce(onSlideQuestionChanged, 1000),
+        [id]
+    );
+
     const renderCustomizedLabel = (propTypes) => {
         const { x, y, width, value } = propTypes;
         const radius = 10;
@@ -109,7 +140,7 @@ function PreviewResultAndEdit({
     };
 
     function renderOptionInputs() {
-        const listOptions = slideQueryRes?.data?.options ?? [];
+        const listOptions = slideDetailData?.options ?? [];
         const listOptionInputs = [];
         const { length } = listOptions;
         for (let i = 0; i < length; i += 1) {
@@ -135,21 +166,22 @@ function PreviewResultAndEdit({
         return listOptionInputs;
     }
 
-    if (!slideQueryRes) {
+    if (!slideDetailData) {
         return null;
     }
+    console.log(slideDetailData);
 
     return (
         <div className="flex flex-row max-h-full h-screen bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
             <div className="grow flex flex-col justify-center items-center mx-5 my-10 bg-white">
                 <p className="text-5xl text-slate-500 mb-5">
-                    {slideQueryRes?.data?.question ?? "Question"}
+                    {slideDetailData?.question ?? "Question"}
                 </p>
                 <ResponsiveContainer width="70%" height="80%">
                     <BarChart
                         width={150}
                         height={40}
-                        data={slideQueryRes?.data?.options ?? []}
+                        data={slideDetailData?.options ?? []}
                         margin={{ top: 30 }}
                     >
                         <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
@@ -161,24 +193,40 @@ function PreviewResultAndEdit({
             </div>
             <div className="bg-white w-[440px] px-5 pt-4 pb-8">
                 <div className="font-bold text-2xl text-center">Content</div>
+                <Form
+                    form={form}
+                    layout="vertical"
+                    className="mt-7"
+                    onValuesChange={(changedValues) => {
+                        console.log(changedValues);
+                        const changedField = Object.keys(changedValues)[0];
+                        // eslint-disable-next-line no-constant-condition
+                        if (changedField === "question") {
+                            debouncePresentatioNnameChanged(changedValues.question);
+                        }
+                    }}
+                >
+                    <Form.Item
+                        name="question"
+                        className="mt-1 w-full"
+                        label={<p className="text-lg font-medium text-gray-700">Question</p>}
+                        initialValue=""
+                    >
+                        <input
+                            name="question"
+                            placeholder="Question"
+                            className="
+                                mt-[-4px]
+                                focus:ring-purple-600 focus:border-purple-500
+                                focus:shadow-purple-300
+                                focus:shadow-inner
+                                focus:outline-none hover:border-purple-400
+                                block w-full sm:text-sm font-medium border-gray-300
+                                px-2 py-3 bg-white border rounded-md "
+                        />
+                    </Form.Item>
+                </Form>
                 <form className="mt-7" onSubmit={handleSubmit(onSubmit)}>
-                    <div className="mb-3">
-                        <label
-                            className="block text-lg font-medium text-gray-700"
-                            htmlFor="question"
-                        >
-                            Question
-                            <input
-                                name="question"
-                                placeholder="Question"
-                                className="shadow-sm
-                                    focus:ring-indigo-500 focus:border-indigo-500 mt-1
-                                    block w-full sm:text-sm border-gray-300
-                                    px-2 py-3 bg-white border rounded-md "
-                                {...register("question")}
-                            />
-                        </label>
-                    </div>
                     <div className="mb-3">
                         <span className="text-lg font-medium text-gray-700">Options</span>
                         <button
@@ -198,17 +246,19 @@ function PreviewResultAndEdit({
 }
 
 PreviewResultAndEdit.propTypes = {
-    id: PropTypes.string,
+    id: PropTypes.number,
     parentSelectedIndex: PropTypes.number,
     parentCurIndexView: PropTypes.number,
-    parentSetSelectedIndexView: PropTypes.func
+    parentSetSelectedIndexView: PropTypes.func,
+    parentSetSlideQuestion: PropTypes.func
 };
 
 PreviewResultAndEdit.defaultProps = {
-    id: "",
+    id: 0,
     parentSelectedIndex: 0,
     parentCurIndexView: 0,
-    parentSetSelectedIndexView: null
+    parentSetSelectedIndexView: null,
+    parentSetSlideQuestion: null
 };
 
 export default PreviewResultAndEdit;
