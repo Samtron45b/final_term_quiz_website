@@ -21,8 +21,11 @@ export default function usePrivateAxios() {
             (response) => response,
             (error) => {
                 const status = error.response?.status ?? null;
+                console.log("private axios error received");
+                console.log(error);
                 if (status === 401) {
-                    localStorage.removeItem("access_token");
+                    localStorage.removeItem("accessToken");
+                    localStorage.removeItem("userData");
                     navigate("/login", { state: { from: location.pathname, replace: true } });
                 }
 
