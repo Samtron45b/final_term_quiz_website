@@ -1,6 +1,4 @@
 import PropTypes from "prop-types";
-import { RiCloseFill } from "react-icons/ri";
-import { IoMdAdd } from "react-icons/io";
 import {
     BarChart,
     Bar,
@@ -18,6 +16,7 @@ import { useQuery } from "react-query";
 import { Form } from "antd";
 import debounce from "lodash/debounce";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
+import OptionForm from "../option_form";
 
 function PreviewResultAndEdit({
     id,
@@ -68,34 +67,7 @@ function PreviewResultAndEdit({
         fectchData();
     }, [id]);
 
-    // const quizData = {
-    //     question: "Nà ní",
-    //     rightAnwser: "Dunno",
-    //     listOption: [
-    //         {
-    //             anwser: "Option1",
-    //             amount: 10,
-    //             fill: "#f72585"
-    //         },
-    //         {
-    //             anwser: "Option1",
-    //             amount: 100,
-    //             fill: "#7209b7"
-    //         },
-    //         {
-    //             anwser: "Option1",
-    //             amount: 300,
-    //             fill: "#3a0ca3"
-    //         },
-    //         {
-    //             anwser: "Option1",
-    //             amount: 0,
-    //             fill: "#4361ee"
-    //         }
-    //     ]
-    // };
-
-    // on question changed handler
+    // question (also header or title) changed handler
     const onSlideQuestionChanged = async (newQuestion) => {
         console.log("console.log from debounce (question)");
         console.log(newQuestion);
@@ -123,65 +95,18 @@ function PreviewResultAndEdit({
         [id]
     );
 
-    // on add option handler
-    const onAddOption = async () => {
-        const listOptions = slideDetailData?.options ?? [];
-        privateAxios
-            .get(
-                `presentation/addOption?slideId=${id ?? 0}&optionText=Answer ${
-                    listOptions.length + 1
-                }&isCorrect=${false}`
-            )
-            .then((response) => {
-                console.log(response);
-                console.log(`add option successfully for slide ${id}`);
-                const newOptionsList = listOptions.concat([
-                    {
-                        id: response?.data?.id ?? 0,
-                        slideId: id,
-                        optionText: response?.data?.optionText ?? "",
-                        isCorrect: response?.data?.isCorrect ?? false,
-                        answerAmount: response?.data?.answerAmount ?? 0
-                    }
-                ]);
-                setSlideDetailData((curSlideDetailData) => {
-                    return {
-                        ...curSlideDetailData,
-                        options: newOptionsList
-                    };
-                });
-                setValueForOptionList(newOptionsList);
-                return response;
-            })
-            .catch((error) => {
-                console.log("get error");
-                console.log(error);
-            });
+    // option changed handlers
+    const updateSlideDetailAndOptionsForm = (newOptionsList) => {
+        setSlideDetailData((curSlideDetailData) => {
+            return {
+                ...curSlideDetailData,
+                options: newOptionsList
+            };
+        });
+        setValueForOptionList(newOptionsList);
     };
-    // on remove option handler
-    const onDeleteOption = async (optionId) => {
-        const listOptions = slideDetailData?.options ?? [];
-        return privateAxios
-            .get(`presentation/deleteOption?optionId=${optionId}`)
-            .then((response) => {
-                console.log(response);
-                console.log(`delete option ${optionId} successfully for slide ${id}`);
-                const newOptionsList = listOptions.filter((option) => option.id !== optionId);
-                setSlideDetailData((curSlideDetailData) => {
-                    return {
-                        ...curSlideDetailData,
-                        options: newOptionsList
-                    };
-                });
-                setValueForOptionList(newOptionsList);
-            })
-            .catch((error) => {
-                console.log("get error");
-                console.log(error);
-            });
-    };
-    // on change option's text handler
     const onChangeOptionText = async (optionIndex, newText, newIsCorrect) => {
+        console.log(slideDetailData);
         const listOptions = slideDetailData?.options ?? [];
         const optionId = listOptions[optionIndex]?.id;
         const finalNewText = newText ?? listOptions[optionIndex]?.optionText;
@@ -206,20 +131,17 @@ function PreviewResultAndEdit({
                     }
                     return { ...option };
                 });
-                setSlideDetailData((curSlideDetailData) => {
-                    return {
-                        ...curSlideDetailData,
-                        options: newOptionsList
-                    };
-                });
-                setValueForOptionList(newOptionsList);
+                updateSlideDetailAndOptionsForm(newOptionsList);
             })
             .catch((error) => {
                 console.log("get error");
                 console.log(error);
             });
     };
-    const debounceOptionChanged = useMemo(() => debounce(onChangeOptionText, 1000), [id]);
+    const debounceOptionChanged = useMemo(
+        () => debounce(onChangeOptionText, 1000),
+        [slideDetailData]
+    );
 
     const renderCustomizedLabel = (propTypes) => {
         const { x, y, width, value } = propTypes;
@@ -240,65 +162,35 @@ function PreviewResultAndEdit({
         );
     };
 
-    function renderOptionInputs() {
-        const listOptions = slideDetailData?.options ?? [];
-        console.log(form.getFieldsValue(true));
-        return (
-            <Form.List name={`slide${id}_options`}>
-                {(fieldNameHead) => (
-                    <>
-                        <span className="text-lg font-medium text-gray-700">Options</span>
-                        <button
-                            type="button"
-                            className="bg-neutral-400 opacity-70 w-full flex justify-center items-center px-2 py-3 rounded-md text-white"
-                            onClick={async () => {
-                                onAddOption();
-                            }}
-                        >
-                            <IoMdAdd className="mr-1" />
-                            Add options &#40;up to 4&#41;
-                        </button>
-                        {fieldNameHead.map((optionField, index) => {
-                            const optionName = [index, `${listOptions[index]?.id}`];
-                            console.log(optionName);
-                            return (
-                                <div key={optionName} className="flex flex-row items-center mt-3">
-                                    <Form.Item
-                                        name={optionName}
-                                        className="mr-2 mb-0 w-full"
-                                        initialValue=""
-                                    >
-                                        <input
-                                            name={optionName}
-                                            className="
-                                                focus:ring-purple-600 focus:border-purple-500
-                                                focus:shadow-purple-300
-                                                focus:shadow-inner
-                                                focus:outline-none hover:border-purple-400
-                                                block w-full sm:text-sm border-gray-300
-                                                px-2 py-3 bg-white border rounded-md "
-                                        />
-                                    </Form.Item>
-                                    <RiCloseFill
-                                        size={30}
-                                        className="cursor-pointer"
-                                        onClick={async () => {
-                                            onDeleteOption(listOptions[index].id);
-                                        }}
-                                    />
-                                </div>
-                            );
-                        })}
-                    </>
-                )}
-            </Form.List>
-        );
-    }
-
     if (!slideDetailData) {
         return null;
     }
     console.log(slideDetailData);
+
+    const onFormValuesChanged = (changedValues, allValues) => {
+        console.log(changedValues);
+        console.log(allValues);
+        const changedField = Object.keys(changedValues)[0];
+        if (changedField === "question") {
+            debounceSlideQuestionChanged(changedValues.question);
+        } else if (changedField === `slide${id}_options`) {
+            const listOptions = changedValues[`slide${id}_options`] ?? [];
+            const { length } = listOptions;
+            let changedOption;
+            let optionIndex;
+            for (let i = 0; i < length; i += 1) {
+                if (listOptions[i] !== undefined) {
+                    changedOption = { ...listOptions[i] };
+                    optionIndex = i;
+                    break;
+                }
+            }
+            console.log("console at changed");
+            console.log(listOptions);
+            console.log(changedOption);
+            debounceOptionChanged(optionIndex, Object.entries(changedOption)[0][1]);
+        }
+    };
 
     return (
         <div className="flex flex-row overflow-auto bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
@@ -326,29 +218,7 @@ function PreviewResultAndEdit({
                     form={form}
                     layout="vertical"
                     className="mt-7"
-                    onValuesChange={(changedValues) => {
-                        console.log(changedValues);
-                        const changedField = Object.keys(changedValues)[0];
-                        if (changedField === "question") {
-                            debounceSlideQuestionChanged(changedValues.question);
-                        } else if (changedField === `slide${id}_options`) {
-                            const listOptions = changedValues[`slide${id}_options`] ?? [];
-                            const { length } = listOptions;
-                            let changedOption;
-                            let optionIndex;
-                            for (let i = 0; i < length; i += 1) {
-                                if (listOptions[i] !== undefined) {
-                                    changedOption = { ...listOptions[i] };
-                                    optionIndex = i;
-                                    break;
-                                }
-                            }
-                            console.log("console at changed");
-                            console.log(listOptions);
-                            console.log(changedOption);
-                            debounceOptionChanged(optionIndex, Object.entries(changedOption)[0][1]);
-                        }
-                    }}
+                    onValuesChange={onFormValuesChanged}
                 >
                     <Form.Item
                         name="question"
@@ -369,7 +239,13 @@ function PreviewResultAndEdit({
                                 px-2 py-3 bg-white border rounded-md "
                         />
                     </Form.Item>
-                    {renderOptionInputs()}
+                    <OptionForm
+                        slideId={id}
+                        listOptions={slideDetailData?.options ?? []}
+                        parentUpdateAfterEditOptions={(newOptionsList) => {
+                            updateSlideDetailAndOptionsForm(newOptionsList);
+                        }}
+                    />
                 </Form>
             </div>
         </div>
