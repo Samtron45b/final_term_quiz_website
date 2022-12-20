@@ -25,7 +25,7 @@ const ViewRoutes = [
         component: <LoginPage />
     },
     {
-        path: "/group_detail/:groupname",
+        path: "/group_detail/:groupId",
         exact: true,
         component: <GroupDetailPage />
     },

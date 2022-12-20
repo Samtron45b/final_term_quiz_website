@@ -13,7 +13,7 @@ import AuthContext from "../../components/contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function GroupDetailPage() {
-    const { groupname } = useParams();
+    const { groupId } = useParams();
     const { user } = useContext(AuthContext);
 
     const [showModal, setShowModal] = useState(false);
@@ -31,7 +31,7 @@ function GroupDetailPage() {
         enabled: false,
         queryFn: async () => {
             return privateAxios
-                .get(`group/get?group=${groupname}`)
+                .get(`group/get?groupId=${groupId}`)
                 .then((response) => {
                     console.log(response);
                     return response;
@@ -58,7 +58,7 @@ function GroupDetailPage() {
         const userInList = dataList.find((element) => {
             return element.username === user.username;
         });
-        userRole = userInList.role;
+        userRole = userInList?.role ?? 0;
         const listOwnerandCo = dataList.filter((mem) => {
             return mem.role === 1 || mem.role === 2;
         });
@@ -82,7 +82,8 @@ function GroupDetailPage() {
                     </button>
                 ) : null}
                 <TableMember
-                    groupName={groupname}
+                    groupId={parseInt(groupId, 10)}
+                    groupName={memberListQueryRes?.data?.name}
                     title="Owner and Co-owners"
                     userRole={userRole}
                     dataList={listOwnerandCo}
@@ -100,7 +101,8 @@ function GroupDetailPage() {
                     }
                 /> */}
                 <TableMember
-                    groupName={groupname}
+                    groupId={parseInt(groupId, 10)}
+                    groupName={memberListQueryRes?.data?.name}
                     title="Members"
                     userRole={userRole}
                     dataList={listMember}
@@ -122,7 +124,7 @@ function GroupDetailPage() {
             <MainHeader />
             <div className="h-[90%]">
                 <div className="flex justify-center items-center w-full mt-5">
-                    <h1 className="font-extrabold text-3xl">{`Group ${groupname}`}</h1>
+                    <h1 className="font-extrabold text-3xl">{`Group ${memberListQueryRes?.data?.name}`}</h1>
                 </div>
                 <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
             </div>
@@ -133,7 +135,8 @@ function GroupDetailPage() {
                 onClose={() => setShowModal(false)}
             >
                 <AddMemberModalBody
-                    groupName={groupname}
+                    groupId={parseInt(groupId, 10)}
+                    groupName={memberListQueryRes?.data?.name ?? ""}
                     inviteId={memberListQueryRes?.data?.inviteId ?? ""}
                 />
             </ModalFrame>

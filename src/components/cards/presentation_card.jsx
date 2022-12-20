@@ -108,7 +108,7 @@ PresentationCard.propTypes = {
 PresentationCard.defaultProps = {
     presentationName: "",
     presentationId: "",
-    timeCreated: "",
+    timeCreated: 0,
     userCanEdit: true,
     // onChangeRoleBtnClick: null,
     onRemoveBtnClick: null

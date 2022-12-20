@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from "react";
 import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Form, Input } from "antd";
 import AuthContext from "../contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
@@ -13,7 +13,6 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
     const [errorMess, setErrorMess] = useState(null);
     const [service, setService] = useState("");
     const navigate = useNavigate();
-    const location = useLocation();
     const privateAxios = usePrivateAxios();
 
     useEffect(() => {
@@ -38,11 +37,10 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
                 console.log(response);
                 setIsLoading(false);
                 setShowModal(0);
-                if (addingType === 2) {
+                if (addingType === 1) {
+                    navigate(`/group_detail/${response?.data?.lastId ?? 0}`);
+                } else {
                     navigate(`/presentation/${response?.data?.presentationId ?? 0}/edit`);
-                } else if (location.pathname === "/") {
-                    navigate("/temp");
-                    setTimeout(() => navigate("/", { replace: true }), 100);
                 }
             })
             .catch((error) => {

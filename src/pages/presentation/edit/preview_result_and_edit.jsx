@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
-import { Form } from "antd";
+import { Form, Select } from "antd";
 import debounce from "lodash/debounce";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 import OptionForm from "./option_form";
@@ -23,7 +23,8 @@ function PreviewResultAndEdit({
     parentSelectedIndex,
     parentCurIndexView,
     parentSetSelectedIndexView,
-    parentSetSlideQuestion
+    parentSetSlideQuestion,
+    renderIcon
 }) {
     const [slideDetailData, setSlideDetailData] = useState(null);
     const [form] = Form.useForm();
@@ -58,6 +59,7 @@ function PreviewResultAndEdit({
         async function fectchData() {
             await slideQueryRefetch().then((response) => {
                 form.setFieldValue("question", response?.data?.data?.question ?? "");
+                form.setFieldValue("type", `${response?.data?.type ?? 0}`);
                 setValueForOptionList(response?.data?.data?.options ?? []);
             });
             if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
@@ -67,19 +69,25 @@ function PreviewResultAndEdit({
         fectchData();
     }, [id]);
 
-    // question (also header or title) changed handler
-    const onSlideQuestionChanged = async (newQuestion) => {
+    // question (also header or title) or type changed handler
+    const onSlideQuestionOrTypeChanged = async (newQuestion, newType) => {
         console.log("console.log from debounce (question)");
-        console.log(newQuestion);
+        console.log(newQuestion, newType);
+        if (newQuestion === slideDetailData?.question && newType === slideDetailData?.type) return;
         setSlideDetailData((curSlideDetailData) => {
             return {
                 ...curSlideDetailData,
                 question: newQuestion
             };
         });
-        parentSetSlideQuestion?.(newQuestion, id, 0);
+        form.setFieldValue("question", newQuestion);
+        parentSetSlideQuestion?.(id, newQuestion, newType);
         privateAxios
-            .get(`presentation/updateSlide?slideId=${id ?? 0}&question=${newQuestion}`)
+            .get(
+                `presentation/updateSlide?slideId=${
+                    id ?? 0
+                }&question=${newQuestion}&type=${newType}`
+            )
             .then((response) => {
                 console.log(response);
                 console.log(`question changed successfully for slide ${id}`);
@@ -90,8 +98,8 @@ function PreviewResultAndEdit({
                 console.log(error);
             });
     };
-    const debounceSlideQuestionChanged = useMemo(
-        () => debounce(onSlideQuestionChanged, 1000),
+    const debounceSlideQuestionOrTypeChanged = useMemo(
+        () => debounce(onSlideQuestionOrTypeChanged, 1000),
         [id]
     );
 
@@ -162,6 +170,18 @@ function PreviewResultAndEdit({
         );
     };
 
+    function renderSelecOption(type) {
+        let text = "Multiple choice";
+        if (type === 1) text = "Paragraph";
+        else if (type === 2) text = "Heading";
+        return (
+            <div className="flex flex-row w-full h-full space-x-4 items-center">
+                {renderIcon(type)}
+                <p className="text-neutral-500 text-lg font-medium">{text}</p>
+            </div>
+        );
+    }
+
     if (!slideDetailData) {
         return null;
     }
@@ -172,7 +192,7 @@ function PreviewResultAndEdit({
         console.log(allValues);
         const changedField = Object.keys(changedValues)[0];
         if (changedField === "question") {
-            debounceSlideQuestionChanged(changedValues.question);
+            debounceSlideQuestionOrTypeChanged(changedValues.question, slideDetailData?.type ?? 0);
         } else if (changedField === `slide${id}_options`) {
             const listOptions = changedValues[`slide${id}_options`] ?? [];
             const { length } = listOptions;
@@ -189,6 +209,12 @@ function PreviewResultAndEdit({
             console.log(listOptions);
             console.log(changedOption);
             debounceOptionChanged(optionIndex, Object.entries(changedOption)[0][1]);
+        } else if (changedField === "type") {
+            const newType = changedValues.type;
+            let newText = "Question";
+            if (newType === "1") newText = "Title";
+            else if (newType === "2") newText = "Header";
+            debounceSlideQuestionOrTypeChanged(newText, newType);
         }
     };
 
@@ -213,13 +239,23 @@ function PreviewResultAndEdit({
                 </ResponsiveContainer>
             </div>
             <div className="bg-white w-[440px] h-full overflow-auto px-5 pt-4 pb-8">
-                <div className="font-bold text-2xl text-center">Content</div>
                 <Form
                     form={form}
                     layout="vertical"
                     className="mt-7"
                     onValuesChange={onFormValuesChanged}
                 >
+                    <Form.Item
+                        name="type"
+                        label={<p className="text-lg font-medium text-gray-700">Slide type</p>}
+                    >
+                        <Select size="large" placeholder="Please select a country">
+                            <Select.Option value="0">{renderSelecOption(0)}</Select.Option>
+                            <Select.Option value="1">{renderSelecOption(1)}</Select.Option>
+                            <Select.Option value="2">{renderSelecOption(2)}</Select.Option>
+                        </Select>
+                    </Form.Item>
+                    <div className="font-bold text-2xl text-center">Content</div>
                     <Form.Item
                         name="question"
                         className="mt-1 w-full"
@@ -257,7 +293,8 @@ PreviewResultAndEdit.propTypes = {
     parentSelectedIndex: PropTypes.number,
     parentCurIndexView: PropTypes.number,
     parentSetSelectedIndexView: PropTypes.func,
-    parentSetSlideQuestion: PropTypes.func
+    parentSetSlideQuestion: PropTypes.func,
+    renderIcon: PropTypes.func
 };
 
 PreviewResultAndEdit.defaultProps = {
@@ -265,7 +302,8 @@ PreviewResultAndEdit.defaultProps = {
     parentSelectedIndex: 0,
     parentCurIndexView: 0,
     parentSetSelectedIndexView: null,
-    parentSetSlideQuestion: null
+    parentSetSlideQuestion: null,
+    renderIcon: null
 };
 
 export default PreviewResultAndEdit;

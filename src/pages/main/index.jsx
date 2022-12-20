@@ -108,7 +108,10 @@ function Main() {
         let listGroupView;
         if (isGroupFectching) {
             listGroupView = [
-                <div className="flex justify-center">
+                <div
+                    key={`${isCreatedByGroup ? "createdGroupFetching" : "joinedGroupFetching"}`}
+                    className="flex justify-center"
+                >
                     <ImSpinner10
                         key={`${
                             isCreatedByGroup ? "created_group_loading" : "joined_group_loading"
@@ -127,6 +130,7 @@ function Main() {
                     listGroupCard.push(
                         <MainGroupCard
                             key={`homeGroup${index}`}
+                            groupId={listGroupToRender[index].id}
                             groupName={listGroupToRender[index].name}
                             ownerDisplayName={listGroupToRender[index]?.creator?.displayName ?? ""}
                             ownerAvatar={

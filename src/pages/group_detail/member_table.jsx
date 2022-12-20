@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import MemberGroupCard from "../../components/cards/member_group_card";
 
 function TableMember({
+    groupId,
     groupName,
     title,
     dataList,
@@ -21,6 +22,7 @@ function TableMember({
             rowToRender.push(
                 <MemberGroupCard
                     key={`${userRole}_${index}_card`}
+                    groupId={groupId}
                     groupName={groupName}
                     userRole={userRole}
                     memberName={username}
@@ -55,6 +57,7 @@ function TableMember({
 }
 
 TableMember.propTypes = {
+    groupId: PropTypes.number.isRequired,
     groupName: PropTypes.string.isRequired,
     title: PropTypes.string,
     userRole: PropTypes.number.isRequired,

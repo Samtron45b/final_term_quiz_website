@@ -69,23 +69,22 @@ function PresentationEditPage() {
         [presentationData?.id]
     );
 
-    const updateSlideThumbnailText = (newText, slideId, slideType) => {
-        if (slideType === 0) {
-            setPresentationData((curPresentationData) => {
-                return {
-                    ...curPresentationData,
-                    slides: (curPresentationData?.slides ?? []).map((slide) => {
-                        if (slideId === slide.id) {
-                            return {
-                                ...slide,
-                                question: newText
-                            };
-                        }
-                        return { ...slide };
-                    })
-                };
-            });
-        }
+    const updateSlideThumbnail = (slideId, newText, newType) => {
+        setPresentationData((curPresentationData) => {
+            return {
+                ...curPresentationData,
+                slides: (curPresentationData?.slides ?? []).map((slide) => {
+                    if (slideId === slide.id) {
+                        return {
+                            ...slide,
+                            question: newText,
+                            type: newType
+                        };
+                    }
+                    return { ...slide };
+                })
+            };
+        });
     };
 
     useEffect(() => {
@@ -153,6 +152,72 @@ function PresentationEditPage() {
     //     }
     // ];
 
+    function renderIconBaseOnType(type, size) {
+        if (type === 1) {
+            return (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    role="img"
+                    preserveAspectRatio="xMidYMid meet"
+                    width={`${size ?? 28}`}
+                    height={`${size ?? 28}`}
+                    viewBox="0 0 48 48"
+                >
+                    <title>Heading Subheading Icon</title>
+                    <rect fill="rgb(64, 70, 93)" y="18.05" width="48" height="10.15" rx="1.26" />
+                    <rect
+                        fill="rgb(183, 186, 194)"
+                        x="5.54"
+                        y="30.05"
+                        width="36.92"
+                        height="4.62"
+                        rx="1.3"
+                    />
+                </svg>
+            );
+        }
+        if (type === 2) {
+            return (
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    role="img"
+                    preserveAspectRatio="xMidYMid meet"
+                    width={`${size ?? 28}`}
+                    height={`${size ?? 28}`}
+                    viewBox="0 0 48 48"
+                >
+                    <title>Heading Paragraph Icon</title>
+                    <rect
+                        fill="rgb(183, 186, 194)"
+                        x="3.93"
+                        y="11.04"
+                        width="40.92"
+                        height="8.66"
+                        rx="1.26"
+                    />
+                    <rect fill="rgb(64, 70, 93)" y="22.31" width="48" height="13.38" rx="1.26" />
+                </svg>
+            );
+        }
+
+        return (
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                role="img"
+                preserveAspectRatio="xMidYMid meet"
+                width={`${size ?? 28}`}
+                height={`${size ?? 28}`}
+                viewBox="0 0 48 48"
+            >
+                <title>Bar Chart Icon</title>
+                <rect x="32.73" y="17.04" width="11.4" height="25.25" fill="rgb(231, 232, 235)" />
+                <rect x="3.87" y="26.22" width="11.4" height="16.06" fill="rgb(64, 70, 93)" />
+                <rect x="18.3" y="4.31" width="11.4" height="37.97" fill="rgb(183, 186, 194)" />
+                <rect y="42.28" width="48" height=".99" fill="#000000" />
+            </svg>
+        );
+    }
+
     function renderSlideThumbnails() {
         const listSlideThumbnails = [];
         const slideList = presentationData?.slides ?? [];
@@ -183,6 +248,7 @@ function PresentationEditPage() {
                     isSelected={i === selectedIndexView}
                     id={slideList[i].id}
                     index={i}
+                    icon={renderIconBaseOnType(slideList[i].type, 50)}
                     question={slideList[i].question}
                     onClick={() => setCurIndexView(i)}
                     updateListSlide={updateSlideListAfterRemoveSlide}
@@ -256,7 +322,8 @@ function PresentationEditPage() {
                         parentSetSelectedIndexView={(newSelectedIndexView) =>
                             setSelectedIndexView(newSelectedIndexView)
                         }
-                        parentSetSlideQuestion={updateSlideThumbnailText}
+                        parentSetSlideQuestion={updateSlideThumbnail}
+                        renderIcon={(type) => renderIconBaseOnType(type)}
                     />
                 </div>
             </div>

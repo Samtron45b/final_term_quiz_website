@@ -8,6 +8,7 @@ import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import AuthContext from "../contexts/auth_context";
 
 function MemberGroupCard({
+    groupId,
     groupName,
     memberName,
     memberAvatar,
@@ -25,7 +26,7 @@ function MemberGroupCard({
 
     async function onDeleteUser() {
         return privateAxios
-            .get(`group/kickUser?groupname=${groupName}&username=${memberName}`)
+            .get(`group/kickUser?groupId=${groupId}&username=${memberName}`)
             .then((response) => {
                 console.log(response);
                 const currentLocation = location.pathname;
@@ -113,6 +114,7 @@ function MemberGroupCard({
 }
 
 MemberGroupCard.propTypes = {
+    groupId: PropTypes.number.isRequired,
     groupName: PropTypes.string.isRequired,
     memberName: PropTypes.string.isRequired,
     memberAvatar: PropTypes.string.isRequired,

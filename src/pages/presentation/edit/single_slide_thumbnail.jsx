@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { RiBarChart2Fill } from "react-icons/ri";
 import { BiGridVertical } from "react-icons/bi";
 import { FiTrash2 } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
@@ -10,6 +9,7 @@ function PresentationSingleSlideThumbNail({
     onClick,
     id,
     index,
+    icon,
     question,
     updateListSlide
 }) {
@@ -95,7 +95,7 @@ function PresentationSingleSlideThumbNail({
                 </div>
             </div>
             <div className="flex flex-col justify-center items-center w-full bg-white border border-black rounded-lg">
-                <RiBarChart2Fill size={50} className="text-gray-400" />
+                {icon}
                 <p className="text-gray-400 text-center">{question}</p>
             </div>
         </div>
@@ -105,6 +105,8 @@ function PresentationSingleSlideThumbNail({
 PresentationSingleSlideThumbNail.propTypes = {
     id: PropTypes.number,
     index: PropTypes.number,
+    // eslint-disable-next-line react/forbid-prop-types
+    icon: PropTypes.any,
     question: PropTypes.string,
     isSelected: PropTypes.bool,
     onClick: PropTypes.func,
@@ -114,6 +116,7 @@ PresentationSingleSlideThumbNail.propTypes = {
 PresentationSingleSlideThumbNail.defaultProps = {
     id: 0,
     index: 0,
+    icon: null,
     question: "",
     isSelected: false,
     onClick: null,
