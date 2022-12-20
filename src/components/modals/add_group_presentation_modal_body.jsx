@@ -38,7 +38,7 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
                 setIsLoading(false);
                 setShowModal(0);
                 if (addingType === 1) {
-                    navigate(`/group_detail/${response?.data?.lastId ?? 0}`);
+                    navigate(`/group_detail/${response?.data?.lastID ?? 0}`);
                 } else {
                     navigate(`/presentation/${response?.data?.presentationId ?? 0}/edit`);
                 }

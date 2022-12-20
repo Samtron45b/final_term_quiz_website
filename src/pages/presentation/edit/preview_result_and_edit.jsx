@@ -74,14 +74,6 @@ function PreviewResultAndEdit({
         console.log("console.log from debounce (question)");
         console.log(newQuestion, newType);
         if (newQuestion === slideDetailData?.question && newType === slideDetailData?.type) return;
-        setSlideDetailData((curSlideDetailData) => {
-            return {
-                ...curSlideDetailData,
-                question: newQuestion
-            };
-        });
-        form.setFieldValue("question", newQuestion);
-        parentSetSlideQuestion?.(id, newQuestion, newType);
         privateAxios
             .get(
                 `presentation/updateSlide?slideId=${
@@ -90,7 +82,16 @@ function PreviewResultAndEdit({
             )
             .then((response) => {
                 console.log(response);
-                console.log(`question changed successfully for slide ${id}`);
+                console.log(`question or type changed successfully for slide ${id}`);
+                setSlideDetailData((curSlideDetailData) => {
+                    return {
+                        ...curSlideDetailData,
+                        question: newQuestion,
+                        type: newType
+                    };
+                });
+                form.setFieldValue("question", newQuestion);
+                parentSetSlideQuestion?.(id, newQuestion, newType);
                 return response;
             })
             .catch((error) => {
@@ -102,6 +103,32 @@ function PreviewResultAndEdit({
         () => debounce(onSlideQuestionOrTypeChanged, 1000),
         [id]
     );
+
+    // subtext changed handler
+    const onSlideSubTextChanged = async (newSubtext) => {
+        console.log("console.log from debounce (question)");
+        console.log(newSubtext);
+        if (newSubtext === slideDetailData?.subtext) return;
+        privateAxios
+            .get(`presentation/updateSlide?slideId=${id ?? 0}&subtext=${newSubtext}`)
+            .then((response) => {
+                console.log(response);
+                console.log(`subtext changed successfully for slide ${id}`);
+                setSlideDetailData((curSlideDetailData) => {
+                    return {
+                        ...curSlideDetailData,
+                        subtext: newSubtext
+                    };
+                });
+                form.setFieldValue("subtext", newSubtext);
+                return response;
+            })
+            .catch((error) => {
+                console.log("get error");
+                console.log(error);
+            });
+    };
+    const debounceSlideSubTextChanged = useMemo(() => debounce(onSlideSubTextChanged, 1000), [id]);
 
     // option changed handlers
     const updateSlideDetailAndOptionsForm = (newOptionsList) => {
@@ -150,6 +177,13 @@ function PreviewResultAndEdit({
         () => debounce(onChangeOptionText, 1000),
         [slideDetailData]
     );
+
+    const renderMainLabel = () => {
+        const type = slideDetailData?.type ?? 0;
+        if (type === 1) return "Title";
+        if (type === 2) return "Header";
+        return "Question";
+    };
 
     const renderCustomizedLabel = (propTypes) => {
         const { x, y, width, value } = propTypes;
@@ -211,10 +245,9 @@ function PreviewResultAndEdit({
             debounceOptionChanged(optionIndex, Object.entries(changedOption)[0][1]);
         } else if (changedField === "type") {
             const newType = changedValues.type;
-            let newText = "Question";
-            if (newType === "1") newText = "Title";
-            else if (newType === "2") newText = "Header";
-            debounceSlideQuestionOrTypeChanged(newText, newType);
+            onSlideQuestionOrTypeChanged(slideDetailData?.question, parseInt(newType, 10));
+        } else if (changedField === "subtext") {
+            debounceSlideSubTextChanged(changedValues.subtext);
         }
     };
 
@@ -224,25 +257,31 @@ function PreviewResultAndEdit({
                 <p className="text-5xl text-slate-500 mb-5">
                     {slideDetailData?.question ?? "Question"}
                 </p>
-                <ResponsiveContainer width="70%" height="80%">
-                    <BarChart
-                        width={150}
-                        height={40}
-                        data={slideDetailData?.options ?? []}
-                        margin={{ top: 30 }}
-                    >
-                        <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
-                        <Bar dataKey="answerAmount" fill="#8884d8">
-                            <LabelList dataKey="answerAmount" content={renderCustomizedLabel} />
-                        </Bar>
-                    </BarChart>
-                </ResponsiveContainer>
+                {slideDetailData?.type === 0 ? (
+                    <ResponsiveContainer width="70%" height="80%">
+                        <BarChart
+                            width={150}
+                            height={40}
+                            data={slideDetailData?.options ?? []}
+                            margin={{ top: 30 }}
+                        >
+                            <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
+                            <Bar dataKey="answerAmount" fill="#8884d8">
+                                <LabelList dataKey="answerAmount" content={renderCustomizedLabel} />
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <p className="text-xl max-w-[90%] text-slate-300 text-center break-all">
+                        {slideDetailData?.subtext}
+                    </p>
+                )}
             </div>
-            <div className="bg-white w-[440px] h-full overflow-auto px-5 pt-4 pb-8">
+            <div className="bg-white min-w-[440px] h-full overflow-auto px-5 pb-8">
                 <Form
                     form={form}
                     layout="vertical"
-                    className="mt-7"
+                    className="mt-2"
                     onValuesChange={onFormValuesChanged}
                 >
                     <Form.Item
@@ -255,16 +294,20 @@ function PreviewResultAndEdit({
                             <Select.Option value="2">{renderSelecOption(2)}</Select.Option>
                         </Select>
                     </Form.Item>
-                    <div className="font-bold text-2xl text-center">Content</div>
+                    <div className="mt-4 pt-3 font-bold text-2xl text-center border-t border-t-neutral-300">
+                        Content
+                    </div>
                     <Form.Item
                         name="question"
                         className="mt-1 w-full"
-                        label={<p className="text-lg font-medium text-gray-700">Question</p>}
+                        label={
+                            <p className="text-lg font-medium text-gray-700">{renderMainLabel()}</p>
+                        }
                         initialValue=""
                     >
                         <input
                             name="question"
-                            placeholder="Question"
+                            placeholder="Question/Title/Header"
                             className="
                                 mt-[-4px]
                                 focus:ring-purple-600 focus:border-purple-500
@@ -275,13 +318,41 @@ function PreviewResultAndEdit({
                                 px-2 py-3 bg-white border rounded-md "
                         />
                     </Form.Item>
-                    <OptionForm
-                        slideId={id}
-                        listOptions={slideDetailData?.options ?? []}
-                        parentUpdateAfterEditOptions={(newOptionsList) => {
-                            updateSlideDetailAndOptionsForm(newOptionsList);
-                        }}
-                    />
+                    {slideDetailData?.type === 0 ? (
+                        <OptionForm
+                            slideId={id}
+                            listOptions={slideDetailData?.options ?? []}
+                            parentUpdateAfterEditOptions={(newOptionsList) => {
+                                updateSlideDetailAndOptionsForm(newOptionsList);
+                            }}
+                        />
+                    ) : (
+                        <Form.Item
+                            name="subtext"
+                            className="mt-1 w-full"
+                            label={
+                                <p className="text-lg font-medium text-gray-700">
+                                    {slideDetailData?.type === 1 ? "Paragraph" : "sub header"}
+                                </p>
+                            }
+                            initialValue=""
+                        >
+                            <textarea
+                                name="subtext"
+                                rows={5}
+                                maxLength={500}
+                                placeholder="Subtext"
+                                className="
+                                mt-[-4px]
+                                focus:ring-purple-600 focus:border-purple-500
+                                focus:shadow-purple-300
+                                focus:shadow-inner
+                                focus:outline-none hover:border-purple-400
+                                block w-full sm:text-sm font-medium border-gray-300
+                                px-2 py-3 bg-white border rounded-md "
+                            />
+                        </Form.Item>
+                    )}
                 </Form>
             </div>
         </div>

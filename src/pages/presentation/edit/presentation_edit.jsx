@@ -40,8 +40,16 @@ function PresentationEditPage() {
     });
 
     async function changeName(newName) {
+        let finalNewName = newName.trim();
+        if (finalNewName === "") {
+            finalNewName = `Untitled_presentation_${presentationData?.timeCreated}`;
+        }
         privateAxios
-            .get(`presentation/update?presentationId=${presentationData?.id ?? 0}&name=${newName}`)
+            .get(
+                `presentation/update?presentationId=${
+                    presentationData?.id ?? 0
+                }&name=${finalNewName}`
+            )
             .then((response) => {
                 console.log(response);
                 console.log("name changed successfully");
@@ -163,16 +171,16 @@ function PresentationEditPage() {
                     height={`${size ?? 28}`}
                     viewBox="0 0 48 48"
                 >
-                    <title>Heading Subheading Icon</title>
-                    <rect fill="rgb(64, 70, 93)" y="18.05" width="48" height="10.15" rx="1.26" />
+                    <title>Heading Paragraph Icon</title>
                     <rect
                         fill="rgb(183, 186, 194)"
-                        x="5.54"
-                        y="30.05"
-                        width="36.92"
-                        height="4.62"
-                        rx="1.3"
+                        x="3.93"
+                        y="11.04"
+                        width="40.92"
+                        height="8.66"
+                        rx="1.26"
                     />
+                    <rect fill="rgb(64, 70, 93)" y="22.31" width="48" height="13.38" rx="1.26" />
                 </svg>
             );
         }
@@ -186,16 +194,16 @@ function PresentationEditPage() {
                     height={`${size ?? 28}`}
                     viewBox="0 0 48 48"
                 >
-                    <title>Heading Paragraph Icon</title>
+                    <title>Heading Subheading Icon</title>
+                    <rect fill="rgb(64, 70, 93)" y="18.05" width="48" height="10.15" rx="1.26" />
                     <rect
                         fill="rgb(183, 186, 194)"
-                        x="3.93"
-                        y="11.04"
-                        width="40.92"
-                        height="8.66"
-                        rx="1.26"
+                        x="5.54"
+                        y="30.05"
+                        width="36.92"
+                        height="4.62"
+                        rx="1.3"
                     />
-                    <rect fill="rgb(64, 70, 93)" y="22.31" width="48" height="13.38" rx="1.26" />
                 </svg>
             );
         }
