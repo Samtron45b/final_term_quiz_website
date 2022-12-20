@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { Form } from "antd";
 import { RiCloseFill } from "react-icons/ri";
 import { IoMdAdd } from "react-icons/io";
-import usePrivateAxios from "../../configs/networks/usePrivateAxios";
+import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function OptionForm({ slideId, listOptions, parentUpdateAfterEditOptions }) {
     const form = Form.useFormInstance();

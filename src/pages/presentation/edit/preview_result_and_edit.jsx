@@ -16,7 +16,7 @@ import { useQuery } from "react-query";
 import { Form } from "antd";
 import debounce from "lodash/debounce";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
-import OptionForm from "../option_form";
+import OptionForm from "./option_form";
 
 function PreviewResultAndEdit({
     id,
@@ -193,7 +193,7 @@ function PreviewResultAndEdit({
     };
 
     return (
-        <div className="flex flex-row overflow-auto bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
+        <div className="flex flex-row overflow-hidden bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
             <div className="grow flex flex-col justify-center items-center mx-5 my-10 bg-white">
                 <p className="text-5xl text-slate-500 mb-5">
                     {slideDetailData?.question ?? "Question"}
@@ -212,7 +212,7 @@ function PreviewResultAndEdit({
                     </BarChart>
                 </ResponsiveContainer>
             </div>
-            <div className="bg-white w-[440px] h-screen px-5 pt-4 pb-8">
+            <div className="bg-white w-[440px] h-full overflow-auto px-5 pt-4 pb-8">
                 <div className="font-bold text-2xl text-center">Content</div>
                 <Form
                     form={form}
