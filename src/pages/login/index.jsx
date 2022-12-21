@@ -19,7 +19,11 @@ function LoginPage() {
         setIsLoading(true);
         console.log(data);
         publicAxios
-            .get(`auth/login?username=${data.username}&password=${data.password}`)
+            .get(`auth/login?username=${data.username}`, {
+                params: {
+                    password: data.password
+                }
+            })
             .then(async (response) => {
                 console.log(response);
                 const { accessToken } = response.data;
