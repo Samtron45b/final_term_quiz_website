@@ -7,6 +7,8 @@ import AccountPage from "../pages/account/index";
 import ActiveAccountPage from "../pages/activate_account";
 import InviteGroupPage from "../pages/invite_group";
 import PresentationEditPage from "../pages/presentation/edit/presentation_edit";
+import ForgotPassPage from "../pages/forgot_pass";
+import ActiveNotifyPage from "../pages/activate_account/active_notify";
 
 const ViewRoutes = [
     {
@@ -25,6 +27,11 @@ const ViewRoutes = [
         component: <LoginPage />
     },
     {
+        path: "/forgot_password",
+        exact: true,
+        component: <ForgotPassPage />
+    },
+    {
         path: "/group_detail/:groupId",
         exact: true,
         component: <GroupDetailPage />
@@ -38,6 +45,11 @@ const ViewRoutes = [
         path: "/activate_account/:username",
         exact: true,
         component: <ActiveAccountPage />
+    },
+    {
+        path: "/active_notify",
+        exact: true,
+        component: <ActiveNotifyPage />
     },
     {
         path: "/invite/:inviteId",

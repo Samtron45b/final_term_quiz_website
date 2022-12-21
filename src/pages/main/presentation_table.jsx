@@ -111,7 +111,9 @@ function TablePresentation({ dataList, onSelectPresentationRemove }) {
                 key: "creator",
                 render: (_, record) => (
                     <p className="text-lg text-gray-500 break-words">
-                        {record.creator === user?.username ? "me" : record.creator}
+                        {record.creator.username === user?.username
+                            ? "me"
+                            : record.creator.displayName}
                     </p>
                 )
             },
@@ -135,19 +137,19 @@ function TablePresentation({ dataList, onSelectPresentationRemove }) {
                     <Space size="small">
                         {renderButton(
                             "present",
-                            record.creator === user.username,
+                            record.creator.username === user.username,
                             record.id,
                             record.name
                         )}
                         {renderButton(
                             "edit",
-                            record.creator === user.username,
+                            record.creator.username === user.username,
                             record.id,
                             record.name
                         )}
                         {renderButton(
                             "delete",
-                            record.creator === user.username,
+                            record.creator.username === user.username,
                             record.id,
                             record.name
                         )}
@@ -167,7 +169,7 @@ function TablePresentation({ dataList, onSelectPresentationRemove }) {
                 key: `presentation_${id}`,
                 id,
                 name: `${name}`,
-                creator: `${creator}`,
+                creator: { ...creator },
                 timeCreated
             });
         }

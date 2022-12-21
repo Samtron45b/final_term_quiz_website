@@ -30,11 +30,13 @@ function ProfileViewEdit() {
             .then(async (response) => {
                 console.log(response);
                 console.log(user);
-                setUser({
+                const newUser = {
                     ...user,
                     displayName: data.displayName,
                     email: data.email
-                });
+                };
+                setUser({ ...newUser });
+                localStorage.setItem("userData", JSON.stringify(newUser));
                 resetProfileEditField(data);
                 setIsEditing(false);
             })

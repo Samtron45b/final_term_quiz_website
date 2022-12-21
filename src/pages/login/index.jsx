@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
-import { v4 as uuidv4 } from "uuid";
 import { Form, Input } from "antd";
 import SocialSignInBtns from "./socialSignInBtns";
 import { publicAxios } from "../../configs/networks/custom_axioses";
@@ -20,11 +19,7 @@ function LoginPage() {
         setIsLoading(true);
         console.log(data);
         publicAxios
-            .get(
-                `auth/login?clientId=${uuidv4()}&username=${data.username}&password=${
-                    data.password
-                }`
-            )
+            .get(`auth/login?username=${data.username}&password=${data.password}`)
             .then(async (response) => {
                 console.log(response);
                 const { accessToken } = response.data;
@@ -144,7 +139,7 @@ function LoginPage() {
                         <>
                             <div className="forgot-pwd-btn mb-2">
                                 <Link
-                                    to="/register"
+                                    to="/forgot_password"
                                     className=" text-sm font-medium text-gray-500 no-underline hover:underline hover:decoration-2 hover:text-purple-800"
                                 >
                                     Forgot password?

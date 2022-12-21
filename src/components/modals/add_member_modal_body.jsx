@@ -5,7 +5,7 @@ import { Form, Input } from "antd";
 import AuthContext from "../contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
-function AddMemberModalBody({ groupName, inviteId }) {
+function AddMemberModalBody({ groupId, inviteId }) {
     const { user } = useContext(AuthContext);
     const [form] = Form.useForm();
     const [isLoading, setIsLoading] = useState(false);
@@ -18,7 +18,7 @@ function AddMemberModalBody({ groupName, inviteId }) {
         console.log(data);
         privateAxios
             .get(
-                `group/invite?groupname=${groupName}&inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`
+                `group/invite?groupId=${groupId}&inviteId=${inviteId}&sender=${user.username}&receiver=${data.membername}`
             )
             .then((response) => {
                 console.log(response);
@@ -42,6 +42,11 @@ function AddMemberModalBody({ groupName, inviteId }) {
                 layout="vertical"
                 requiredMark="optional"
                 validateTrigger="onSubmit"
+                onValuesChange={() => {
+                    if (errorMess) {
+                        setErrorMess(null);
+                    }
+                }}
                 onFinish={onFinish}
                 onFinishFailed={onFinishFailed}
             >
@@ -76,7 +81,7 @@ function AddMemberModalBody({ groupName, inviteId }) {
                 <Form.Item
                     className="text-sm font-medium text-gray-700 mb-1"
                     label="Member name"
-                    name="name"
+                    name="membername"
                     rules={[
                         {
                             required: true,
@@ -124,7 +129,7 @@ function AddMemberModalBody({ groupName, inviteId }) {
 }
 
 AddMemberModalBody.propTypes = {
-    groupName: PropTypes.string.isRequired,
+    groupId: PropTypes.number.isRequired,
     inviteId: PropTypes.string.isRequired
 };
 

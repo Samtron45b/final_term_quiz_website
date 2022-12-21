@@ -22,6 +22,8 @@ function App() {
     const [isInitialWeb, setIsInitialWeb] = useState(true);
     const [user, setUser] = useState(null);
 
+    const listAuthPage = ["/login", "/register", "/forgot_password"];
+
     if (isInitialWeb) {
         if (accessToken !== null) {
             setUser(JSON.parse(localStorage.getItem("userData")));
@@ -44,21 +46,30 @@ function App() {
                                 {ViewRoutes.map(({ path, exact, component }, key) => {
                                     const routeKey = `route${key}`;
                                     let firstComponent = component;
-                                    if (path === "/login" || path === "/register") {
+                                    if (listAuthPage.includes(path)) {
                                         if (accessToken) {
                                             firstComponent = <Navigate to="/" />;
                                         }
-                                    } else if (
-                                        !path.includes("/activate_account") &&
-                                        !accessToken
-                                    ) {
-                                        firstComponent = (
-                                            <Navigate
-                                                to="/login"
-                                                replace
-                                                state={{ from: window.location.pathname }}
-                                            />
-                                        );
+                                    } else if (!path.includes("/activate_account")) {
+                                        if (!accessToken) {
+                                            firstComponent = (
+                                                <Navigate
+                                                    to="/login"
+                                                    replace
+                                                    state={{ from: window.location.pathname }}
+                                                />
+                                            );
+                                        } else if (
+                                            !path.includes("/active_notify") &&
+                                            user?.active === "false"
+                                        ) {
+                                            firstComponent = <Navigate to="/active_notify" />;
+                                        } else if (
+                                            path.includes("/active_notify") &&
+                                            user?.active === "true"
+                                        ) {
+                                            firstComponent = <Navigate to="/" />;
+                                        }
                                     }
 
                                     return (

@@ -116,7 +116,11 @@ function GroupDetailPage() {
     }
 
     if (isMemberListQueryFetching) {
-        return <ImSpinner10 size={100} className="animate-spin mr-3 mb-2" />;
+        return (
+            <div className="flex h-full justify-center ">
+                <ImSpinner10 size={50} className="animate-spin mr-3 mt-[10%]" />
+            </div>
+        );
     }
 
     return (
@@ -136,7 +140,6 @@ function GroupDetailPage() {
             >
                 <AddMemberModalBody
                     groupId={parseInt(groupId, 10)}
-                    groupName={memberListQueryRes?.data?.name ?? ""}
                     inviteId={memberListQueryRes?.data?.inviteId ?? ""}
                 />
             </ModalFrame>
