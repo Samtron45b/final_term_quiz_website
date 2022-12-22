@@ -31,9 +31,8 @@ function MemberGroupCard({
             })
             .then((response) => {
                 console.log(response);
-                navigate("/temp");
                 setTimeout(() => {
-                    navigate(`/group_detail/${groupId}`, { replace: true });
+                    navigate(0);
                 }, 100);
             });
     }
@@ -98,7 +97,7 @@ function MemberGroupCard({
                 <div className="flex items-center">
                     <img className="w-8 h-8 rounded-full mr-4 bg-black" src={memberAvatar} alt="" />
                     <p className="text-lg text-gray-700 truncate">{`${memberDisplayName} ${
-                        memberRole === 2 ? "(Co-owner)" : ""
+                        memberRole === 1 ? "(Owner)" : ""
                     }`}</p>
                 </div>
             </td>

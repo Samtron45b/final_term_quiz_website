@@ -14,7 +14,7 @@ function ActiveAccountPage() {
         return res.data;
     };
 
-    const { data, error, isLoading, refetch } = useQuery(
+    const { error, isLoading, refetch } = useQuery(
         "active_account_request",
         callActivateAccountApi,
         {
@@ -41,7 +41,7 @@ function ActiveAccountPage() {
     function getMessage() {
         if (isLoading) return "Activating...";
         if (error) return `${error}`;
-        return `${data?.data}`;
+        return "Activated";
     }
 
     return (

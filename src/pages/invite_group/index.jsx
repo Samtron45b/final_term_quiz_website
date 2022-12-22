@@ -7,16 +7,18 @@ import AuthContext from "../../components/contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function InviteGroupPage() {
-    const { inviteId } = useParams();
+    const { locationInvite, inviteId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
     const callAddUserApi = async () => {
         const res = await privateAxios
-            .get(`group/addUser`, { params: { inviteId, username: user.username } })
+            .get(`${locationInvite}/addUser`, { params: { inviteId, username: user.username } })
             .then((response) => {
                 console.log(response);
-                navigate(`/group_detail/${response?.data?.data?.name}`, { replace: true });
+                if (locationInvite === "group") {
+                    navigate(`/group_detail/${response?.data?.data}`, { replace: true });
+                }
             });
         return res.data;
     };

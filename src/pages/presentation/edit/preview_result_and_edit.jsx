@@ -60,6 +60,7 @@ function PreviewResultAndEdit({
             await slideQueryRefetch().then((response) => {
                 form.setFieldValue("question", response?.data?.data?.question ?? "");
                 form.setFieldValue("type", `${response?.data?.data?.type ?? 0}`);
+                form.setFieldValue("subtext", `${response?.data?.data?.subtext ?? 0}`);
                 setValueForOptionList(response?.data?.data?.options ?? []);
             });
             if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
@@ -75,11 +76,13 @@ function PreviewResultAndEdit({
         console.log(newQuestion, newType);
         if (newQuestion === slideDetailData?.question && newType === slideDetailData?.type) return;
         privateAxios
-            .get(
-                `presentation/updateSlide?slideId=${
-                    id ?? 0
-                }&question=${newQuestion}&slideType=${newType}`
-            )
+            .get(`presentation/updateSlide`, {
+                params: {
+                    slideId: id,
+                    question: newQuestion,
+                    type: newType
+                }
+            })
             .then((response) => {
                 console.log(response);
                 console.log(`question or type changed successfully for slide ${id}`);
@@ -110,7 +113,7 @@ function PreviewResultAndEdit({
         console.log(newSubtext);
         if (newSubtext === slideDetailData?.subtext) return;
         privateAxios
-            .get(`presentation/updateSlide?slideId=${id ?? 0}&subtext=${newSubtext}`)
+            .get(`presentation/updateSlide`, { params: { slideId: id, subtext: newSubtext } })
             .then((response) => {
                 console.log(response);
                 console.log(`subtext changed successfully for slide ${id}`);
@@ -148,9 +151,13 @@ function PreviewResultAndEdit({
         const finalIsCorrect = newIsCorrect ?? listOptions[optionIndex]?.isCorrect;
         console.log(listOptions, optionId, finalNewText, finalIsCorrect);
         privateAxios
-            .get(
-                `presentation/updateOption?optionId=${optionId}&optionText=${finalNewText}&isCorrect=${finalIsCorrect}`
-            )
+            .get(`presentation/updateOption`, {
+                params: {
+                    optionId,
+                    optionText: finalNewText,
+                    isCorrect: finalIsCorrect
+                }
+            })
             .then((response) => {
                 console.log(response);
                 console.log(`update option ${optionId} successfully for slide ${id}`);
@@ -253,12 +260,12 @@ function PreviewResultAndEdit({
 
     return (
         <div className="flex flex-row overflow-hidden bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
-            <div className="grow flex flex-col justify-center items-center mx-5 my-10 bg-white">
-                <p className="text-5xl text-slate-500 mb-5">
+            <div className="grow flex flex-col justify-center items-center py-1 mx-5 my-10 bg-white">
+                <p className="mb-3 w-full max-h-[30%] text-3xl leading-none text-slate-500 text-center">
                     {slideDetailData?.question ?? "Question"}
                 </p>
                 {slideDetailData?.type === 0 ? (
-                    <ResponsiveContainer width="70%" height="80%">
+                    <ResponsiveContainer width="70%" className="max-h-[60%]">
                         <BarChart
                             width={150}
                             height={40}

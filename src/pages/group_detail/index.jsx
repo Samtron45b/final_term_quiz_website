@@ -68,9 +68,14 @@ function GroupDetailPage() {
             );
         }
         userRole = userInList?.role;
-        const listOwnerandCo = dataList.filter((mem) => {
-            return mem.role === 1 || mem.role === 2;
+        let listOwnerandCo = dataList.filter((mem) => {
+            return mem.role === 1;
         });
+        listOwnerandCo = listOwnerandCo.concat(
+            dataList.filter((mem) => {
+                return mem.role === 2;
+            })
+        );
         const listMember = dataList.filter((mem) => {
             return mem.role === 3;
         });

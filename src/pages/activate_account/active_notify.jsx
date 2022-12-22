@@ -9,8 +9,9 @@ function ActiveNotifyPage() {
     const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
     const onResendMailClick = async () => {
-        const res = await privateAxios.get(`auth/active`, { params: { username } });
-        console.log(res.data);
+        privateAxios.get(`auth/active_email`, { params: { username } }).then((response) => {
+            console.log(response);
+        });
     };
 
     async function signout() {

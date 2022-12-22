@@ -20,9 +20,8 @@ function ChangeMemberRoleModalBody({ groupId, memberRole, memberName, memberDisp
             })
             .then((response) => {
                 console.log(response);
-                navigate("/temp");
                 setTimeout(() => {
-                    navigate(`/group_detail/${groupId}`, { replace: true });
+                    navigate(0);
                 }, 100);
             })
             .catch((error) => {

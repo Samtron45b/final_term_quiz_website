@@ -52,7 +52,7 @@ const ViewRoutes = [
         component: <ActiveNotifyPage />
     },
     {
-        path: "/invite/:inviteId",
+        path: "/:locationInvite/invite/:inviteId",
         exact: true,
         component: <InviteGroupPage />
     },

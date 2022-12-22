@@ -94,9 +94,11 @@ function PresentationSingleSlideThumbNail({
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col justify-center items-center w-full bg-white border border-black rounded-lg">
+            <div className="flex flex-col overflow-hidden justify-center items-center w-full bg-white border border-black rounded-lg">
                 {icon}
-                <p className="text-gray-400 text-center">{question}</p>
+                <p className="w-full px-1 text-gray-400 text-center text-ellipsis overflow-hidden whitespace-nowrap">
+                    {question}
+                </p>
             </div>
         </div>
     );
