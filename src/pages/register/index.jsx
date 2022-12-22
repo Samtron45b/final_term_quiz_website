@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { ImSpinner10 } from "react-icons/im";
-import { v4 as uuidv4 } from "uuid";
 import { Form, Input } from "antd";
 import ModalFrame from "../../components/modals/modal_frame";
 import AuthResultModalBody from "../../components/modals/auth_result_modal_body";
@@ -22,11 +21,14 @@ function RegisterPage() {
     const onFinish = (data) => {
         setIsLoading(true);
         publicAxios
-            .get(
-                `${process.env.REACT_APP_BASE_URL}auth/register?clientId=${uuidv4()}&email=${
-                    data.email
-                }&username=${data.username}&password=${data.password}&displayName=${data.username}`
-            )
+            .get(`auth/register`, {
+                params: {
+                    email: data.email,
+                    username: data.username,
+                    displayName: data.username,
+                    password: data.password
+                }
+            })
             .then((response) => {
                 console.log(response);
                 setShowResultModal(true);

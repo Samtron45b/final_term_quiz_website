@@ -24,9 +24,13 @@ function ProfileViewEdit() {
         console.log(data);
         setLoading(true);
         privateAxios
-            .get(
-                `user/edit?username=${user.username}&displayName=${data.displayName}&email=${data.email}`
-            )
+            .get(`user/edit`, {
+                params: {
+                    username: user.username,
+                    displayName: data.displayName,
+                    email: data.email
+                }
+            })
             .then(async (response) => {
                 console.log(response);
                 console.log(user);

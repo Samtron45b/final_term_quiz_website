@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import { AiOutlineUserDelete } from "react-icons/ai";
 import { MdAssignmentInd } from "react-icons/md";
 import { ImProfile } from "react-icons/im";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import AuthContext from "../contexts/auth_context";
@@ -20,19 +20,20 @@ function MemberGroupCard({
     onRemoveBtnClick
 }) {
     const navigate = useNavigate();
-    const location = useLocation();
     const { user } = useContext(AuthContext);
     const privateAxios = usePrivateAxios();
 
     async function onDeleteUser() {
         return privateAxios
-            .get(`group/kickUser?groupId=${groupId}&username=${memberName}`)
+            .get(`group/kickUser`, {
+                groupId,
+                params: { username: memberName }
+            })
             .then((response) => {
                 console.log(response);
-                const currentLocation = location.pathname;
                 navigate("/temp");
                 setTimeout(() => {
-                    navigate(`/${currentLocation}`, { replace: true });
+                    navigate(`/group_detail/${groupId}`, { replace: true });
                 }, 100);
             });
     }
@@ -44,10 +45,12 @@ function MemberGroupCard({
             btnDisabled = false;
             icon = <ImProfile size={20} className="text-neutral-500" />;
         } else if (btnType === 2) {
-            btnDisabled = userRole > 2 || userRole >= memberRole;
+            btnDisabled = userRole > 1 || userRole >= memberRole;
+            // userRole > 2 || userRole >= memberRole;
             icon = <MdAssignmentInd size={20} className="text-cyan-400" />;
         } else {
-            btnDisabled = userRole > 3 || userRole >= memberRole;
+            btnDisabled = userRole > 1 || userRole >= memberRole;
+            // userRole > 3 || userRole >= memberRole;
             icon = <AiOutlineUserDelete size={20} className="text-red-500" />;
         }
         // const roleBtnDisabled = userRole > 3;
@@ -74,10 +77,13 @@ function MemberGroupCard({
                         });
                     } else {
                         onRemoveBtnClick({
-                            name: `member ${memberDisplayName} from group ${groupName}`,
+                            name: `member ${
+                                memberDisplayName !== memberName
+                                    ? `${memberDisplayName} (${memberName})`
+                                    : memberDisplayName
+                            } from group ${groupName}`,
                             onConfirmRemove: async () => onDeleteUser()
                         });
-                        onDeleteUser({ name: memberName, role: memberRole });
                     }
                 }}
             >
@@ -97,7 +103,7 @@ function MemberGroupCard({
                 </div>
             </td>
             <td className=" py-2">
-                <div className="flex items-center">
+                <div className="flex items-center justify-end">
                     {renderButton(1)}
                     {renderButton(2)}
                     {renderButton(3)}

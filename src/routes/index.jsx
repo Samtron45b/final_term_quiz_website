@@ -47,7 +47,7 @@ const ViewRoutes = [
         component: <ActiveAccountPage />
     },
     {
-        path: "/active_notify",
+        path: "/active_notify/:username",
         exact: true,
         component: <ActiveNotifyPage />
     },

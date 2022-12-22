@@ -1,5 +1,6 @@
 import { Form, Input } from "antd";
-import { useState } from "react";
+import debounce from "lodash/debounce";
+import { useMemo, useState } from "react";
 import { ImSpinner10 } from "react-icons/im";
 import { publicAxios } from "../../configs/networks/custom_axioses";
 
@@ -10,17 +11,14 @@ function ForgotPassPage() {
     // const navigate = useNavigate();
     // const location = useLocation();
 
-    const onFinish = async (data) => {
+    const debounceOnUsernameChanged = useMemo(() => debounce(setUsername, 300), []);
+
+    const onFinish = async () => {
         setResetPassStatus(0);
         console.log("username:", username);
-        console.log(data);
         publicAxios
-            .get(`auth/resetPass?username=${username}`)
-            .then(async (response) => {
-                console.log(response);
-                const { accessToken } = response.data;
-                localStorage.setItem("accessToken", accessToken);
-                // navigate(location.state?.from ?? "/", { replace: true });
+            .get("auth/resetPass", { params: { username } })
+            .then(() => {
                 setForgotPassError(null);
             })
             .catch((loginErr) => {
@@ -126,7 +124,7 @@ function ForgotPassPage() {
                     layout="vertical"
                     requiredMark="optional"
                     onValuesChange={(changedValues) => {
-                        setUsername(changedValues.username);
+                        debounceOnUsernameChanged(changedValues.username);
                     }}
                     onFinish={onFinish}
                     onFinishFailed={onFinishFailed}

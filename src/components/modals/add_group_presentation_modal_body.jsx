@@ -6,8 +6,7 @@ import { Form, Input } from "antd";
 import AuthContext from "../contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
-function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
-    console.log(params);
+function AddGroupPresentationModalBody({ addingType, setShowModal }) {
     const [isLoading, setIsLoading] = useState(false);
     const { user } = useContext(AuthContext);
     const [errorMess, setErrorMess] = useState(null);
@@ -26,13 +25,15 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
     const onFinish = async (data) => {
         setIsLoading(true);
         console.log(data);
-        const url =
+        const url = addingType === 1 ? `group/create` : `presentation/create`;
+        const params =
             addingType === 1
-                ? `group/create?username=${user.username}&groupname=${data.name}`
-                : `presentation/create?presentationName=${data.name}`;
+                ? { username: user.username, groupname: data.name }
+                : { presentationName: data.name };
         console.log(url);
+        console.log(params);
         privateAxios
-            .get(url)
+            .get(url, { params })
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
@@ -115,14 +116,11 @@ function AddGroupPresentationModalBody({ addingType, setShowModal, params }) {
 
 AddGroupPresentationModalBody.propTypes = {
     addingType: PropTypes.number,
-    setShowModal: PropTypes.func,
-    // eslint-disable-next-line react/forbid-prop-types
-    params: PropTypes.object
+    setShowModal: PropTypes.func
 };
 AddGroupPresentationModalBody.defaultProps = {
     addingType: 0,
-    setShowModal: null,
-    params: null
+    setShowModal: null
 };
 
 export default AddGroupPresentationModalBody;

@@ -3,7 +3,6 @@ import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
 import MainGroupCard from "../../components/cards/main_group_card";
 import AuthContext from "../../components/contexts/auth_context";
-import LocationContext from "../../components/contexts/location_context";
 import MainHeader from "../../components/header/main_header/main_header";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import TablePresentation from "./presentation_table";
@@ -12,7 +11,6 @@ import RemoveModalBody from "../../components/modals/remove_modal_body";
 
 function Main() {
     const { user } = useContext(AuthContext);
-    const { location, setLocation } = useContext(LocationContext);
     const [presentationToRemove, setPresentationToRemove] = useState(null);
     if (presentationToRemove !== null) {
         console.log(presentationToRemove);
@@ -28,7 +26,7 @@ function Main() {
         queryFn: async () => {
             console.log("run created by");
             return privateAxios
-                .get(`group/createdBy?username=${user.username}`)
+                .get(`group/createdBy`, { params: { username: user.username } })
                 .then((response) => {
                     return response;
                 })
@@ -47,7 +45,7 @@ function Main() {
         queryFn: async () => {
             console.log("run joined by");
             return privateAxios
-                .get(`group/joinedBy?username=${user.username}`)
+                .get(`group/joinedBy`, { params: { username: user.username } })
                 .then((response) => {
                     return response;
                 })
@@ -77,9 +75,6 @@ function Main() {
     });
 
     useEffect(() => {
-        if (location !== window.location.pathname) {
-            setLocation(window.location.pathname);
-        }
         createdGroupListQueryRefetch();
         joinedGroupListQueryRefetch();
         presentationListQueryRefetch();

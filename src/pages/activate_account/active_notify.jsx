@@ -9,9 +9,7 @@ function ActiveNotifyPage() {
     const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
     const onResendMailClick = async () => {
-        const res = await privateAxios.get(
-            `${process.env.REACT_APP_BASE_URL}auth/active?username=${username}`
-        );
+        const res = await privateAxios.get(`auth/active`, { params: { username } });
         console.log(res.data);
     };
 
@@ -40,8 +38,7 @@ function ActiveNotifyPage() {
                 Your account is not activated yet. Please access to the link sent to the email
                 linked to this account to activate it.
                 <br />
-                <b>Note:</b> If you don&#39;t see any password mail, please check the spam box or
-                click{" "}
+                <b>Note:</b> If you don&#39;t see any mail, please check the spam box or click{" "}
                 <span
                     className="hover:underline hover:decoration-2 font-bold text-purple-500 cursor-pointer"
                     onClick={() => onResendMailClick()}

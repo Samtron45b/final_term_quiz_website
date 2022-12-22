@@ -15,7 +15,7 @@ import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 function GroupDetailPage() {
     const { groupId } = useParams();
     const { user } = useContext(AuthContext);
-
+    const [isGetGroupError, setIsGetGroupError] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
     const [memberToRemove, setMemberToRemove] = useState(null);
@@ -39,6 +39,7 @@ function GroupDetailPage() {
                 .catch((error) => {
                     console.log("get error");
                     console.log(error);
+                    setIsGetGroupError(true);
                 });
         },
         refetchInterval: 60 * 10 * 1000
@@ -46,7 +47,8 @@ function GroupDetailPage() {
 
     useEffect(() => {
         memberListQueryRefetch();
-    }, []);
+        return () => setIsGetGroupError(false);
+    }, [groupId]);
 
     let userRole = 0;
 
@@ -58,7 +60,14 @@ function GroupDetailPage() {
         const userInList = dataList.find((element) => {
             return element.username === user.username;
         });
-        userRole = userInList?.role ?? 0;
+        if (!userInList) {
+            return (
+                <div className="flex flex-row justify-center text-neutral-400 text-3xl">
+                    You are not a member of this group.
+                </div>
+            );
+        }
+        userRole = userInList?.role;
         const listOwnerandCo = dataList.filter((mem) => {
             return mem.role === 1 || mem.role === 2;
         });
@@ -69,7 +78,7 @@ function GroupDetailPage() {
         console.log(listMember);
         return (
             <>
-                {userRole < 3 ? (
+                {userRole === 1 ? (
                     <button
                         type="button"
                         data-mdb-ripple="true"
@@ -128,7 +137,15 @@ function GroupDetailPage() {
             <MainHeader />
             <div className="h-[90%]">
                 <div className="flex justify-center items-center w-full mt-5">
-                    <h1 className="font-extrabold text-3xl">{`Group ${memberListQueryRes?.data?.name}`}</h1>
+                    <h1
+                        className={`${
+                            isGetGroupError ? "text-neutral-300" : "text-black"
+                        } font-extrabold text-3xl`}
+                    >
+                        {isGetGroupError
+                            ? "Cannot get data for this group."
+                            : `Group ${memberListQueryRes?.data?.name}`}
+                    </h1>
                 </div>
                 <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
             </div>
@@ -150,9 +167,9 @@ function GroupDetailPage() {
                 onClose={() => setMemberToChangeRole(null)}
             >
                 <ChangeMemberRoleModalBody
+                    groupId={parseInt(groupId, 10)}
                     memberName={memberToChangeRole?.name ?? ""}
                     memberRole={memberToChangeRole?.role ?? 0}
-                    userRole={userRole}
                     memberDisplayName={memberToChangeRole?.displayName ?? ""}
                 />
             </ModalFrame>

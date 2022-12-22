@@ -19,8 +19,9 @@ function LoginPage() {
         setIsLoading(true);
         console.log(data);
         publicAxios
-            .get(`auth/login?username=${data.username}`, {
+            .get(`auth/login`, {
                 params: {
+                    username: data.username,
                     password: data.password
                 }
             })
@@ -84,7 +85,7 @@ function LoginPage() {
                     >
                         <Input
                             id="username"
-                            className="shadow-sm
+                            className="shadow-sm mt-[-4px]
                                 focus:ring-purple-600 focus:border-purple-500
                                 focus:shadow-purple-300 focus:shadow-md
                                 hover:border-purple-400
@@ -114,7 +115,7 @@ function LoginPage() {
                         <div className="relative">
                             <Input
                                 id="password"
-                                className="shadow-sm
+                                className="shadow-sm mt-[-4px]
                                 focus:ring-purple-600 focus:border-purple-500
                                 focus:shadow-purple-300 focus:shadow-md
                                 hover:border-purple-400
@@ -149,7 +150,7 @@ function LoginPage() {
                                     Forgot password?
                                 </Link>
                             </div>
-                            <div className="mt-6">
+                            <div className="mt-4">
                                 <button
                                     disabled={isLoading}
                                     type="submit"

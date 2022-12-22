@@ -59,7 +59,7 @@ function PreviewResultAndEdit({
         async function fectchData() {
             await slideQueryRefetch().then((response) => {
                 form.setFieldValue("question", response?.data?.data?.question ?? "");
-                form.setFieldValue("type", `${response?.data?.type ?? 0}`);
+                form.setFieldValue("type", `${response?.data?.data?.type ?? 0}`);
                 setValueForOptionList(response?.data?.data?.options ?? []);
             });
             if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
@@ -78,7 +78,7 @@ function PreviewResultAndEdit({
             .get(
                 `presentation/updateSlide?slideId=${
                     id ?? 0
-                }&question=${newQuestion}&type=${newType}`
+                }&question=${newQuestion}&slideType=${newType}`
             )
             .then((response) => {
                 console.log(response);

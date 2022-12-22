@@ -13,7 +13,7 @@ function InviteGroupPage() {
     const privateAxios = usePrivateAxios();
     const callAddUserApi = async () => {
         const res = await privateAxios
-            .get(`group/addUser?inviteId=${inviteId}&username=${user.username}`)
+            .get(`group/addUser`, { params: { inviteId, username: user.username } })
             .then((response) => {
                 console.log(response);
                 navigate(`/group_detail/${response?.data?.data?.name}`, { replace: true });
