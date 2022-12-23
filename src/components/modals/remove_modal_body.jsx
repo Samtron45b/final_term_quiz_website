@@ -5,6 +5,7 @@ import { ImSpinner10 } from "react-icons/im";
 function RemoveModalBody({ objectToRemove, message, onClose, onConfirmRemove }) {
     console.log(objectToRemove, message);
     const [isLoading, setIsLoading] = useState(false);
+    const [removeError, setRemoveError] = useState(null);
 
     function renderObjectToRemove() {
         console.log(objectToRemove);
@@ -24,6 +25,7 @@ function RemoveModalBody({ objectToRemove, message, onClose, onConfirmRemove }) 
                 Are you sure you want to remove {renderObjectToRemove()}?
             </h2>
             <p className="text-md font-semibold">{message ? `Note: ${message}` : null}</p>
+            <p className="text-red-400">{removeError}</p>
             <div className="flex w-full justify-center items-center space-x-5">
                 <button
                     type="button"
@@ -31,9 +33,11 @@ function RemoveModalBody({ objectToRemove, message, onClose, onConfirmRemove }) 
                     data-mdb-ripple-color="light"
                     onClick={async () => {
                         setIsLoading(true);
+                        setRemoveError(null);
                         executeOnConfirmRemove()
                             .catch((error) => {
                                 console.log(error);
+                                setRemoveError(`Failed to remove ${renderObjectToRemove()}.`);
                             })
                             .finally(() => {
                                 setIsLoading(false);

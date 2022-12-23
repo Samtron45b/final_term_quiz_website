@@ -1,6 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
+import { MdGroupOff } from "react-icons/md";
 import { ImSpinner10 } from "react-icons/im";
 import { useQuery } from "react-query";
 import MainHeader from "../../components/header/main_header/main_header";
@@ -16,17 +17,15 @@ function GroupDetailPage() {
     const { groupId } = useParams();
     const { user } = useContext(AuthContext);
     const [isGetGroupError, setIsGetGroupError] = useState(false);
+    const [groupDetailData, setGroupDetailData] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
     const [memberToRemove, setMemberToRemove] = useState(null);
+    const navigate = useNavigate();
 
     const privateAxios = usePrivateAxios();
 
-    const {
-        isFetching: isMemberListQueryFetching,
-        data: memberListQueryRes,
-        refetch: memberListQueryRefetch
-    } = useQuery({
+    const { isFetching: isMemberListQueryFetching, refetch: memberListQueryRefetch } = useQuery({
         queryKey: ["get_member_list"],
         enabled: false,
         queryFn: async () => {
@@ -34,6 +33,7 @@ function GroupDetailPage() {
                 .get(`group/get?groupId=${groupId}`)
                 .then((response) => {
                     console.log(response);
+                    setGroupDetailData({ ...response?.data });
                     return response;
                 })
                 .catch((error) => {
@@ -52,11 +52,44 @@ function GroupDetailPage() {
 
     let userRole = 0;
 
-    function renderGroupMems() {
-        if (!memberListQueryRes) return null;
+    const updateListAfterMemberRolechanged = (memberName, newRole) => {
+        setGroupDetailData((currentData) => {
+            return {
+                ...currentData,
+                members: (currentData?.members ?? []).map((member) => {
+                    if (member?.username === memberName) {
+                        return { ...member, role: newRole };
+                    }
+                    return { ...member };
+                })
+            };
+        });
+        setMemberToChangeRole(null);
+    };
+    const updateListAfterRemoveMember = (memberName) => {
+        setGroupDetailData((currentData) => {
+            return {
+                ...currentData,
+                members: (currentData?.members ?? []).filter((member) => {
+                    return member?.username !== memberName;
+                })
+            };
+        });
+        setMemberToRemove(null);
+    };
+    const removeGroup = () => {
+        privateAxios.get(`group/delete?groupId=${groupId}`).then((response) => {
+            console.log(response);
+            navigate(-1);
+            return response;
+        });
+    };
 
-        console.log(memberListQueryRes);
-        const dataList = memberListQueryRes.data.members;
+    function renderGroupMems() {
+        if (!groupDetailData) return null;
+
+        console.log(groupDetailData);
+        const dataList = groupDetailData.members;
         const userInList = dataList.find((element) => {
             return element.username === user.username;
         });
@@ -84,45 +117,56 @@ function GroupDetailPage() {
         return (
             <>
                 {userRole === 1 ? (
-                    <button
-                        type="button"
-                        data-mdb-ripple="true"
-                        data-mdb-ripple-color="light"
-                        onClick={() => setShowModal(true)}
-                        className="flex items-center mb-3 px-4 py-4 bg-emerald-300 text-white font-medium text-md leading-tight rounded-lg shadow-md hover:bg-emerald-300/75 hover:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
-                    >
-                        <RiUserAddFill size={20} className="text-white mr-1" />
-                        Add member
-                    </button>
+                    <div className="flex flex-row space-x-5">
+                        <button
+                            type="button"
+                            data-mdb-ripple="true"
+                            data-mdb-ripple-color="light"
+                            onClick={() => setShowModal(true)}
+                            className="flex items-center mb-3 px-4 py-4 bg-emerald-300 text-white font-medium text-md leading-tight rounded-lg shadow-md hover:bg-emerald-300/75 hover:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
+                        >
+                            <RiUserAddFill size={20} className="text-white mr-1" />
+                            Add member
+                        </button>
+                        <button
+                            type="button"
+                            data-mdb-ripple="true"
+                            data-mdb-ripple-color="light"
+                            onClick={() => {
+                                setMemberToRemove({
+                                    name: `group ${groupDetailData?.name}?`,
+                                    onConfirmRemove: async () => removeGroup()
+                                });
+                            }}
+                            className="flex items-center mb-3 px-4 py-4 bg-red-500 text-white font-medium text-md leading-tight rounded-lg shadow-md hover:bg-red-500/75 hover:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out"
+                        >
+                            <MdGroupOff size={20} className="text-white mr-1" />
+                            Delete group
+                        </button>
+                    </div>
                 ) : null}
                 <TableMember
                     groupId={parseInt(groupId, 10)}
-                    groupName={memberListQueryRes?.data?.name}
+                    groupName={groupDetailData?.name}
                     title="Owner and Co-owners"
                     userRole={userRole}
                     dataList={listOwnerandCo}
                     onSelectMemberChangeRole={(memberSelected) =>
                         setMemberToChangeRole(memberSelected)
                     }
+                    afterMemberDeleted={updateListAfterRemoveMember}
                     onSelectMemberRemove={(memberSelected) => setMemberToRemove(memberSelected)}
                 />
-                {/* <TableMember
-                    title="Managers"
-                    userRole={userRole}
-                    dataList={listManager}
-                    onSelectMemberChangeRole={(memberSelected) =>
-                        setMemberToChangeRole(memberSelected)
-                    }
-                /> */}
                 <TableMember
                     groupId={parseInt(groupId, 10)}
-                    groupName={memberListQueryRes?.data?.name}
+                    groupName={groupDetailData?.name}
                     title="Members"
                     userRole={userRole}
                     dataList={listMember}
                     onSelectMemberChangeRole={(memberSelected) =>
                         setMemberToChangeRole(memberSelected)
                     }
+                    afterMemberDeleted={updateListAfterRemoveMember}
                     onSelectMemberRemove={(memberSelected) => setMemberToRemove(memberSelected)}
                 />
             </>
@@ -149,7 +193,7 @@ function GroupDetailPage() {
                     >
                         {isGetGroupError
                             ? "Cannot get data for this group."
-                            : `Group ${memberListQueryRes?.data?.name}`}
+                            : `Group ${groupDetailData?.name}`}
                     </h1>
                 </div>
                 <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
@@ -162,7 +206,7 @@ function GroupDetailPage() {
             >
                 <AddMemberModalBody
                     groupId={parseInt(groupId, 10)}
-                    inviteId={memberListQueryRes?.data?.inviteId ?? ""}
+                    inviteId={groupDetailData?.inviteId ?? ""}
                 />
             </ModalFrame>
             <ModalFrame
@@ -176,6 +220,7 @@ function GroupDetailPage() {
                     memberName={memberToChangeRole?.name ?? ""}
                     memberRole={memberToChangeRole?.role ?? 0}
                     memberDisplayName={memberToChangeRole?.displayName ?? ""}
+                    afterMemberRoleChanged={updateListAfterMemberRolechanged}
                 />
             </ModalFrame>
             <ModalFrame

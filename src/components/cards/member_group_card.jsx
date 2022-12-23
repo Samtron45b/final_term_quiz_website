@@ -16,6 +16,7 @@ function MemberGroupCard({
     memberDisplayName,
     userRole,
     isLastRow,
+    afterMemberDeleted,
     onChangeRoleBtnClick,
     onRemoveBtnClick
 }) {
@@ -26,15 +27,24 @@ function MemberGroupCard({
     async function onDeleteUser() {
         return privateAxios
             .get(`group/kickUser`, {
-                groupId,
-                params: { username: memberName }
+                params: { groupId, username: memberName }
             })
             .then((response) => {
                 console.log(response);
-                setTimeout(() => {
-                    navigate(0);
-                }, 100);
+                afterMemberDeleted(memberName);
             });
+    }
+
+    function renderMemberName() {
+        let nameToRender = memberDisplayName;
+        if (memberRole === 1) {
+            if (memberDisplayName !== memberName) {
+                nameToRender = `${memberDisplayName} (Owner - ${memberName})`;
+            } else nameToRender = `${memberDisplayName} (Owner)`;
+        } else if (memberDisplayName !== memberName) {
+            nameToRender = `${memberDisplayName} (${memberName})`;
+        }
+        return nameToRender;
     }
 
     function renderButton(btnType) {
@@ -96,9 +106,7 @@ function MemberGroupCard({
             <td className="py-2 w-[95%]">
                 <div className="flex items-center">
                     <img className="w-8 h-8 rounded-full mr-4 bg-black" src={memberAvatar} alt="" />
-                    <p className="text-lg text-gray-700 truncate">{`${memberDisplayName} ${
-                        memberRole === 1 ? "(Owner)" : ""
-                    }`}</p>
+                    <p className="text-lg text-gray-700 truncate">{renderMemberName()}</p>
                 </div>
             </td>
             <td className=" py-2">
@@ -127,10 +135,12 @@ MemberGroupCard.propTypes = {
     memberDisplayName: PropTypes.string.isRequired,
     userRole: PropTypes.number.isRequired,
     isLastRow: PropTypes.bool.isRequired,
+    afterMemberDeleted: PropTypes.func,
     onChangeRoleBtnClick: PropTypes.func,
     onRemoveBtnClick: PropTypes.func
 };
 MemberGroupCard.defaultProps = {
+    afterMemberDeleted: null,
     onChangeRoleBtnClick: null,
     onRemoveBtnClick: null
 };

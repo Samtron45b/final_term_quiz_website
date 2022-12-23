@@ -1,4 +1,3 @@
-// import { useParams } from "react-router-dom";
 import { useState } from "react";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { ImProfile } from "react-icons/im";
@@ -9,7 +8,6 @@ import ProfileViewEdit from "../../components/profile_view_edit/profile_view_edi
 import PassswordEdit from "../../components/profile_view_edit/password_edit";
 
 function AccountPage() {
-    // const { username } = useParams();
     const [viewIndex, setViewIndex] = useState(0);
 
     function renderChild() {

@@ -7,6 +7,7 @@ function TableMember({
     groupName,
     title,
     dataList,
+    afterMemberDeleted,
     onSelectMemberChangeRole,
     onSelectMemberRemove,
     userRole
@@ -34,6 +35,7 @@ function TableMember({
                     memberDisplayName={displayName}
                     isLastRow={index === length - 1}
                     onChangeRoleBtnClick={onSelectMemberChangeRole}
+                    afterMemberDeleted={afterMemberDeleted}
                     onRemoveBtnClick={onSelectMemberRemove}
                 />
             );
@@ -63,12 +65,14 @@ TableMember.propTypes = {
     userRole: PropTypes.number.isRequired,
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
+    afterMemberDeleted: PropTypes.func,
     onSelectMemberChangeRole: PropTypes.func,
     onSelectMemberRemove: PropTypes.func
 };
 TableMember.defaultProps = {
     title: "",
     dataList: [],
+    afterMemberDeleted: null,
     onSelectMemberChangeRole: null,
     onSelectMemberRemove: null
 };

@@ -2,30 +2,35 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { ImSpinner10 } from "react-icons/im";
 import { Form, Radio, Space } from "antd";
-import { useNavigate } from "react-router-dom";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
-function ChangeMemberRoleModalBody({ groupId, memberRole, memberName, memberDisplayName }) {
+function ChangeMemberRoleModalBody({
+    groupId,
+    memberRole,
+    memberName,
+    memberDisplayName,
+    afterMemberRoleChanged
+}) {
     const [form] = Form.useForm();
-    const [memSelectedRole, setMemSelectedRole] = useState(`${memberRole}`);
+    const [memSelectedRole, setMemSelectedRole] = useState(memberRole);
+    const [changeError, setChangeError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
     const onFinish = async () => {
         console.log(memSelectedRole);
+        setChangeError(null);
         setIsLoading(true);
         privateAxios
-            .get(`group/updateUser?groupId=${groupId}&role=${memSelectedRole}`, {
-                params: { username: memberName }
+            .get(`group/updateUser`, {
+                params: { groupId, username: memberName, role: memSelectedRole }
             })
             .then((response) => {
                 console.log(response);
-                setTimeout(() => {
-                    navigate(0);
-                }, 100);
+                afterMemberRoleChanged(memberName, memSelectedRole);
             })
             .catch((error) => {
                 console.log(error);
+                setChangeError("Change role failed.");
             })
             .finally(() => setIsLoading(false));
     };
@@ -48,13 +53,14 @@ function ChangeMemberRoleModalBody({ groupId, memberRole, memberName, memberDisp
                     }}
                 >
                     <Space direction="vertical" className="text-neutral-600 font-medium text-lg">
-                        <Radio value="2">
+                        <Radio value={2}>
                             Co-owner &#40;Can add, delete normal member and change role for manager
                             and normal member&#41;
                         </Radio>
-                        <Radio value="3">Normal member &#40;Lowest role&#41;</Radio>
+                        <Radio value={3}>Normal member &#40;Lowest role&#41;</Radio>
                     </Space>
                 </Radio.Group>
+                <p className="text-red-400 my-1">{changeError}</p>
                 <Form.Item>
                     <button
                         type="submit"
@@ -83,10 +89,12 @@ ChangeMemberRoleModalBody.propTypes = {
     groupId: PropTypes.number,
     memberRole: PropTypes.number.isRequired,
     memberName: PropTypes.string.isRequired,
-    memberDisplayName: PropTypes.string.isRequired
+    memberDisplayName: PropTypes.string.isRequired,
+    afterMemberRoleChanged: PropTypes.func
 };
 ChangeMemberRoleModalBody.defaultProps = {
-    groupId: 0
+    groupId: 0,
+    afterMemberRoleChanged: null
 };
 
 export default ChangeMemberRoleModalBody;
