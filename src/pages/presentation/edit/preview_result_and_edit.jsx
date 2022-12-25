@@ -24,9 +24,11 @@ function PreviewResultAndEdit({
     parentCurIndexView,
     parentSetSelectedIndexView,
     parentSetSlideQuestion,
-    renderIcon
+    renderIcon,
+    updateSavingStatus
 }) {
     const [slideDetailData, setSlideDetailData] = useState(null);
+    const [debounceOptionList, setDebounceOptionList] = useState([]);
     const [form] = Form.useForm();
     const privateAxios = usePrivateAxios();
 
@@ -48,142 +50,191 @@ function PreviewResultAndEdit({
         }
     });
 
+    const optionField = `slide${id}_options`;
+
     function setValueForOptionList(listOptions) {
+        console.log(listOptions);
         const currentOptionMap = listOptions.map((option) => {
             return Object.fromEntries(new Map([[`${option.id}`, option.optionText]]));
         });
-        form.setFieldValue(`slide${id}_options`, currentOptionMap);
+        form.setFieldValue(optionField, currentOptionMap);
     }
+
+    // question (also header or title) or type or subtext changed handler
+    const checkIfQuestionTypeSubtextNotChanged = (newQuestion, newType, newSubtext) => {
+        return (
+            (newQuestion === undefined ||
+                (newQuestion !== undefined && newQuestion === slideDetailData?.question)) &&
+            (newType === undefined ||
+                (newType !== undefined && newType === slideDetailData?.type)) &&
+            (newSubtext === undefined ||
+                (newSubtext !== undefined && newSubtext === slideDetailData?.subtext))
+        );
+    };
+    const changeQuestionOrTypeOrSubtext = async ({ newQuestion, newType, newSubtext }) => {
+        console.log("console.log from debounce (question)");
+        console.log(newQuestion, newType);
+        // check if there is no changes
+        if (checkIfQuestionTypeSubtextNotChanged(newQuestion, newType, newSubtext)) return;
+
+        updateSavingStatus(true);
+        if (newQuestion !== undefined) {
+            setSlideDetailData((curSlideDetailData) => {
+                return { ...curSlideDetailData, question: newQuestion };
+            });
+            parentSetSlideQuestion?.(id, newQuestion, newType);
+        }
+        if (newType !== undefined) {
+            setSlideDetailData((curSlideDetailData) => {
+                return { ...curSlideDetailData, type: newType };
+            });
+            parentSetSlideQuestion?.(id, newQuestion, newType);
+        }
+        if (newSubtext !== undefined) {
+            setSlideDetailData((curSlideDetailData) => {
+                return { ...curSlideDetailData, subtext: newSubtext };
+            });
+        }
+
+        privateAxios
+            .get(`presentation/updateSlide`, {
+                params: {
+                    slideId: id,
+                    question: newQuestion ?? undefined,
+                    type: newType ?? undefined,
+                    subtext: newSubtext ?? undefined
+                }
+            })
+            .then((response) => {
+                console.log(response);
+                console.log(`question or type or subtext changed successfully for slide ${id}`);
+                return response;
+            })
+            .catch((error) => {
+                console.log("get error");
+                console.log(error);
+            })
+            .finally(() => updateSavingStatus(false));
+    };
+    const onSlideTypeChanged = (newType) => {
+        changeQuestionOrTypeOrSubtext({ newType });
+    };
+    const onSlideQuestionChanged = (newQuestion) => {
+        changeQuestionOrTypeOrSubtext({ newQuestion });
+    };
+    const onSlideSubtextChanged = (newSubtext) => {
+        changeQuestionOrTypeOrSubtext({ newSubtext });
+    };
+    const debounceSlideQuestionChanged = useMemo(
+        () => debounce(onSlideQuestionChanged, 1000),
+        [id]
+    );
+    const debounceSlideSubtextChanged = useMemo(() => debounce(onSlideSubtextChanged, 1000), [id]);
+
+    // option changed handlers
+    const updateSlideDetailAndOptionsForm = (newOptionsList, noUpdateForm) => {
+        console.log("newList", newOptionsList);
+        setSlideDetailData((curSlideDetailData) => {
+            return { ...curSlideDetailData, options: newOptionsList };
+        });
+        if (!noUpdateForm) setValueForOptionList(newOptionsList);
+    };
+    const onChangeOptionText = async (optionIndex, listOptions, newText, newIsCorrect) => {
+        console.log("Change option slide", listOptions);
+        const optionId = listOptions[optionIndex]?.id;
+        const finalNewText = newText ?? listOptions[optionIndex]?.optionText;
+        const finalIsCorrect = newIsCorrect ?? listOptions[optionIndex]?.isCorrect;
+        console.log(listOptions, optionId, finalNewText, finalIsCorrect);
+        updateSavingStatus(true);
+        const newOptionsList = listOptions.map((option, index) => {
+            if (option.id === optionId) {
+                return {
+                    id: optionId,
+                    slideId: id,
+                    optionText: finalNewText ?? "",
+                    isCorrect: finalIsCorrect ?? false,
+                    answerAmount: option.answerAmount
+                };
+            }
+            return {
+                ...option,
+                optionText: Object.values(form.getFieldValue(optionField)[index])[0]
+            };
+        });
+        updateSlideDetailAndOptionsForm(newOptionsList, true);
+        privateAxios
+            .get(`presentation/updateOption`, {
+                params: { optionId, optionText: finalNewText, isCorrect: finalIsCorrect }
+            })
+            .then((response) => {
+                console.log(response);
+                console.log(`update option ${optionId} successfully for slide ${id}`);
+            })
+            .catch((error) => {
+                console.log("get error");
+                console.log(error);
+            })
+            .finally(() => updateSavingStatus(false));
+    };
+    const updateDebounceOptionList = (updateType, optionList, index) => {
+        if (updateType === 0) {
+            setDebounceOptionList(() => {
+                return optionList.map(() => {
+                    return debounce(onChangeOptionText, 1000);
+                });
+            });
+        } else if (updateType === 1) {
+            setDebounceOptionList((curDebounceList) => {
+                return curDebounceList.concat([debounce(onChangeOptionText, 1000)]);
+            });
+        } else if (updateType === -1) {
+            setDebounceOptionList((curDebounceList) => {
+                const { length } = curDebounceList;
+                const newDebounceList = [];
+                for (let i = 0; i < length; i += 1) {
+                    const debounceOption = curDebounceList[i];
+                    if (i === index) {
+                        debounceOption.cancel();
+                    } else {
+                        newDebounceList.push(debounceOption);
+                    }
+                }
+                return newDebounceList.concat([]);
+            });
+        }
+    };
+
+    const cleanUp = () => {
+        debounceSlideQuestionChanged.cancel();
+        debounceSlideSubtextChanged.cancel();
+        console.log("debounce option amount", debounceOptionList);
+        setDebounceOptionList((currentDebounceOptionList) => {
+            currentDebounceOptionList.forEach((debounceOption) => {
+                console.log("flushing");
+                debounceOption.cancel();
+            });
+            return [];
+        });
+    };
 
     useEffect(() => {
         async function fectchData() {
             await slideQueryRefetch().then((response) => {
                 form.setFieldValue("question", response?.data?.data?.question ?? "");
                 form.setFieldValue("type", `${response?.data?.data?.type ?? 0}`);
-                form.setFieldValue("subtext", `${response?.data?.data?.subtext ?? 0}`);
+                form.setFieldValue("subtext", response?.data?.data?.subtext ?? "");
                 setValueForOptionList(response?.data?.data?.options ?? []);
+                updateDebounceOptionList(0, response?.data?.data?.options ?? []);
             });
             if (!isSlideQueryFecthcing && parentCurIndexView !== parentSelectedIndex) {
                 parentSetSelectedIndexView(parentCurIndexView);
             }
         }
         fectchData();
+        return () => cleanUp();
     }, [id]);
 
-    // question (also header or title) or type changed handler
-    const onSlideQuestionOrTypeChanged = async (newQuestion, newType) => {
-        console.log("console.log from debounce (question)");
-        console.log(newQuestion, newType);
-        if (newQuestion === slideDetailData?.question && newType === slideDetailData?.type) return;
-        privateAxios
-            .get(`presentation/updateSlide`, {
-                params: {
-                    slideId: id,
-                    question: newQuestion,
-                    type: newType
-                }
-            })
-            .then((response) => {
-                console.log(response);
-                console.log(`question or type changed successfully for slide ${id}`);
-                setSlideDetailData((curSlideDetailData) => {
-                    return {
-                        ...curSlideDetailData,
-                        question: newQuestion,
-                        type: newType
-                    };
-                });
-                form.setFieldValue("question", newQuestion);
-                parentSetSlideQuestion?.(id, newQuestion, newType);
-                return response;
-            })
-            .catch((error) => {
-                console.log("get error");
-                console.log(error);
-            });
-    };
-    const debounceSlideQuestionOrTypeChanged = useMemo(
-        () => debounce(onSlideQuestionOrTypeChanged, 1000),
-        [id]
-    );
-
-    // subtext changed handler
-    const onSlideSubTextChanged = async (newSubtext) => {
-        console.log("console.log from debounce (question)");
-        console.log(newSubtext);
-        if (newSubtext === slideDetailData?.subtext) return;
-        privateAxios
-            .get(`presentation/updateSlide`, { params: { slideId: id, subtext: newSubtext } })
-            .then((response) => {
-                console.log(response);
-                console.log(`subtext changed successfully for slide ${id}`);
-                setSlideDetailData((curSlideDetailData) => {
-                    return {
-                        ...curSlideDetailData,
-                        subtext: newSubtext
-                    };
-                });
-                form.setFieldValue("subtext", newSubtext);
-                return response;
-            })
-            .catch((error) => {
-                console.log("get error");
-                console.log(error);
-            });
-    };
-    const debounceSlideSubTextChanged = useMemo(() => debounce(onSlideSubTextChanged, 1000), [id]);
-
-    // option changed handlers
-    const updateSlideDetailAndOptionsForm = (newOptionsList) => {
-        setSlideDetailData((curSlideDetailData) => {
-            return {
-                ...curSlideDetailData,
-                options: newOptionsList
-            };
-        });
-        setValueForOptionList(newOptionsList);
-    };
-    const onChangeOptionText = async (optionIndex, newText, newIsCorrect) => {
-        console.log(slideDetailData);
-        const listOptions = slideDetailData?.options ?? [];
-        const optionId = listOptions[optionIndex]?.id;
-        const finalNewText = newText ?? listOptions[optionIndex]?.optionText;
-        const finalIsCorrect = newIsCorrect ?? listOptions[optionIndex]?.isCorrect;
-        console.log(listOptions, optionId, finalNewText, finalIsCorrect);
-        privateAxios
-            .get(`presentation/updateOption`, {
-                params: {
-                    optionId,
-                    optionText: finalNewText,
-                    isCorrect: finalIsCorrect
-                }
-            })
-            .then((response) => {
-                console.log(response);
-                console.log(`update option ${optionId} successfully for slide ${id}`);
-                const newOptionsList = listOptions.map((option) => {
-                    if (option.id === optionId) {
-                        return {
-                            id: optionId,
-                            slideId: id,
-                            optionText: finalNewText ?? "",
-                            isCorrect: finalIsCorrect ?? false,
-                            answerAmount: option.answerAmount
-                        };
-                    }
-                    return { ...option };
-                });
-                updateSlideDetailAndOptionsForm(newOptionsList);
-            })
-            .catch((error) => {
-                console.log("get error");
-                console.log(error);
-            });
-    };
-    const debounceOptionChanged = useMemo(
-        () => debounce(onChangeOptionText, 1000),
-        [slideDetailData]
-    );
+    console.log("debounce option list:", debounceOptionList);
 
     const renderMainLabel = () => {
         const type = slideDetailData?.type ?? 0;
@@ -233,9 +284,9 @@ function PreviewResultAndEdit({
         console.log(allValues);
         const changedField = Object.keys(changedValues)[0];
         if (changedField === "question") {
-            debounceSlideQuestionOrTypeChanged(changedValues.question, slideDetailData?.type ?? 0);
-        } else if (changedField === `slide${id}_options`) {
-            const listOptions = changedValues[`slide${id}_options`] ?? [];
+            debounceSlideQuestionChanged(changedValues.question);
+        } else if (changedField === optionField) {
+            const listOptions = changedValues[optionField] ?? [];
             const { length } = listOptions;
             let changedOption;
             let optionIndex;
@@ -246,15 +297,16 @@ function PreviewResultAndEdit({
                     break;
                 }
             }
-            console.log("console at changed");
-            console.log(listOptions);
-            console.log(changedOption);
-            debounceOptionChanged(optionIndex, Object.entries(changedOption)[0][1]);
+            debounceOptionList[optionIndex](
+                optionIndex,
+                slideDetailData?.options,
+                Object.entries(changedOption)[0][1]
+            );
         } else if (changedField === "type") {
             const newType = changedValues.type;
-            onSlideQuestionOrTypeChanged(slideDetailData?.question, parseInt(newType, 10));
+            onSlideTypeChanged(parseInt(newType, 10));
         } else if (changedField === "subtext") {
-            debounceSlideSubTextChanged(changedValues.subtext);
+            debounceSlideSubtextChanged(changedValues.subtext);
         }
     };
 
@@ -328,10 +380,13 @@ function PreviewResultAndEdit({
                     {slideDetailData?.type === 0 ? (
                         <OptionForm
                             slideId={id}
+                            fieldname={optionField}
                             listOptions={slideDetailData?.options ?? []}
                             parentUpdateAfterEditOptions={(newOptionsList) => {
                                 updateSlideDetailAndOptionsForm(newOptionsList);
                             }}
+                            parentUpdateDebounceOptionList={updateDebounceOptionList}
+                            updateSavingStatus={updateSavingStatus}
                         />
                     ) : (
                         <Form.Item
@@ -372,7 +427,8 @@ PreviewResultAndEdit.propTypes = {
     parentCurIndexView: PropTypes.number,
     parentSetSelectedIndexView: PropTypes.func,
     parentSetSlideQuestion: PropTypes.func,
-    renderIcon: PropTypes.func
+    renderIcon: PropTypes.func,
+    updateSavingStatus: PropTypes.func
 };
 
 PreviewResultAndEdit.defaultProps = {
@@ -381,7 +437,8 @@ PreviewResultAndEdit.defaultProps = {
     parentCurIndexView: 0,
     parentSetSelectedIndexView: null,
     parentSetSlideQuestion: null,
-    renderIcon: null
+    renderIcon: null,
+    updateSavingStatus: null
 };
 
 export default PreviewResultAndEdit;

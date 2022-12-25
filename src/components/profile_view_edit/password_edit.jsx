@@ -1,19 +1,61 @@
 import { Form } from "antd";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function PassswordEdit() {
-    const onFinish = (data) => {
-        console.log(data);
-    };
     const [form] = Form.useForm();
     const [canChangePass, setCanChangePass] = useState(false);
+    const [curPassError, setCurPassError] = useState(null);
+    // eslint-disable-next-line no-unused-vars
+    const [updatePassError, setUpdatePassError] = useState(null);
     const [showCurPass, setShowCurPass] = useState(false);
     const [showNewPass, setShowNewPass] = useState(false);
     const [showConfirmNewPass, setShowConfirmNewPass] = useState(false);
+
+    const privateAxios = usePrivateAxios();
+
     if (canChangePass === null) {
         setCanChangePass(false);
     }
+
+    function checkCurPass(curPassword) {
+        setCurPassError(null);
+        privateAxios
+            .get(`user/checkPassword`, { params: { password: curPassword } })
+            .then((response) => {
+                console.log(response);
+                setCanChangePass(response?.data?.isCorrect);
+                if (!response?.data?.isCorrect) {
+                    setCurPassError("Wrong password");
+                } else setCurPassError(null);
+            })
+            .catch((error) => {
+                console.log(error);
+                setCanChangePass(false);
+            });
+    }
+    function updatePassword(newPassword) {
+        privateAxios
+            .get(`user/edit`, { params: { password: newPassword } })
+            .then((response) => {
+                console.log(response);
+                setCanChangePass(false);
+                form.resetFields();
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+
+    const onFinish = (data) => {
+        console.log(data);
+        if (data.newpassword) {
+            updatePassword(data.newpassword);
+        } else {
+            checkCurPass(data.curpassword);
+        }
+    };
 
     function getPasswordInputClassName(isDisabled) {
         return `shadow-sm mt-[-4px]
@@ -28,13 +70,12 @@ function PassswordEdit() {
         if (!canChangePass) {
             return (
                 <button
-                    type="button"
+                    type="submit"
                     data-mdb-ripple="true"
                     data-mdb-ripple-color="light"
                     className="inline-flex justify-center py-2 px-4 border border-transparent
                     shadow-sm text-sm font-medium rounded-lg text-white bg-purple-700
                     hover:bg-purple-600"
-                    onClick={() => setCanChangePass(true)}
                 >
                     Check current password
                 </button>
@@ -43,7 +84,7 @@ function PassswordEdit() {
         return (
             <div className="flex w-1/2">
                 <button
-                    type="button"
+                    type="submit"
                     data-mdb-ripple="true"
                     data-mdb-ripple-color="light"
                     className="inline-flex justify-center py-2 px-4 mr-2
@@ -71,24 +112,29 @@ function PassswordEdit() {
     }
 
     return (
-        <div className="">
+        <div className="h-full overflow-auto">
             <Form
                 form={form}
                 name="edit_profile_form"
                 layout="vertical"
-                requiredMark="optional"
-                validateTrigger="onChange"
+                requiredMark={false}
+                validateTrigger={["onChange", "onSubmit"]}
+                onValuesChange={(changedValues) => {
+                    if (!changedValues.curpassword) {
+                        setCurPassError(null);
+                    }
+                }}
                 onFinish={onFinish}
             >
                 <Form.Item
                     validateTrigger="onSubmit"
-                    className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                    className="text-sm font-medium text-gray-700 mb-0 pb-1"
                     label="Current password"
                     name="curpassword"
                     rules={[
                         {
                             required: true,
-                            message: "Wrong password."
+                            message: "Please input current password."
                         },
                         {
                             pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
@@ -121,22 +167,28 @@ function PassswordEdit() {
                         </div>
                     </div>
                 </Form.Item>
+                <p className="text-md text-red-500 font-medium py-1">{curPassError}</p>
 
                 <Form.Item
                     className="text-sm font-medium text-gray-700 mb-3 pb-1"
                     label="New password"
                     name="newpassword"
-                    rules={[
-                        {
-                            required: true,
-                            message: "New password cannot be empty."
-                        },
-                        {
-                            pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
-                            message:
-                                "Password Must Contain Atleast 8 Characters with One Uppercase, One Lowercase, One Number and One Special Case Character."
-                        }
-                    ]}
+                    rules={
+                        canChangePass
+                            ? [
+                                  {
+                                      required: true,
+                                      message: "New password cannot be empty."
+                                  },
+                                  {
+                                      pattern:
+                                          /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
+                                      message:
+                                          "Password Must Contain Atleast 8 Characters with One Uppercase, One Lowercase, One Number and One Special Case Character."
+                                  }
+                              ]
+                            : []
+                    }
                 >
                     <div className="relative">
                         <input
@@ -168,24 +220,28 @@ function PassswordEdit() {
                     className="text-sm font-medium text-gray-700 mb-3 pb-1"
                     label="Confirm new password"
                     name="confirm_new_password"
-                    rules={[
-                        {
-                            required: true,
-                            message: "Confirm new password is required."
-                        },
-                        ({ getFieldValue }) => ({
-                            validator(_, value) {
-                                if (!value || getFieldValue("newpassword") === value) {
-                                    return Promise.resolve();
-                                }
-                                return Promise.reject(
-                                    new Error(
-                                        "New password and Confirm new password must be the same."
-                                    )
-                                );
-                            }
-                        })
-                    ]}
+                    rules={
+                        canChangePass
+                            ? [
+                                  {
+                                      required: true,
+                                      message: "Confirm new password is required."
+                                  },
+                                  ({ getFieldValue }) => ({
+                                      validator(_, value) {
+                                          if (!value || getFieldValue("newpassword") === value) {
+                                              return Promise.resolve();
+                                          }
+                                          return Promise.reject(
+                                              new Error(
+                                                  "New password and Confirm new password must be the same."
+                                              )
+                                          );
+                                      }
+                                  })
+                              ]
+                            : []
+                    }
                 >
                     <div className="relative">
                         <input

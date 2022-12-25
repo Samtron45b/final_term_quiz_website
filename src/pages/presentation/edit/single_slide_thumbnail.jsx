@@ -11,7 +11,8 @@ function PresentationSingleSlideThumbNail({
     index,
     icon,
     question,
-    updateListSlide
+    updateListSlide,
+    updateSavingStatus
 }) {
     const [showDeleteMenu, setShowDeleteMenu] = useState(false);
     const wrapperRef = useRef(null);
@@ -33,17 +34,19 @@ function PresentationSingleSlideThumbNail({
     }, [wrapperRef]);
 
     async function deleteSlide() {
+        updateSavingStatus(true);
+        updateListSlide(id);
         privateAxios
             .get(`presentation/deleteSlide?slideId=${id}`)
             .then((response) => {
                 console.log(response);
-                updateListSlide(id);
                 return response;
             })
             .catch((error) => {
                 console.log("get error");
                 console.log(error);
-            });
+            })
+            .finally(() => updateSavingStatus(false));
     }
 
     return (
@@ -112,7 +115,8 @@ PresentationSingleSlideThumbNail.propTypes = {
     question: PropTypes.string,
     isSelected: PropTypes.bool,
     onClick: PropTypes.func,
-    updateListSlide: PropTypes.func
+    updateListSlide: PropTypes.func,
+    updateSavingStatus: PropTypes.func
 };
 
 PresentationSingleSlideThumbNail.defaultProps = {
@@ -122,7 +126,8 @@ PresentationSingleSlideThumbNail.defaultProps = {
     question: "",
     isSelected: false,
     onClick: null,
-    updateListSlide: null
+    updateListSlide: null,
+    updateSavingStatus: null
 };
 
 export default PresentationSingleSlideThumbNail;

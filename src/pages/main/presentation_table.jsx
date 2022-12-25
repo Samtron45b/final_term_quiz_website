@@ -22,10 +22,7 @@ function TablePresentation({ dataList, onSelectPresentationRemove }) {
             .then((response) => {
                 console.log(response);
                 if (location.pathname === "/") {
-                    navigate("/temp");
-                    setTimeout(() => {
-                        navigate("/", { replace: true });
-                    }, 100);
+                    navigate(0);
                 }
             });
     }

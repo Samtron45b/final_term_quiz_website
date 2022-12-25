@@ -48,7 +48,7 @@ function AccountPage() {
                         />
                     </div>
                 </aside>
-                <div className="ml-5 w-full h-96 px-2 py-3 bg-white rounded-lg  shadow-md">
+                <div className="ml-5 overflow-hidden w-full max-h-[60%] px-2 py-3 bg-white rounded-lg  shadow-md">
                     {renderChild()}
                 </div>
             </div>

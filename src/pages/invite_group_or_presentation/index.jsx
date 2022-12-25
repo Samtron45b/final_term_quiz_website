@@ -6,19 +6,26 @@ import { useContext, useEffect } from "react";
 import AuthContext from "../../components/contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
-function InviteGroupPage() {
+function InviteGroupOrPresentationPage() {
     const { locationInvite, inviteId } = useParams();
     const { user } = useContext(AuthContext);
     const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
     const callAddUserApi = async () => {
         const res = await privateAxios
-            .get(`${locationInvite}/addUser`, { params: { inviteId, username: user.username } })
+            .get(
+                `${locationInvite}/${locationInvite === "group" ? "addUser" : "addCollaborator"}`,
+                { params: { inviteId, username: user.username } }
+            )
             .then((response) => {
                 console.log(response);
+                const id = response?.data?.id;
                 if (locationInvite === "group") {
-                    navigate(`/group_detail/${response?.data?.data}`, { replace: true });
+                    navigate(`/group_detail/${id}`, { replace: true });
+                } else if (locationInvite === "presentation") {
+                    navigate(`/presentation/${id}/edit`, { replace: true });
                 }
+                return response;
             });
         return res.data;
     };
@@ -52,4 +59,4 @@ function InviteGroupPage() {
     );
 }
 
-export default InviteGroupPage;
+export default InviteGroupOrPresentationPage;

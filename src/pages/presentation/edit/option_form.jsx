@@ -4,13 +4,21 @@ import { RiCloseFill } from "react-icons/ri";
 import { IoMdAdd } from "react-icons/io";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
-function OptionForm({ slideId, listOptions, parentUpdateAfterEditOptions }) {
+function OptionForm({
+    slideId,
+    fieldname,
+    listOptions,
+    parentUpdateAfterEditOptions,
+    parentUpdateDebounceOptionList,
+    updateSavingStatus
+}) {
     const form = Form.useFormInstance();
     console.log(form.getFieldsValue(true));
 
     const privateAxios = usePrivateAxios();
 
     const onAddOption = async () => {
+        updateSavingStatus(true);
         privateAxios
             .get(
                 `presentation/addOption?slideId=${slideId ?? 0}&optionText=Answer ${
@@ -30,31 +38,40 @@ function OptionForm({ slideId, listOptions, parentUpdateAfterEditOptions }) {
                     }
                 ]);
                 parentUpdateAfterEditOptions(newOptionsList);
+                parentUpdateDebounceOptionList(1);
                 return response;
             })
             .catch((error) => {
                 console.log("get error");
                 console.log(error);
-            });
+            })
+            .finally(() => updateSavingStatus(false));
     };
 
     const onDeleteOption = async (optionId) => {
+        updateSavingStatus(true);
+        const newOptionsList = listOptions.filter((option, index) => {
+            if (option.id === optionId) {
+                parentUpdateDebounceOptionList(-1, null, index);
+            }
+            return option.id !== optionId;
+        });
+        parentUpdateAfterEditOptions(newOptionsList);
         return privateAxios
             .get(`presentation/deleteOption?optionId=${optionId}`)
             .then((response) => {
                 console.log(response);
                 console.log(`delete option ${optionId} successfully for slide ${slideId}`);
-                const newOptionsList = listOptions.filter((option) => option.id !== optionId);
-                parentUpdateAfterEditOptions(newOptionsList);
             })
             .catch((error) => {
                 console.log("get error");
                 console.log(error);
-            });
+            })
+            .finally(() => updateSavingStatus(false));
     };
 
     return (
-        <Form.List name={`slide${slideId}_options`}>
+        <Form.List name={fieldname ?? `slide${slideId}_options`}>
             {(fieldNameHead) => (
                 <>
                     <span className="text-lg font-medium text-gray-700">Options</span>
@@ -107,15 +124,21 @@ function OptionForm({ slideId, listOptions, parentUpdateAfterEditOptions }) {
 
 OptionForm.propTypes = {
     slideId: PropTypes.number,
+    fieldname: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     listOptions: PropTypes.array,
-    parentUpdateAfterEditOptions: PropTypes.func
+    parentUpdateAfterEditOptions: PropTypes.func,
+    parentUpdateDebounceOptionList: PropTypes.func,
+    updateSavingStatus: PropTypes.func
 };
 
 OptionForm.defaultProps = {
     slideId: 0,
+    fieldname: "",
     listOptions: [],
-    parentUpdateAfterEditOptions: null
+    parentUpdateAfterEditOptions: null,
+    parentUpdateDebounceOptionList: null,
+    updateSavingStatus: null
 };
 
 export default OptionForm;

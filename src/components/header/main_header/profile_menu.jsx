@@ -72,7 +72,7 @@ function ProfileMenu() {
 
                 <button
                     type="button"
-                    className="flex items-center px-4 py-2 text-sm text-gray-700"
+                    className="flex items-center px-4 py-2 text-sm text-red-500"
                     role="menuitem"
                     tabIndex="-1"
                     id="user-menu-item-2"

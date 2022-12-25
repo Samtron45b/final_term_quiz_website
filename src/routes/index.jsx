@@ -5,7 +5,7 @@ import LoginPage from "../pages/login/index";
 import GroupDetailPage from "../pages/group_detail/index";
 import AccountPage from "../pages/account/index";
 import ActiveAccountPage from "../pages/activate_account";
-import InviteGroupPage from "../pages/invite_group";
+import InviteGroupOrPresentationPage from "../pages/invite_group_or_presentation";
 import PresentationEditPage from "../pages/presentation/edit/presentation_edit";
 import ForgotPassPage from "../pages/forgot_pass";
 import ActiveNotifyPage from "../pages/activate_account/active_notify";
@@ -54,7 +54,7 @@ const ViewRoutes = [
     {
         path: "/:locationInvite/invite/:inviteId",
         exact: true,
-        component: <InviteGroupPage />
+        component: <InviteGroupOrPresentationPage />
     },
     {
         path: "/presentation/:presentationId/edit",
@@ -64,12 +64,12 @@ const ViewRoutes = [
     // {
     //     path: "/presentation/:presentationId/host",
     //     exact: true,
-    //     component: <InviteGroupPage />
+    //     component: <InviteGroupOrPresentationPage />
     // },
     // {
     //     path: "/presentation/:presentationId/play",
     //     exact: true,
-    //     component: <InviteGroupPage />
+    //     component: <InviteGroupOrPresentationPage />
     // }
 ];
 

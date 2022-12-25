@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
-import { IoMdAdd } from "react-icons/io";
-import { BsFillPlayFill } from "react-icons/bs";
+import { useContext, useEffect, useMemo, useState } from "react";
+import { GiSpinningSword } from "react-icons/gi";
+import { MdDone } from "react-icons/md";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
 import { Form } from "antd";
@@ -9,12 +9,23 @@ import MainHeader from "../../../components/header/main_header/main_header";
 import PreviewResult from "./preview_result_and_edit";
 import PresentationSingleSlideThumbNail from "./single_slide_thumbnail";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
+import ActionButton from "./action_btns";
+import AuthContext from "../../../components/contexts/auth_context";
+import ModalFrame from "../../../components/modals/modal_frame";
+import RemoveModalBody from "../../../components/modals/remove_modal_body";
+import PresentationCollabModalBody from "../../../components/modals/presentation_collaborator_modal_body";
 
 function PresentationEditPage() {
+    const { user } = useContext(AuthContext);
     const { presentationId } = useParams();
+    const [savingList, setSavingList] = useState([]);
     const [selectedIndexView, setSelectedIndexView] = useState(0);
     const [curIndexView, setCurIndexView] = useState(0);
     const [presentationData, setPresentationData] = useState(null);
+    const [collaboratorsData, setCollaboratorsData] = useState(null);
+    const [isOwner, setIsOwner] = useState(false);
+    const [showCollabModal, setShowCollabModal] = useState(false);
+    const [objectToRemove, setObjectToRemove] = useState(null);
     const [form] = Form.useForm();
     const queryClient = useQueryClient();
 
@@ -27,9 +38,10 @@ function PresentationEditPage() {
             return privateAxios
                 .get(`presentation/get?presentationId=${presentationId}`)
                 .then((response) => {
-                    console.log(response);
+                    console.log("Presentation data", response);
                     setPresentationData({ ...response?.data });
                     form.setFieldValue("presentationName", response?.data?.name);
+                    setIsOwner(response?.data?.creator?.username === user.username);
                     return response;
                 })
                 .catch((error) => {
@@ -39,11 +51,38 @@ function PresentationEditPage() {
         }
     });
 
+    const { refetch: collaboratorsQueryRefetch } = useQuery({
+        queryKey: ["get_presentation_collaborators"],
+        enabled: false,
+        queryFn: async () => {
+            return privateAxios
+                .get(`presentation/getCollaborator?presentationId=${presentationId}`)
+                .then((response) => {
+                    console.log("Collaborators data", response);
+                    setCollaboratorsData(response?.data?.concat([]));
+                    return response;
+                })
+                .catch((error) => {
+                    console.log("get error");
+                    console.log(error);
+                });
+        }
+    });
+
+    const updateSavingList = (isIncrease) => {
+        if (!isIncrease) {
+            setSavingList((currentSavingList) => currentSavingList.slice(0, -1));
+            return;
+        }
+        setSavingList((currentSavingList) => currentSavingList.concat([currentSavingList.length]));
+    };
+
     async function changeName(newName) {
         let finalNewName = newName.trim();
         if (finalNewName === "") {
             finalNewName = `Untitled_presentation_${presentationData?.timeCreated}`;
         }
+        updateSavingList(true);
         privateAxios
             .get(
                 `presentation/update?presentationId=${
@@ -64,6 +103,9 @@ function PresentationEditPage() {
             .catch((error) => {
                 console.log("get error");
                 console.log(error);
+            })
+            .finally(() => {
+                updateSavingList(false);
             });
     }
 
@@ -83,11 +125,10 @@ function PresentationEditPage() {
                 ...curPresentationData,
                 slides: (curPresentationData?.slides ?? []).map((slide) => {
                     if (slideId === slide.id) {
-                        return {
-                            ...slide,
-                            question: newText,
-                            type: newType
-                        };
+                        if (newText !== undefined) {
+                            return { ...slide, question: newText };
+                        }
+                        if (newType !== undefined) return { ...slide, type: newType };
                     }
                     return { ...slide };
                 })
@@ -95,70 +136,47 @@ function PresentationEditPage() {
         });
     };
 
+    const afterAddSlide = (newSlideData) => {
+        setPresentationData((curPresentationData) => {
+            return {
+                ...curPresentationData,
+                slides: (curPresentationData?.slides ?? []).concat([
+                    {
+                        id: newSlideData.id,
+                        presentationId: newSlideData.presentationId,
+                        question: newSlideData.question
+                    }
+                ])
+            };
+        });
+    };
+
     useEffect(() => {
         console.log(presentationId);
         presentationQueryRefetch();
+        collaboratorsQueryRefetch();
         return () => {
             queryClient.removeQueries({ queryKey: "get_presentation_detail", exact: true });
+            queryClient.removeQueries({ queryKey: "get_presentation_collaborators", exact: true });
             queryClient.removeQueries({ queryKey: "get_slide_detail", exact: true });
         };
     }, [presentationId]);
 
-    async function addSlide() {
-        privateAxios
-            .get(`presentation/addSlide?presentationId=${presentationData?.id ?? 0}`)
-            .then((response) => {
-                const newSlide = response?.data;
-                setPresentationData((curPresentationData) => {
-                    return {
-                        ...curPresentationData,
-                        slides: (curPresentationData?.slides ?? []).concat([
-                            {
-                                id: newSlide.id,
-                                presentationId: newSlide.presentationId,
-                                question: newSlide.question
-                            }
-                        ])
-                    };
-                });
-                return response;
-            })
-            .catch((error) => {
-                console.log("get error");
-                console.log(error);
-            });
+    function renderSavingStatus() {
+        const size = 24;
+        let icon = <MdDone size={size} className="text-green-400 mr-1" />;
+        let text = <p>Saved</p>;
+        if (savingList.length > 0) {
+            icon = <GiSpinningSword size={size} className="animate-spin text-blue-400 mr-1" />;
+            text = <p className="text-neutral-400">Saving...</p>;
+        }
+        return (
+            <div className="flex flex-row justify-center items-center mr-3 p-2">
+                {icon}
+                {text}
+            </div>
+        );
     }
-
-    // const slideList = [
-    //     {
-    //         id: "temp0",
-    //         question: "Nà ní"
-    //     },
-    //     {
-    //         id: "temp1",
-    //         question: "Nà ní"
-    //     },
-    //     {
-    //         id: "temp2",
-    //         question: "Nà ní"
-    //     },
-    //     {
-    //         id: "temp3",
-    //         question: "Nà ní"
-    //     },
-    //     {
-    //         id: "temp4",
-    //         question: "Nà ní"
-    //     },
-    //     {
-    //         id: "temp5",
-    //         question: "Nà ní"
-    //     },
-    //     {
-    //         id: "temp6",
-    //         question: "Nà ní"
-    //     }
-    // ];
 
     function renderIconBaseOnType(type, size) {
         if (type === 1) {
@@ -231,14 +249,10 @@ function PresentationEditPage() {
         const slideList = presentationData?.slides ?? [];
         const { length } = slideList;
         const updateSlideListAfterRemoveSlide = (slideId) => {
-            console.log(slideId);
             const currentSlideList = presentationData?.slides?.concat() ?? [];
-            console.log(currentSlideList);
             const slideIdIndex = currentSlideList.findIndex((slide) => slide.id === slideId);
             const newSlideList = currentSlideList.filter((slide) => slide.id !== slideId);
-            console.log(slideIdIndex);
-            console.log(curIndexView);
-            console.log(newSlideList);
+            console.log(slideId, currentSlideList, slideIdIndex, curIndexView, newSlideList);
             if (slideIdIndex === curIndexView && slideIdIndex === currentSlideList.length - 1) {
                 setCurIndexView(newSlideList.length - 1);
             }
@@ -260,14 +274,28 @@ function PresentationEditPage() {
                     question={slideList[i].question}
                     onClick={() => setCurIndexView(i)}
                     updateListSlide={updateSlideListAfterRemoveSlide}
+                    updateSavingStatus={updateSavingList}
                 />
             );
         }
         return listSlideThumbnails;
     }
 
-    if (!presentationData) {
+    if (!presentationData || !collaboratorsData) {
         return null;
+    }
+
+    if (user.username !== presentationData?.creator?.username) {
+        const userInList = collaboratorsData?.find((collaborator) => {
+            return collaborator.username === user.username;
+        });
+        if (!userInList) {
+            return (
+                <div className="flex flex-row mt-10 justify-center text-neutral-400 text-3xl">
+                    You cannot not access this data.
+                </div>
+            );
+        }
     }
     console.log(presentationData);
 
@@ -275,7 +303,7 @@ function PresentationEditPage() {
         <>
             <MainHeader />
             <div className="flex flex-col w-full h-[90%] overflow-hidden">
-                <div className="flex flex-row items-center justify-between bg-white mt-[-2px] py-2 px-8 border-b-[0.5px] border-b-neutral-500">
+                <div className="flex flex-row items-center justify-between bg-white mt-[-2px] py-2 pl-8 pr-2 border-b-[0.5px] border-b-neutral-500">
                     <Form
                         form={form}
                         layout="inline"
@@ -299,21 +327,16 @@ function PresentationEditPage() {
                         </Form.Item>
                     </Form>
                     <div className="flex">
-                        <button
-                            type="button"
-                            onClick={() => addSlide()}
-                            className="mr-3 bg-purple-500 flex justify-center items-center px-2 py-2 rounded-md text-white"
-                        >
-                            <IoMdAdd className="mr-1" />
-                            New slide
-                        </button>
-                        <button
-                            type="button"
-                            className="bg-purple-500 flex justify-center items-center px-2 py-2 rounded-md text-white"
-                        >
-                            <BsFillPlayFill className="mr-1" />
-                            Present
-                        </button>
+                        {renderSavingStatus()}
+                        <ActionButton
+                            presentationId={presentationData?.id}
+                            presentationName={presentationData?.name}
+                            isOwner={isOwner}
+                            parentAfterAddSlide={afterAddSlide}
+                            parentUpdateSavingStatus={updateSavingList}
+                            onCollabBtnClick={() => setShowCollabModal(true)}
+                            onDeleteBtnClick={(objectSelected) => setObjectToRemove(objectSelected)}
+                        />
                     </div>
                 </div>
                 <div className="flex flex-row w-full max-h-full h-screen overflow-hidden">
@@ -332,9 +355,40 @@ function PresentationEditPage() {
                         }
                         parentSetSlideQuestion={updateSlideThumbnail}
                         renderIcon={(type) => renderIconBaseOnType(type)}
+                        updateSavingStatus={updateSavingList}
                     />
                 </div>
             </div>
+            <ModalFrame
+                width="w-2/5"
+                height="h-[80%]"
+                isVisible={showCollabModal}
+                clickOutSideToClose={false}
+                onClose={() => setShowCollabModal(false)}
+            >
+                <PresentationCollabModalBody
+                    presentationId={parseInt(presentationId, 10)}
+                    presentationName={presentationData?.name}
+                    isOwner={isOwner}
+                    collaboratorsList={collaboratorsData ?? []}
+                    onDeleteCollaboratorBtnClick={(collaboratorToRemove) =>
+                        setObjectToRemove(collaboratorToRemove)
+                    }
+                    updateCollaboratorList={setCollaboratorsData}
+                />
+            </ModalFrame>
+            <ModalFrame
+                width="w-2/5"
+                isVisible={objectToRemove !== null}
+                clickOutSideToClose={false}
+                hasXCloseBtn={false}
+                onClose={() => setObjectToRemove(null)}
+            >
+                <RemoveModalBody
+                    objectToRemove={objectToRemove}
+                    onClose={() => setObjectToRemove(null)}
+                />
+            </ModalFrame>
         </>
     );
 }
