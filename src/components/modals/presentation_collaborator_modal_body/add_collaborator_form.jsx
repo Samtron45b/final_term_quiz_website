@@ -3,11 +3,11 @@ import { useContext, useState } from "react";
 // import { MdDone } from "react-icons/md";
 import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
-import { Form, Input } from "antd";
+import { Form, Input, message } from "antd";
 import AuthContext from "../../contexts/auth_context";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
-function AddCollaboratorForm({ presentationId }) {
+function AddCollaboratorForm({ presentationId, inviteId }) {
     const { user } = useContext(AuthContext);
     console.log(user, presentationId);
     const [form] = Form.useForm();
@@ -23,13 +23,17 @@ function AddCollaboratorForm({ presentationId }) {
             .get(`presentation/invite`, {
                 params: {
                     presentationId,
-                    inviteId: "e95113ea-f58c-4f20-811e-f0e3fe6fdaae",
+                    inviteId,
                     sender: user.username,
                     receiver: data.newCollaboratorName
                 }
             })
             .then((response) => {
                 console.log(response);
+                message.open({
+                    type: "success",
+                    content: `Sent invite mail to user with username "${data.newCollaboratorName}"`
+                });
                 setIsLoading(false);
             })
             .catch((error) => {
@@ -125,7 +129,11 @@ function AddCollaboratorForm({ presentationId }) {
 }
 
 AddCollaboratorForm.propTypes = {
+    inviteId: PropTypes.string,
     presentationId: PropTypes.number.isRequired
+};
+AddCollaboratorForm.defaultProps = {
+    inviteId: ""
 };
 
 export default AddCollaboratorForm;

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import { message as antdMessage } from "antd";
 import { ImSpinner10 } from "react-icons/im";
 
 function RemoveModalBody({ objectToRemove, message, onClose, onConfirmRemove }) {
@@ -35,9 +36,16 @@ function RemoveModalBody({ objectToRemove, message, onClose, onConfirmRemove }) 
                         setIsLoading(true);
                         setRemoveError(null);
                         executeOnConfirmRemove()
+                            .finally(() => {
+                                antdMessage.success({
+                                    content: `Remove ${renderObjectToRemove()} successfully.`
+                                });
+                            })
                             .catch((error) => {
                                 console.log(error);
-                                setRemoveError(`Failed to remove ${renderObjectToRemove()}.`);
+                                antdMessage.error({
+                                    content: `Failed to remove ${renderObjectToRemove()}. Please try again later.`
+                                });
                             })
                             .finally(() => {
                                 setIsLoading(false);

@@ -33,10 +33,10 @@ function App() {
 
     useEffect(() => {
         return () => {
-            queryClient.removeQueries({ queryKey: "get_created_group_list", exact: true });
-            queryClient.removeQueries({ queryKey: "get_joined_group_list", exact: true });
-            queryClient.removeQueries({ queryKey: "get_own_presentation_list", exact: true });
-            queryClient.removeQueries({ queryKey: "get_collab_presentation_list", exact: true });
+            queryClient.removeQueries({ queryKey: ["get_created_group_list"], exact: true });
+            queryClient.removeQueries({ queryKey: ["get_joined_group_list"], exact: true });
+            queryClient.removeQueries({ queryKey: ["get_own_presentation_list"], exact: true });
+            queryClient.removeQueries({ queryKey: ["get_collab_presentation_list"], exact: true });
         };
     }, []);
 

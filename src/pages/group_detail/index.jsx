@@ -3,7 +3,7 @@ import { useContext, useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
 import { MdGroupOff } from "react-icons/md";
 import { ImSpinner10 } from "react-icons/im";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 import MainHeader from "../../components/header/main_header/main_header";
 import TableMember from "./member_table";
 import ModalFrame from "../../components/modals/modal_frame";
@@ -22,7 +22,7 @@ function GroupDetailPage() {
     const [memberToChangeRole, setMemberToChangeRole] = useState(null);
     const [memberToRemove, setMemberToRemove] = useState(null);
     const navigate = useNavigate();
-
+    const queryClient = useQueryClient();
     const privateAxios = usePrivateAxios();
 
     const { isFetching: isMemberListQueryFetching, refetch: memberListQueryRefetch } = useQuery({
@@ -47,7 +47,10 @@ function GroupDetailPage() {
 
     useEffect(() => {
         memberListQueryRefetch();
-        return () => setIsGetGroupError(false);
+        return () => {
+            queryClient.removeQueries({ queryKey: ["get_member_list"], exact: true });
+            setIsGetGroupError(false);
+        };
     }, [groupId]);
 
     let userRole = 0;

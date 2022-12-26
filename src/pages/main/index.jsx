@@ -29,6 +29,7 @@ function Main() {
             return privateAxios
                 .get(`group/createdBy`, { params: { username: user.username } })
                 .then((response) => {
+                    console.log("created groups", response);
                     return response;
                 })
                 .catch((error) => {
@@ -48,6 +49,7 @@ function Main() {
             return privateAxios
                 .get(`group/joinedBy`, { params: { username: user.username } })
                 .then((response) => {
+                    console.log("joined groups", response);
                     return response;
                 })
                 .catch((error) => {
@@ -65,8 +67,9 @@ function Main() {
         queryFn: async () => {
             console.log("run presentation");
             return privateAxios
-                .get(`presentation/getByCreator `)
+                .get(`presentation/getByCreator`)
                 .then((response) => {
+                    console.log("own presentations", response);
                     return response;
                 })
                 .catch((error) => {
@@ -86,6 +89,7 @@ function Main() {
             return privateAxios
                 .get(`presentation/getByCollab`)
                 .then((response) => {
+                    console.log("collaborate presentations", response);
                     return response;
                 })
                 .catch((error) => {
@@ -95,31 +99,12 @@ function Main() {
     });
 
     useEffect(() => {
+        console.log("call all list api");
         createdGroupListQueryRefetch();
         joinedGroupListQueryRefetch();
         ownPresentationListQueryRefetch();
         collabPresentationListQueryRefetch();
     }, []);
-
-    if (
-        !isCreatedGroupFetching &&
-        !isJoinedGroupFetching &&
-        !isOwnPresentationFetching &&
-        !isCollabPresentationFetching &&
-        createdGroupListQueryRes &&
-        joinedGroupListQueryRes &&
-        ownPresentationListQueryRes &&
-        collabPresentationListQueryRes
-    ) {
-        console.log("createdGroupListQueryRes");
-        console.log(createdGroupListQueryRes);
-        console.log("joinedGroupListQueryRes");
-        console.log(joinedGroupListQueryRes);
-        console.log("ownPresentationListQueryRes");
-        console.log(ownPresentationListQueryRes);
-        console.log("collabPresentationListQueryRes");
-        console.log(collabPresentationListQueryRes);
-    }
 
     // Show the response if everything is fine
     return (
@@ -147,6 +132,7 @@ function Main() {
                                     listCollabPresentation={
                                         collabPresentationListQueryRes?.data ?? []
                                     }
+                                    onSelectPresentationRemove={setPresentationToRemove}
                                 />
                             )
                         },

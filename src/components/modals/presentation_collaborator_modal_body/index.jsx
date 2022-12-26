@@ -5,6 +5,7 @@ import ListCollaborators from "./list_collaborators";
 function PresentationCollabModalBody({
     presentationId,
     presentationName,
+    inviteId,
     isOwner,
     collaboratorsList,
     onDeleteCollaboratorBtnClick,
@@ -12,7 +13,9 @@ function PresentationCollabModalBody({
 }) {
     return (
         <div className="rounded-md w-full h-[95%] flex flex-col">
-            {isOwner ? <AddCollaboratorForm presentationId={presentationId} /> : null}
+            {isOwner ? (
+                <AddCollaboratorForm presentationId={presentationId} inviteId={inviteId} />
+            ) : null}
             <ListCollaborators
                 presentationId={presentationId}
                 presentationName={presentationName}
@@ -28,6 +31,7 @@ function PresentationCollabModalBody({
 PresentationCollabModalBody.propTypes = {
     presentationId: PropTypes.number.isRequired,
     presentationName: PropTypes.string,
+    inviteId: PropTypes.string,
     isOwner: PropTypes.bool,
     // eslint-disable-next-line react/forbid-prop-types
     collaboratorsList: PropTypes.array,
@@ -36,6 +40,7 @@ PresentationCollabModalBody.propTypes = {
 };
 PresentationCollabModalBody.defaultProps = {
     presentationName: "",
+    inviteId: "",
     isOwner: false,
     collaboratorsList: [],
     onDeleteCollaboratorBtnClick: null,

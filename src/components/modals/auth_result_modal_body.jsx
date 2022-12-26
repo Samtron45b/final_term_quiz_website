@@ -1,19 +1,20 @@
 import PropTypes from "prop-types";
 import { MdDone, MdError } from "react-icons/md";
-// import { IoWarning } from "react-icons/io5";
+import { IoWarning } from "react-icons/io5";
 
 function AuthResultModalBody({ authStatus, resultText, message, onClose }) {
     function renderResult() {
         const iconSize = 70;
         let resultIcon = <MdDone size={iconSize} className="text-green-400" />;
         if (authStatus === 2) resultIcon = <MdError size={iconSize} className="text-red-500" />;
-        // if (authStatus === 3) resultIcon = <IoWarning size={iconSize} className="text-red-500" />;
+        if (authStatus === 3)
+            resultIcon = <IoWarning size={iconSize} className="text-orange-400" />;
 
         let result = resultText;
         if (!result) {
             if (authStatus === 1) result = "Succeeded";
             if (authStatus === 2) result = "Failed";
-            // if (authStatus === 3) result = <IoWarning size={iconSize} className="text-orange-400" />;
+            if (authStatus === 3) result = "Warning";
         }
         return (
             <>

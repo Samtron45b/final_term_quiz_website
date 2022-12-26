@@ -35,17 +35,7 @@ function ListCollaborators({
             })
             .then((response) => {
                 console.log(response);
-                updateCollaboratorList((currentCollaboratorsList) => {
-                    const newCollaboratorsList = (currentCollaboratorsList ?? []).filter(
-                        (collaborator) => {
-                            return collaborator.username !== collaboratorName;
-                        }
-                    );
-                    return newCollaboratorsList.concat([]);
-                });
-            })
-            .catch((error) => {
-                console.log(error);
+                updateCollaboratorList(collaboratorName);
             });
     }
 
@@ -58,7 +48,7 @@ function ListCollaborators({
             listCollaboratorsView.push(
                 <Row
                     className="items-center"
-                    id={`${presentationId}_collaborator_${i}`}
+                    key={`${presentationId}_collaborator_${i}`}
                     wrap={false}
                 >
                     <Col flex="auto">

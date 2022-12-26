@@ -3,7 +3,7 @@ import { AiOutlineCopy } from "react-icons/ai";
 import { MdDone } from "react-icons/md";
 import { ImSpinner10 } from "react-icons/im";
 import PropTypes from "prop-types";
-import { Form, Input } from "antd";
+import { Form, Input, message } from "antd";
 import AuthContext from "../contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
@@ -40,10 +40,21 @@ function AddMemberModalBody({ groupId, inviteId }) {
             .then((response) => {
                 console.log(response);
                 setIsLoading(false);
+                message.open({
+                    type: "success",
+                    content: `Sent invite mail to user with username "${data.membername}"`
+                });
             })
             .catch((error) => {
                 console.log(error);
-                setErrorMess(error.response.data.error);
+                let errorText = "Error occured. Please try again later.";
+                if (
+                    error.response.data.error === "User doesn't exist!" ||
+                    error.response.data.error === "User has already joined group!"
+                ) {
+                    errorText = error.response.data.error;
+                }
+                setErrorMess(errorText);
                 setIsLoading(false);
             });
     };

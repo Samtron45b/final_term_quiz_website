@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { ImSpinner10 } from "react-icons/im";
-import { Form, Radio, Space } from "antd";
+import { Form, message, Radio, Space } from "antd";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
 function ChangeMemberRoleModalBody({
@@ -13,36 +13,49 @@ function ChangeMemberRoleModalBody({
 }) {
     const [form] = Form.useForm();
     const [memSelectedRole, setMemSelectedRole] = useState(memberRole);
-    const [changeError, setChangeError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const privateAxios = usePrivateAxios();
+
+    function renderMemberName() {
+        return memberDisplayName !== memberName
+            ? `${memberDisplayName} (${memberName})`
+            : memberDisplayName;
+    }
+
+    function onChangeRoleSucceeded() {
+        message.success({
+            content: `Role of ${renderMemberName()} was changed successfully.`
+        });
+        afterMemberRoleChanged(memberName, memSelectedRole);
+    }
+
     const onFinish = async () => {
         console.log(memSelectedRole);
-        setChangeError(null);
         setIsLoading(true);
+        if (memSelectedRole === memberRole) {
+            onChangeRoleSucceeded();
+            return;
+        }
         privateAxios
             .get(`group/updateUser`, {
                 params: { groupId, username: memberName, role: memSelectedRole }
             })
             .then((response) => {
                 console.log(response);
-                afterMemberRoleChanged(memberName, memSelectedRole);
+                onChangeRoleSucceeded();
             })
             .catch((error) => {
                 console.log(error);
-                setChangeError("Change role failed.");
+                message.success({
+                    content: `Faield to change role for ${renderMemberName()}. Please try again later.`
+                });
             })
             .finally(() => setIsLoading(false));
     };
 
     return (
         <div className="rounded-md w-full flex flex-col">
-            <h3 className="mb-2 text-md font-bold">
-                Change role for{" "}
-                {memberDisplayName !== memberName
-                    ? `${memberDisplayName} (${memberName})`
-                    : memberDisplayName}
-            </h3>
+            <h3 className="mb-2 text-md font-bold">Change role for {renderMemberName()}</h3>
             <Form form={form} onFinish={onFinish}>
                 <Radio.Group
                     name="role_group"
@@ -57,10 +70,9 @@ function ChangeMemberRoleModalBody({
                             Co-owner &#40;Can add, delete normal member and change role for manager
                             and normal member&#41;
                         </Radio>
-                        <Radio value={3}>Normal member &#40;Lowest role&#41;</Radio>
+                        <Radio value={3}>Normal member</Radio>
                     </Space>
                 </Radio.Group>
-                <p className="text-red-400 my-1">{changeError}</p>
                 <Form.Item>
                     <button
                         type="submit"

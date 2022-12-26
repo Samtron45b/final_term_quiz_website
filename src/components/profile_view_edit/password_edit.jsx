@@ -1,14 +1,14 @@
+import PropTypes from "prop-types";
 import { Form } from "antd";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 
-function PassswordEdit() {
+function PassswordEdit({ messageInstance }) {
     const [form] = Form.useForm();
     const [canChangePass, setCanChangePass] = useState(false);
     const [curPassError, setCurPassError] = useState(null);
-    // eslint-disable-next-line no-unused-vars
-    const [updatePassError, setUpdatePassError] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
     const [showCurPass, setShowCurPass] = useState(false);
     const [showNewPass, setShowNewPass] = useState(false);
     const [showConfirmNewPass, setShowConfirmNewPass] = useState(false);
@@ -21,31 +21,43 @@ function PassswordEdit() {
 
     function checkCurPass(curPassword) {
         setCurPassError(null);
+        setIsLoading(true);
         privateAxios
             .get(`user/checkPassword`, { params: { password: curPassword } })
             .then((response) => {
                 console.log(response);
                 setCanChangePass(response?.data?.isCorrect);
                 if (!response?.data?.isCorrect) {
-                    setCurPassError("Wrong password");
+                    setCurPassError("Wrong password.");
                 } else setCurPassError(null);
             })
             .catch((error) => {
                 console.log(error);
                 setCanChangePass(false);
-            });
+            })
+            .finally(() => setIsLoading(false));
     }
     function updatePassword(newPassword) {
+        setIsLoading(true);
         privateAxios
             .get(`user/edit`, { params: { password: newPassword } })
             .then((response) => {
                 console.log(response);
                 setCanChangePass(false);
                 form.resetFields();
+                messageInstance.open({
+                    type: "success",
+                    content: "Password changed successfully."
+                });
             })
             .catch((error) => {
                 console.log(error);
-            });
+                messageInstance.open({
+                    type: "error",
+                    content: "Failed to change password. Please try again later."
+                });
+            })
+            .finally(() => setIsLoading(false));
     }
 
     const onFinish = (data) => {
@@ -53,7 +65,16 @@ function PassswordEdit() {
         if (data.newpassword) {
             updatePassword(data.newpassword);
         } else {
+            setCurPassError(null);
             checkCurPass(data.curpassword);
+        }
+    };
+
+    const onFinishFailed = (errors) => {
+        console.log(errors);
+        if (errors.values.newpassword === undefined) {
+            if (!errors.values.curpassword) setCurPassError("Please input current password.");
+            else setCurPassError("Wrong password.");
         }
     };
 
@@ -77,7 +98,7 @@ function PassswordEdit() {
                     shadow-sm text-sm font-medium rounded-lg text-white bg-purple-700
                     hover:bg-purple-600"
                 >
-                    Check current password
+                    {isLoading ? "Checking..." : "Check current password"}
                 </button>
             );
         }
@@ -91,7 +112,7 @@ function PassswordEdit() {
                     shadow-sm text-md font-medium rounded-lg text-white bg-emerald-300
                     hover:bg-emerald-300/80"
                 >
-                    Save new password
+                    {isLoading ? "Saving..." : "Save new password"}
                 </button>
                 <button
                     type="button"
@@ -125,22 +146,22 @@ function PassswordEdit() {
                     }
                 }}
                 onFinish={onFinish}
+                onFinishFailed={onFinishFailed}
             >
                 <Form.Item
                     validateTrigger="onSubmit"
-                    className="text-sm font-medium text-gray-700 mb-0 pb-1"
+                    className="text-sm font-medium text-gray-700 mb-[-4px] pb-1"
                     label="Current password"
                     name="curpassword"
                     rules={[
                         {
-                            required: true,
-                            message: "Please input current password."
+                            required: true
                         },
                         {
-                            pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/,
-                            message: "Wrong password."
+                            pattern: /^(?=.*[0-9])(?=.*[!@#$%^&*.,])[a-zA-Z0-9!@#$%^&*.,]{8,}$/
                         }
                     ]}
+                    help=""
                 >
                     <div className="relative">
                         <input
@@ -167,10 +188,16 @@ function PassswordEdit() {
                         </div>
                     </div>
                 </Form.Item>
-                <p className="text-md text-red-500 font-medium py-1">{curPassError}</p>
+                <p
+                    className={`text-md text-red-500 font-medium  ${
+                        curPassError ? "pb-0 scale-y-100" : "pb-1 scale-y-0"
+                    } origin-top ease-out duration-300`}
+                >
+                    {curPassError}
+                </p>
 
                 <Form.Item
-                    className="text-sm font-medium text-gray-700 mb-3 pb-1"
+                    className="text-sm font-medium text-gray-700 mt-2 mb-3 pb-1"
                     label="New password"
                     name="newpassword"
                     rules={
@@ -274,5 +301,13 @@ function PassswordEdit() {
         </div>
     );
 }
+
+PassswordEdit.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    messageInstance: PropTypes.any
+};
+PassswordEdit.defaultProps = {
+    messageInstance: null
+};
 
 export default PassswordEdit;

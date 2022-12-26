@@ -69,6 +69,16 @@ function PresentationEditPage() {
         }
     });
 
+    const afterRemoveCollaborator = (removedCollaboratorName) => {
+        setCollaboratorsData((currentCollaboratorsList) => {
+            const newCollaboratorsList = (currentCollaboratorsList ?? []).filter((collaborator) => {
+                return collaborator.username !== removedCollaboratorName;
+            });
+            return newCollaboratorsList.concat([]);
+        });
+        setObjectToRemove(null);
+    };
+
     const updateSavingList = (isIncrease) => {
         if (!isIncrease) {
             setSavingList((currentSavingList) => currentSavingList.slice(0, -1));
@@ -156,9 +166,13 @@ function PresentationEditPage() {
         presentationQueryRefetch();
         collaboratorsQueryRefetch();
         return () => {
-            queryClient.removeQueries({ queryKey: "get_presentation_detail", exact: true });
-            queryClient.removeQueries({ queryKey: "get_presentation_collaborators", exact: true });
-            queryClient.removeQueries({ queryKey: "get_slide_detail", exact: true });
+            console.log("Removing from presentation", presentationId);
+            queryClient.removeQueries({ queryKey: ["get_presentation_detail"], exact: true });
+            queryClient.removeQueries({
+                queryKey: ["get_presentation_collaborators"],
+                exact: true
+            });
+            queryClient.removeQueries({ queryKey: ["get_slide_detail"], exact: true });
         };
     }, [presentationId]);
 
@@ -369,12 +383,13 @@ function PresentationEditPage() {
                 <PresentationCollabModalBody
                     presentationId={parseInt(presentationId, 10)}
                     presentationName={presentationData?.name}
+                    inviteId={presentationData?.inviteId}
                     isOwner={isOwner}
                     collaboratorsList={collaboratorsData ?? []}
                     onDeleteCollaboratorBtnClick={(collaboratorToRemove) =>
                         setObjectToRemove(collaboratorToRemove)
                     }
-                    updateCollaboratorList={setCollaboratorsData}
+                    updateCollaboratorList={afterRemoveCollaborator}
                 />
             </ModalFrame>
             <ModalFrame

@@ -1,14 +1,14 @@
+import PropTypes from "prop-types";
 import { Form } from "antd";
 import { useContext, useEffect, useState } from "react";
 import { ImSpinner10 } from "react-icons/im";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import AuthContext from "../contexts/auth_context";
 
-function ProfileViewEdit() {
+function ProfileViewEdit({ messageInstance, showModal }) {
     const { user, setUser } = useContext(AuthContext);
     const [isLoading, setLoading] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
-    const [editProfileError, setProfileEditError] = useState(null);
     const [form] = Form.useForm();
     const privateAxios = usePrivateAxios();
 
@@ -22,6 +22,11 @@ function ProfileViewEdit() {
 
     const onFinish = async (data) => {
         console.log(data);
+        if (user.email === data.email && user.displayName === data.displayName) {
+            resetProfileEditField(data);
+            setIsEditing(false);
+            return;
+        }
         setLoading(true);
         privateAxios
             .get(`user/edit`, {
@@ -43,10 +48,18 @@ function ProfileViewEdit() {
                 localStorage.setItem("userData", JSON.stringify(newUser));
                 resetProfileEditField(data);
                 setIsEditing(false);
+                messageInstance.open({
+                    type: "success",
+                    content: "Update user's profile successfully."
+                });
+                showModal(data.email !== user.email);
             })
             .catch((error) => {
                 console.log(error);
-                setProfileEditError("Update profile failed.");
+                messageInstance.open({
+                    type: "error",
+                    content: "Failed to update user's profile. Please try again later."
+                });
             })
             .finally(() => {
                 setLoading(false);
@@ -109,7 +122,6 @@ function ProfileViewEdit() {
                     hover:bg-gray-300"
                     onClick={() => {
                         resetProfileEditField();
-                        setProfileEditError(null);
                         setIsEditing(false);
                     }}
                 >
@@ -201,11 +213,20 @@ function ProfileViewEdit() {
                         placeholder="Quamon"
                     />
                 </Form.Item>
-                <p className="text-red-600">{editProfileError}</p>
                 <Form.Item>{renderButton()}</Form.Item>
             </Form>
         </div>
     );
 }
+
+ProfileViewEdit.propTypes = {
+    // eslint-disable-next-line react/forbid-prop-types
+    messageInstance: PropTypes.any,
+    showModal: PropTypes.func
+};
+ProfileViewEdit.defaultProps = {
+    messageInstance: null,
+    showModal: null
+};
 
 export default ProfileViewEdit;
