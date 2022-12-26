@@ -121,54 +121,6 @@ function Main() {
         console.log(collabPresentationListQueryRes);
     }
 
-    // function renderListPresentation() {
-    //     const listOwnPresentation =
-    //         ownPresentationListQueryRes?.data !== null &&
-    //         ownPresentationListQueryRes?.data !== undefined
-    //             ? [...ownPresentationListQueryRes.data]
-    //             : [];
-    //     const listCollabPresentation =
-    //         collabPresentationListQueryRes?.data !== null &&
-    //         collabPresentationListQueryRes?.data !== undefined
-    //             ? [...collabPresentationListQueryRes.data]
-    //             : [];
-    //     const listPresentation = listOwnPresentation.concat(listCollabPresentation);
-    //     console.log(listPresentation);
-    //     function renderListPresentationData() {
-    //         if (isOwnPresentationFetching && isCollabPresentationFetching) {
-    //             return (
-    //                 <div className="flex justify-center ">
-    //                     <ImSpinner10 size={50} className="animate-spin mr-3 mb-2" />
-    //                 </div>
-    //             );
-    //         }
-    //         if (listPresentation.length > 0) {
-    //             return (
-    //                 <TablePresentation
-    //                     groupName="a"
-    //                     dataList={listPresentation}
-    //                     onSelectPresentationRemove={(presentationSelected) =>
-    //                         setPresentationToRemove(presentationSelected)
-    //                     }
-    //                 />
-    //             );
-    //         }
-    //         return (
-    //             <p className="text-gray-300 text-center text-xl font-bold text-ellipsis mb-3">
-    //                 Let create a presentation.
-    //             </p>
-    //         );
-    //     }
-    //     return (
-    //         <>
-    //             <h3 key={`${user.username}_"presentations"`} className="font-semibold text-lg mt-2">
-    //                 Presentations
-    //             </h3>
-    //             {renderListPresentationData()}
-    //         </>
-    //     );
-    // }
-
     // Show the response if everything is fine
     return (
         <>
@@ -179,32 +131,6 @@ function Main() {
                 </h1>
             </div>
             <div className="px-40 mt-5">
-                <style>{`
-                    .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-                        color: #9333ea !important; 
-                        font-weight: 500;
-                    }
-                    .ant-tabs-tab-btn:hover {
-                        color: #9333ea !important;
-                    }
-                    .ant-tabs-tab.ant-tabs-tab-active:hover {
-                        color: #9333ea !important;
-                    }
-                    .ant-tabs-ink-bar {
-                        height: 5px;
-                        background: transparent;
-                    }
-                      
-                    .ant-tabs-ink-bar::after {
-                        content: " ";
-                        position: absolute;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        height: 2px;
-                        background: #9333ea;
-                    }
-                `}</style>
                 <Tabs
                     activeKey={`${curTabIndex}`}
                     centered
