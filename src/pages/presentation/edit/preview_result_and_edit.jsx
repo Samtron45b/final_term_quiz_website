@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "react-query";
-import { Col, Form, Row, Select } from "antd";
+import { Form, Select } from "antd";
 import debounce from "lodash/debounce";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 import OptionForm from "./option_form";
@@ -311,40 +311,32 @@ function PreviewResultAndEdit({
     };
 
     return (
-        <Row
-            wrap={false}
-            className="overflow-hidden bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]"
-        >
-            <Col flex="auto" className="justify-center items-center py-1 mx-5 my-10 bg-white">
-                <div className="flex flex-col h-full justify-center items-center overflow-hidden">
-                    <p className="mb-3 w-full max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
-                        {slideDetailData?.question ?? "Question"}
+        <div className="flex flex-row overflow-hidden bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
+            <div className="flex-auto flex flex-col justify-center items-center py-1 mx-5 my-10 bg-white overflow-hidden">
+                <p className="mb-3 w-full max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
+                    {slideDetailData?.question ?? "Question"}
+                </p>
+                {slideDetailData?.type === 0 ? (
+                    <ResponsiveContainer width="70%" className="max-h-[60%]">
+                        <BarChart
+                            width={150}
+                            height={40}
+                            data={slideDetailData?.options ?? []}
+                            margin={{ top: 30 }}
+                        >
+                            <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
+                            <Bar dataKey="answerAmount" fill="#8884d8">
+                                <LabelList dataKey="answerAmount" content={renderCustomizedLabel} />
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                ) : (
+                    <p className="text-xl max-w-[90%] text-slate-300 text-center break-all">
+                        {slideDetailData?.subtext}
                     </p>
-                    {slideDetailData?.type === 0 ? (
-                        <ResponsiveContainer width="70%" className="max-h-[60%]">
-                            <BarChart
-                                width={150}
-                                height={40}
-                                data={slideDetailData?.options ?? []}
-                                margin={{ top: 30 }}
-                            >
-                                <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
-                                <Bar dataKey="answerAmount" fill="#8884d8">
-                                    <LabelList
-                                        dataKey="answerAmount"
-                                        content={renderCustomizedLabel}
-                                    />
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    ) : (
-                        <p className="text-xl max-w-[90%] text-slate-300 text-center break-all">
-                            {slideDetailData?.subtext}
-                        </p>
-                    )}
-                </div>
-            </Col>
-            <Col className="bg-white min-w-[440px] h-full overflow-auto px-5 pb-8">
+                )}
+            </div>
+            <div className="flex-none bg-white min-w-[440px] h-full overflow-auto px-5 pb-8">
                 <Form
                     form={form}
                     layout="vertical"
@@ -424,8 +416,8 @@ function PreviewResultAndEdit({
                         </Form.Item>
                     )}
                 </Form>
-            </Col>
-        </Row>
+            </div>
+        </div>
     );
 }
 
