@@ -313,7 +313,7 @@ function PreviewResultAndEdit({
     return (
         <div className="flex flex-row overflow-hidden bg-neutral-300 w-full sm:w-[80%] lg:w-[85%] xl:w-[90%]">
             <div className="flex-auto flex flex-col justify-center items-center py-1 mx-5 my-10 bg-white overflow-hidden">
-                <p className="mb-3 w-full max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
+                <p className="mb-3 w-[90%] max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
                     {slideDetailData?.question ?? "Question"}
                 </p>
                 {slideDetailData?.type === 0 ? (

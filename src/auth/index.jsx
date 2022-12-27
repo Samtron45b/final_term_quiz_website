@@ -38,7 +38,7 @@ export const getUserDataFromServer = () => {
 
     const fetchUserData = async () => {
         await privateAxios
-            .get("user/get?username=lvmnhat")
+            .get("user/get")
             .then((userResponse) => {
                 console.log(userResponse);
                 const userData = userResponse.data;
