@@ -6,13 +6,15 @@ import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function PresentationSingleSlideThumbNail({
     isSelected,
+    canBeDeleted,
     onClick,
     id,
     index,
     icon,
     question,
     updateListSlide,
-    updateSavingStatus
+    updateSavingStatus,
+    updateObjectToRemove
 }) {
     const [showDeleteMenu, setShowDeleteMenu] = useState(false);
     const wrapperRef = useRef(null);
@@ -82,18 +84,24 @@ function PresentationSingleSlideThumbNail({
                 >
                     <button
                         type="button"
-                        className="flex items-center px-2 py-3 text-sm text-red-500"
+                        className={`flex items-center px-2 py-3 text-sm ${
+                            canBeDeleted ? "text-red-500" : "text-red-300"
+                        }`}
                         role="menuitem"
                         tabIndex="-1"
                         id="add-group-presentation-menu-item-1"
                         onClick={(e) => {
+                            if (!canBeDeleted) return;
                             e.stopPropagation();
-                            deleteSlide();
+                            updateObjectToRemove({
+                                name: "this slide",
+                                onConfirmRemove: async () => deleteSlide()
+                            });
                             setShowDeleteMenu(false);
                         }}
                     >
                         <FiTrash2 className="mr-1 w-4 h-4" />
-                        Delete
+                        {canBeDeleted ? "Delete" : "Cannot remove"}
                     </button>
                 </div>
             </div>
@@ -114,9 +122,11 @@ PresentationSingleSlideThumbNail.propTypes = {
     icon: PropTypes.any,
     question: PropTypes.string,
     isSelected: PropTypes.bool,
+    canBeDeleted: PropTypes.bool,
     onClick: PropTypes.func,
     updateListSlide: PropTypes.func,
-    updateSavingStatus: PropTypes.func
+    updateSavingStatus: PropTypes.func,
+    updateObjectToRemove: PropTypes.func
 };
 
 PresentationSingleSlideThumbNail.defaultProps = {
@@ -125,9 +135,11 @@ PresentationSingleSlideThumbNail.defaultProps = {
     icon: null,
     question: "",
     isSelected: false,
+    canBeDeleted: true,
     onClick: null,
     updateListSlide: null,
-    updateSavingStatus: null
+    updateSavingStatus: null,
+    updateObjectToRemove: null
 };
 
 export default PresentationSingleSlideThumbNail;

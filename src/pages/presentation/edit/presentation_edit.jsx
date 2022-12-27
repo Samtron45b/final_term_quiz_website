@@ -280,12 +280,14 @@ function PresentationEditPage() {
                     slides: newSlideList
                 };
             });
+            setObjectToRemove(null);
         };
         for (let i = 0; i < length; i += 1) {
             listSlideThumbnails.push(
                 <PresentationSingleSlideThumbNail
                     key={`${slideList[i].id}`}
                     isSelected={i === selectedIndexView}
+                    canBeDeleted={length > 1}
                     id={slideList[i].id}
                     index={i}
                     icon={renderIconBaseOnType(slideList[i].type, 50)}
@@ -293,6 +295,7 @@ function PresentationEditPage() {
                     onClick={() => setCurIndexView(i)}
                     updateListSlide={updateSlideListAfterRemoveSlide}
                     updateSavingStatus={updateSavingList}
+                    updateObjectToRemove={(slideToRemove) => setObjectToRemove(slideToRemove)}
                 />
             );
         }
