@@ -6,6 +6,7 @@ import ViewRoutes from "./routes";
 import { getToken } from "./auth";
 import "./App.css";
 import AuthContext from "./components/contexts/auth_context";
+import { socket, SocketContext } from "./components/contexts/socket_context";
 
 function App() {
     const queryClient = useQueryClient();
@@ -48,58 +49,60 @@ function App() {
                 }
             }}
         >
-            <AuthContext.Provider value={authContextValue}>
-                <div className="pb-5 h-screen">
-                    <Routes>
-                        {ViewRoutes.map(({ path, exact, component }, key) => {
-                            const routeKey = `route${key}`;
-                            let firstComponent = component;
-                            if (listAuthPage.includes(path)) {
-                                if (accessToken) {
-                                    firstComponent = <Navigate to="/" />;
+            <SocketContext.Provider value={socket}>
+                <AuthContext.Provider value={authContextValue}>
+                    <div className="pb-5 h-screen">
+                        <Routes>
+                            {ViewRoutes.map(({ path, exact, component }, key) => {
+                                const routeKey = `route${key}`;
+                                let firstComponent = component;
+                                if (listAuthPage.includes(path)) {
+                                    if (accessToken) {
+                                        firstComponent = <Navigate to="/" />;
+                                    }
+                                } else if (!path.includes("/activate_account")) {
+                                    if (!accessToken) {
+                                        firstComponent = (
+                                            <Navigate
+                                                to="/login"
+                                                replace
+                                                state={{ from: location.pathname }}
+                                            />
+                                        );
+                                    } else if (
+                                        !path.includes("/active_notify") &&
+                                        userFromLocalStorage?.active === 0
+                                    ) {
+                                        firstComponent = (
+                                            <Navigate
+                                                to={`/active_notify/${userFromLocalStorage?.username}`}
+                                                replace
+                                                state={{ from: location.pathname }}
+                                            />
+                                        );
+                                    } else if (
+                                        path.includes("/active_notify") &&
+                                        userFromLocalStorage?.active === 1
+                                    ) {
+                                        firstComponent = (
+                                            <Navigate to={`${location.state?.from ?? "/"}`} />
+                                        );
+                                    }
                                 }
-                            } else if (!path.includes("/activate_account")) {
-                                if (!accessToken) {
-                                    firstComponent = (
-                                        <Navigate
-                                            to="/login"
-                                            replace
-                                            state={{ from: location.pathname }}
-                                        />
-                                    );
-                                } else if (
-                                    !path.includes("/active_notify") &&
-                                    userFromLocalStorage?.active === 0
-                                ) {
-                                    firstComponent = (
-                                        <Navigate
-                                            to={`/active_notify/${userFromLocalStorage?.username}`}
-                                            replace
-                                            state={{ from: location.pathname }}
-                                        />
-                                    );
-                                } else if (
-                                    path.includes("/active_notify") &&
-                                    userFromLocalStorage?.active === 1
-                                ) {
-                                    firstComponent = (
-                                        <Navigate to={`${location.state?.from ?? "/"}`} />
-                                    );
-                                }
-                            }
 
-                            return (
-                                <Route
-                                    key={routeKey}
-                                    exact={exact}
-                                    path={path}
-                                    element={firstComponent}
-                                />
-                            );
-                        })}
-                    </Routes>
-                </div>
-            </AuthContext.Provider>
+                                return (
+                                    <Route
+                                        key={routeKey}
+                                        exact={exact}
+                                        path={path}
+                                        element={firstComponent}
+                                    />
+                                );
+                            })}
+                        </Routes>
+                    </div>
+                </AuthContext.Provider>
+            </SocketContext.Provider>
         </ConfigProvider>
     );
 }
