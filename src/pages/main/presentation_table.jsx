@@ -4,26 +4,27 @@ import { BsFillPlayFill } from "react-icons/bs";
 import { RiEdit2Line, RiDeleteBin5Fill } from "react-icons/ri";
 import PropTypes from "prop-types";
 import { useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 // import PresentationCard from "../../components/cards/presentation_card";
 import AuthContext from "../../components/contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import { convertTimeStampToDate } from "../../utilities";
 
-function TablePresentation({ dataList, onSelectPresentationRemove }) {
+function TablePresentation({
+    dataList,
+    onSelectPresentationRemove,
+    updateAfterRemovePresentation
+}) {
     const { user } = useContext(AuthContext);
     const privateAxios = usePrivateAxios();
     const navigate = useNavigate();
-    const location = useLocation();
 
     async function onDeletePresentation(presentationId) {
         return privateAxios
             .get(`presentation/delete?presentationId=${presentationId}`)
             .then((response) => {
                 console.log(response);
-                if (location.pathname === "/") {
-                    navigate(0);
-                }
+                updateAfterRemovePresentation(presentationId);
             });
     }
 
@@ -179,11 +180,13 @@ function TablePresentation({ dataList, onSelectPresentationRemove }) {
 TablePresentation.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
-    onSelectPresentationRemove: PropTypes.func
+    onSelectPresentationRemove: PropTypes.func,
+    updateAfterRemovePresentation: PropTypes.func
 };
 TablePresentation.defaultProps = {
     dataList: [],
-    onSelectPresentationRemove: null
+    onSelectPresentationRemove: null,
+    updateAfterRemovePresentation: null
 };
 
 export default TablePresentation;

@@ -12,6 +12,7 @@ import MainLisPresentationsView from "./list_presentations_view";
 function Main() {
     const { user } = useContext(AuthContext);
     const [curTabIndex, setCurTabIndex] = useState(1);
+    const [myPresentationData, setMyPresentationData] = useState([]);
     const [presentationToRemove, setPresentationToRemove] = useState(null);
     if (presentationToRemove !== null) {
         console.log(presentationToRemove);
@@ -57,26 +58,24 @@ function Main() {
                 });
         }
     });
-    const {
-        isFetching: isOwnPresentationFetching,
-        data: ownPresentationListQueryRes,
-        refetch: ownPresentationListQueryRefetch
-    } = useQuery({
-        queryKey: ["get_own_presentation_list"],
-        enabled: false,
-        queryFn: async () => {
-            console.log("run presentation");
-            return privateAxios
-                .get(`presentation/getByCreator`)
-                .then((response) => {
-                    console.log("own presentations", response);
-                    return response;
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        }
-    });
+    const { isFetching: isOwnPresentationFetching, refetch: ownPresentationListQueryRefetch } =
+        useQuery({
+            queryKey: ["get_own_presentation_list"],
+            enabled: false,
+            queryFn: async () => {
+                console.log("run presentation");
+                return privateAxios
+                    .get(`presentation/getByCreator`)
+                    .then((response) => {
+                        console.log("own presentations", response);
+                        setMyPresentationData(response?.data);
+                        return response;
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
+            }
+        });
     const {
         isFetching: isCollabPresentationFetching,
         data: collabPresentationListQueryRes,
@@ -97,6 +96,15 @@ function Main() {
                 });
         }
     });
+
+    const updateOwnPresentationListAfterRemove = (removedPresentationId) => {
+        setMyPresentationData((myCurPresentationList) => {
+            return myCurPresentationList.filter((presentation) => {
+                return presentation.id !== removedPresentationId;
+            });
+        });
+        setPresentationToRemove(null);
+    };
 
     useEffect(() => {
         console.log("call all list api");
@@ -128,11 +136,14 @@ function Main() {
                                 <MainLisPresentationsView
                                     isOwnPresentationFetching={isOwnPresentationFetching}
                                     isCollabPresentationFetching={isCollabPresentationFetching}
-                                    listOwnPresentation={ownPresentationListQueryRes?.data ?? []}
+                                    listOwnPresentation={myPresentationData}
                                     listCollabPresentation={
                                         collabPresentationListQueryRes?.data ?? []
                                     }
                                     onSelectPresentationRemove={setPresentationToRemove}
+                                    updateAfterRemovePresentation={
+                                        updateOwnPresentationListAfterRemove
+                                    }
                                 />
                             )
                         },

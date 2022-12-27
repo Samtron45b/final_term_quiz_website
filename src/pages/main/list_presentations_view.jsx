@@ -8,7 +8,8 @@ function MainLisPresentationsView({
     isCollabPresentationFetching,
     listOwnPresentation,
     listCollabPresentation,
-    onSelectPresentationRemove
+    onSelectPresentationRemove,
+    updateAfterRemovePresentation
 }) {
     function renderListPresentation() {
         const listPresentation = listOwnPresentation.concat(listCollabPresentation);
@@ -27,6 +28,7 @@ function MainLisPresentationsView({
                         groupName="a"
                         dataList={listPresentation}
                         onSelectPresentationRemove={onSelectPresentationRemove}
+                        updateAfterRemovePresentation={updateAfterRemovePresentation}
                     />
                 );
             }
@@ -46,14 +48,16 @@ MainLisPresentationsView.propTypes = {
     isCollabPresentationFetching: PropTypes.bool,
     listOwnPresentation: PropTypes.array,
     listCollabPresentation: PropTypes.array,
-    onSelectPresentationRemove: PropTypes.func
+    onSelectPresentationRemove: PropTypes.func,
+    updateAfterRemovePresentation: PropTypes.func
 };
 MainLisPresentationsView.defaultProps = {
     isOwnPresentationFetching: false,
     isCollabPresentationFetching: false,
     listOwnPresentation: [],
     listCollabPresentation: [],
-    onSelectPresentationRemove: null
+    onSelectPresentationRemove: null,
+    updateAfterRemovePresentation: null
 };
 
 export default MainLisPresentationsView;
