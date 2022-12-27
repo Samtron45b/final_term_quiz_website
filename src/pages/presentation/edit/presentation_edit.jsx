@@ -21,6 +21,7 @@ function PresentationEditPage() {
     const [savingList, setSavingList] = useState([]);
     const [selectedIndexView, setSelectedIndexView] = useState(0);
     const [curIndexView, setCurIndexView] = useState(0);
+    const [isGetPresentationError, setIsGetPresentationError] = useState(false);
     const [presentationData, setPresentationData] = useState(null);
     const [collaboratorsData, setCollaboratorsData] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
@@ -47,6 +48,8 @@ function PresentationEditPage() {
                 .catch((error) => {
                     console.log("get error");
                     console.log(error);
+                    setPresentationData({});
+                    setIsGetPresentationError(true);
                 });
         }
     });
@@ -173,6 +176,7 @@ function PresentationEditPage() {
                 exact: true
             });
             queryClient.removeQueries({ queryKey: ["get_slide_detail"], exact: true });
+            setIsGetPresentationError(false);
         };
     }, [presentationId]);
 
@@ -299,24 +303,32 @@ function PresentationEditPage() {
         return null;
     }
 
-    if (user.username !== presentationData?.creator?.username) {
-        const userInList = collaboratorsData?.find((collaborator) => {
-            return collaborator.username === user.username;
-        });
-        if (!userInList) {
+    console.log("presentationData ", presentationData);
+
+    function renderMainChildren() {
+        if (isGetPresentationError) {
             return (
-                <div className="flex flex-row mt-10 justify-center text-neutral-400 text-3xl">
-                    You cannot not access this data.
-                </div>
+                <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
+                    Cannot get data for this presentation.
+                </p>
             );
         }
-    }
-    console.log(presentationData);
 
-    return (
-        <>
-            <MainHeader />
-            <div className="flex flex-col w-full h-[90%] overflow-hidden">
+        if (user.username !== presentationData?.creator?.username) {
+            const userInList = collaboratorsData?.find((collaborator) => {
+                return collaborator.username === user.username;
+            });
+            if (!userInList) {
+                return (
+                    <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
+                        You cannot not access this presentation.
+                    </p>
+                );
+            }
+        }
+
+        return (
+            <>
                 <div className="flex flex-row items-center justify-between bg-white mt-[-2px] py-2 pl-8 pr-2 border-b-[0.5px] border-b-neutral-500">
                     <Form
                         form={form}
@@ -372,6 +384,15 @@ function PresentationEditPage() {
                         updateSavingStatus={updateSavingList}
                     />
                 </div>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <MainHeader />
+            <div className="flex flex-col w-full h-[90%] overflow-hidden">
+                {renderMainChildren()}
             </div>
             <ModalFrame
                 width="w-2/5"
