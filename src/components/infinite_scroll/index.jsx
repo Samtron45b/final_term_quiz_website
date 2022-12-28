@@ -1,7 +1,8 @@
+import PropType from "prop-types";
 import React, { useRef, useCallback, useState, useEffect } from "react";
 import axios from "axios";
 
-function Fetching(query, pageNumber) {
+function Fetching(url, query, pageNumber) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(false);
     const [data, setData] = useState([]);
@@ -16,7 +17,7 @@ function Fetching(query, pageNumber) {
         setError(false);
         let cancel;
         axios
-            .get("https://openlibrary.org/search.json", {
+            .get(url, {
                 params: { q: query, page: pageNumber },
                 cancelToken: new axios.CancelToken((c) => {
                     cancel = c;
@@ -38,9 +39,9 @@ function Fetching(query, pageNumber) {
     return { loading, error, data, hasMore };
 }
 
-export default function InfiniteScroll() {
+export default function InfiniteScroll({ url, query }) {
     const [page, setPage] = useState(1);
-    const { loading, error, data, hasMore } = Fetching("The lord of the ring", page);
+    const { loading, error, data, hasMore } = Fetching(url, query, page);
 
     const observer = useRef();
     const lastData = useCallback(
@@ -74,3 +75,13 @@ export default function InfiniteScroll() {
         </>
     );
 }
+
+InfiniteScroll.propTypes = {
+    url: PropType.string,
+    query: PropType.string
+};
+
+InfiniteScroll.defaultProps = {
+    url: "",
+    query: ""
+};

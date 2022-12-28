@@ -10,6 +10,7 @@ import PresentationEditPage from "../pages/presentation/edit/presentation_edit";
 import ForgotPassPage from "../pages/forgot_pass";
 import ActiveNotifyPage from "../pages/activate_account/active_notify";
 import PresentationPresentPage from "../pages/presentation/present/presentation_present";
+import InfiniteScroll from "../components/infinite_scroll";
 
 const ViewRoutes = [
     {
@@ -66,6 +67,16 @@ const ViewRoutes = [
         path: "/presentation/:presentationId/present",
         exact: true,
         component: <PresentationPresentPage />
+    },
+    {
+        path: "/infinite_scroll_test",
+        exact: true,
+        component: (
+            <InfiniteScroll
+                url="https://openlibrary.org/search.json"
+                query="The lord of the ring"
+            />
+        )
     }
     // {
     //     path: "/presentation/:presentationId/host",
