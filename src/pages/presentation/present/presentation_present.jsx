@@ -14,6 +14,7 @@ import AuthContext from "../../../components/contexts/auth_context";
 import ModalFrame from "../../../components/modals/modal_frame";
 import RemoveModalBody from "../../../components/modals/remove_modal_body";
 import PresentationCollabModalBody from "../../../components/modals/presentation_collaborator_modal_body";
+import PresentationMainView from "./main_view";
 import QuestionChatBtn from "./question_chat_btn";
 import ChangeSlideResultField from "./change_slide_result_field";
 
@@ -177,7 +178,7 @@ function PresentationPresentPage() {
                 queryKey: ["get_presentation_collaborators"],
                 exact: true
             });
-            queryClient.removeQueries({ queryKey: ["get_slide_detail"], exact: true });
+            queryClient.removeQueries({ queryKey: ["get_slide_present_data"], exact: true });
             setIsGetPresentationError(false);
         };
     }, [presentationId]);
@@ -310,6 +311,7 @@ function PresentationPresentPage() {
 
     console.log("presentationData ", presentationData);
 
+    // eslint-disable-next-line no-unused-vars
     function renderMainChildren() {
         if (isGetPresentationError) {
             return (
@@ -397,7 +399,7 @@ function PresentationPresentPage() {
         <>
             <MainHeader />
             <div className="relative flex flex-col w-full h-[90%] overflow-hidden">
-                {renderMainChildren()}
+                <PresentationMainView />
                 <QuestionChatBtn />
                 <ChangeSlideResultField />
             </div>
