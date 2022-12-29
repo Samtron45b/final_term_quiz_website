@@ -15,6 +15,7 @@ import ModalFrame from "../../../components/modals/modal_frame";
 import RemoveModalBody from "../../../components/modals/remove_modal_body";
 import PresentationCollabModalBody from "../../../components/modals/presentation_collaborator_modal_body";
 import QuestionChatBtn from "./question_chat_btn";
+import ChangeSlideResultField from "./change_slide_result_field";
 
 function PresentationPresentPage() {
     const { user } = useContext(AuthContext);
@@ -398,6 +399,7 @@ function PresentationPresentPage() {
             <div className="relative flex flex-col w-full h-[90%] overflow-hidden">
                 {renderMainChildren()}
                 <QuestionChatBtn />
+                <ChangeSlideResultField />
             </div>
             <ModalFrame
                 width="w-2/5"
