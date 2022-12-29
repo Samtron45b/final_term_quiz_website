@@ -51,7 +51,7 @@ ChangeSlideResultField.defaultProps = {
     canMoveLeft: 0,
     canMoveRight: 0,
     onSlideChanged: null,
-    onResultBtnClick: PropTypes.func
+    onResultBtnClick: null
 };
 
 export default ChangeSlideResultField;
