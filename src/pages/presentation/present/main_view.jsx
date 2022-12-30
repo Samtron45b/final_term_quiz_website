@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import PropTypes from "prop-types";
 import {
     BarChart,
@@ -14,11 +15,16 @@ import {
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
+import { Radio, Space } from "antd";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
+import SelectOptionsField from "./select_options_field";
 
 function PresentationMainView({ slideId, isViewer }) {
     const [slideDetailData, setSlideDetailData] = useState(null);
+    const [selectedOption, setSelectedOption] = useState(0);
+    const [submittedOption, setSubmittedOption] = useState(0);
     const privateAxios = usePrivateAxios();
+
     console.log(slideId, slideDetailData, isViewer);
 
     const { refetch: slideQueryRefetch, isFetching: isSlideQueryFecthcing } = useQuery({
@@ -52,13 +58,35 @@ function PresentationMainView({ slideId, isViewer }) {
         );
     }
 
-    if (slideDetailData) {
+    if (!slideDetailData) {
         return (
             <div className="flex justify-center mt-10">
                 <p className="text-4xl text-neutral-300">Cannot get data for this slide.</p>
             </div>
         );
     }
+
+    const getSubmittedOptionText = () => {
+        const chosenOption = (slideDetailData?.options ?? []).find(
+            (option) => option.id === submittedOption
+        );
+        return chosenOption?.optiontext;
+    };
+    const renderAfterSubmitOptionField = () => {
+        return (
+            <div className="w-full h-full overflow-x-hidden overflow-y-auto break-words bg-white">
+                <p className="text-lg text-neutral-500 font-medium">You choosed:</p>
+                <p className="text-2xl text-neutral-500 opacity-90">{getSubmittedOptionText()}</p>
+            </div>
+        );
+    };
+    const renderOptionsField = () => {
+        if (!isViewer || slideDetailData?.type !== 0) return null;
+        if (submittedOption === 0) {
+            return <SelectOptionsField optionsList={slideDetailData?.options ?? []} />;
+        }
+        return renderAfterSubmitOptionField();
+    };
 
     const renderCustomizedLabel = (propTypes) => {
         const { x, y, width, value } = propTypes;
@@ -81,14 +109,14 @@ function PresentationMainView({ slideId, isViewer }) {
 
     return (
         <div className="relative flex flex-col w-full h-screen justify-center items-center bg-white">
-            <div className="absolute px-2 py-3 left-[5%] w-[20%] h-[40%] rounded-md overflow-x-hidden overflow-y-auto shadow-lg">
-                abc
+            <div className="absolute left-[5%] w-[21%] h-[60%] overflow-x-hidden overflow-y-auto break-words ">
+                {renderOptionsField()}
             </div>
-            <p className="mb-3 w-[90%] max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
+            <p className="mb-3 w-[40%] max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
                 {slideDetailData?.question ?? "Question"}
             </p>
             {slideDetailData?.type === 0 ? (
-                <ResponsiveContainer width="70%" className="max-h-[60%]">
+                <ResponsiveContainer width="45%" className="max-h-[60%]">
                     <BarChart
                         width={150}
                         height={40}
@@ -116,7 +144,7 @@ PresentationMainView.propTypes = {
 };
 PresentationMainView.defaultProps = {
     slideId: 0,
-    isViewer: false
+    isViewer: true
 };
 
 export default PresentationMainView;

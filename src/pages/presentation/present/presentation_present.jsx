@@ -399,7 +399,7 @@ function PresentationPresentPage() {
         <>
             <MainHeader />
             <div className="relative flex flex-col w-full h-[90%] overflow-hidden">
-                <PresentationMainView />
+                <PresentationMainView slideId={presentationData?.slides?.[curIndexView]?.id ?? 0} />
                 <QuestionChatBtn />
                 <ChangeSlideResultField />
             </div>
