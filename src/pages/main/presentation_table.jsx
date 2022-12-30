@@ -13,7 +13,8 @@ import { convertTimeStampToDate } from "../../utilities";
 function TablePresentation({
     dataList,
     onSelectPresentationRemove,
-    updateAfterRemovePresentation
+    updateAfterRemovePresentation,
+    setPresentationToPresent
 }) {
     const { user } = useContext(AuthContext);
     const privateAxios = usePrivateAxios();
@@ -69,6 +70,11 @@ function TablePresentation({
                         });
                     } else if (btnType.toLocaleLowerCase() === "edit".toLocaleLowerCase()) {
                         navigate(`/presentation/${presentationId}/edit`);
+                    } else {
+                        setPresentationToPresent({
+                            presentationId,
+                            presentationName
+                        });
                     }
                 }}
             >
@@ -181,12 +187,14 @@ TablePresentation.propTypes = {
     // eslint-disable-next-line react/forbid-prop-types
     dataList: PropTypes.array,
     onSelectPresentationRemove: PropTypes.func,
-    updateAfterRemovePresentation: PropTypes.func
+    updateAfterRemovePresentation: PropTypes.func,
+    setPresentationToPresent: PropTypes.func
 };
 TablePresentation.defaultProps = {
     dataList: [],
     onSelectPresentationRemove: null,
-    updateAfterRemovePresentation: null
+    updateAfterRemovePresentation: null,
+    setPresentationToPresent: null
 };
 
 export default TablePresentation;

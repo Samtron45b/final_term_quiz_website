@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { Tabs } from "antd";
-import AuthContext from "../../components/contexts/auth_context";
 import MainHeader from "../../components/header/main_header/main_header";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import ModalFrame from "../../components/modals/modal_frame";
@@ -10,7 +9,6 @@ import MainListGroupsView from "./list_group_view";
 import MainLisPresentationsView from "./list_presentations_view";
 
 function Main() {
-    const { user } = useContext(AuthContext);
     const [curTabIndex, setCurTabIndex] = useState(1);
     const [myPresentationData, setMyPresentationData] = useState([]);
     const [presentationToRemove, setPresentationToRemove] = useState(null);
@@ -28,7 +26,7 @@ function Main() {
         queryFn: async () => {
             console.log("run created by");
             return privateAxios
-                .get(`group/createdBy`, { params: { username: user.username } })
+                .get(`group/createdBy`)
                 .then((response) => {
                     console.log("created groups", response);
                     return response;
@@ -48,7 +46,7 @@ function Main() {
         queryFn: async () => {
             console.log("run joined by");
             return privateAxios
-                .get(`group/joinedBy`, { params: { username: user.username } })
+                .get(`group/joinedBy`)
                 .then((response) => {
                     console.log("joined groups", response);
                     return response;
