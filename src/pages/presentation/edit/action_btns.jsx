@@ -11,6 +11,7 @@ function ActionButton({
     isOwner,
     parentAfterAddSlide,
     parentUpdateSavingStatus,
+    onPresentBtnClick,
     onCollabBtnClick,
     onDeleteBtnClick
 }) {
@@ -38,6 +39,7 @@ function ActionButton({
                 <>
                     <button
                         type="button"
+                        onClick={() => onPresentBtnClick({ presentationId, presentationName })}
                         className="mr-3 bg-purple-500 flex justify-center items-center px-2 py-2 rounded-md text-white"
                     >
                         <BsFillPlayFill className="mr-1" />
@@ -85,6 +87,7 @@ ActionButton.propTypes = {
     isOwner: PropTypes.bool,
     parentAfterAddSlide: PropTypes.func,
     parentUpdateSavingStatus: PropTypes.func,
+    onPresentBtnClick: PropTypes.func,
     onCollabBtnClick: PropTypes.func,
     onDeleteBtnClick: PropTypes.func
 };
@@ -95,6 +98,7 @@ ActionButton.defaultProps = {
     isOwner: false,
     parentAfterAddSlide: null,
     parentUpdateSavingStatus: null,
+    onPresentBtnClick: null,
     onCollabBtnClick: null,
     onDeleteBtnClick: null
 };

@@ -15,11 +15,17 @@ function App() {
     const accessToken = getToken();
     console.log(`accessToken ${accessToken}`);
     const [isInitialWeb, setIsInitialWeb] = useState(true);
+    const [socketSubscribed, setSocketSubscribed] = useState(false);
     const [user, setUser] = useState(null);
 
     const listAuthPage = ["/login", "/register", "/forgot_password"];
 
     const userFromLocalStorage = JSON.parse(localStorage.getItem("userData"));
+    if (userFromLocalStorage && !socketSubscribed) {
+        socket.emit("subscribe", userFromLocalStorage.username);
+        console.log("username to emit", userFromLocalStorage.username);
+        setSocketSubscribed(true);
+    }
     if (isInitialWeb) {
         if (accessToken !== null) {
             setUser({ ...userFromLocalStorage });

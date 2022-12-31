@@ -1,4 +1,5 @@
 import { RxDotsHorizontal } from "react-icons/rx";
+import { GiChoice } from "react-icons/gi";
 import { MdCancelPresentation } from "react-icons/md";
 import { RiTeamFill } from "react-icons/ri";
 import { useState, useRef, useEffect } from "react";
@@ -53,6 +54,17 @@ function ActionBtnMenu({ presentationId, presentationName, onCollabBtnClick, onD
                 aria-labelledby="add-group-presentation-menu-button"
                 tabIndex="-1"
             >
+                <button
+                    type="button"
+                    className="flex items-center px-4 py-2 text-sm text-gray-700"
+                    role="menuitem"
+                    tabIndex="-1"
+                    id="action-btns-menu-item-1"
+                    onClick={() => {}}
+                >
+                    <GiChoice className="mr-1 w-4 h-4" />
+                    Present result
+                </button>
                 <button
                     type="button"
                     className="flex items-center px-4 py-2 text-sm text-gray-700"

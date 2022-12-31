@@ -64,7 +64,7 @@ const ViewRoutes = [
         component: <PresentationEditPage />
     },
     {
-        path: "/presentation/:presentationId/present",
+        path: "/presentation/:presentationId/present/:sessionId",
         exact: true,
         component: <PresentationPresentPage />
     },

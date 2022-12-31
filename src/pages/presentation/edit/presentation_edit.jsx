@@ -14,6 +14,7 @@ import AuthContext from "../../../components/contexts/auth_context";
 import ModalFrame from "../../../components/modals/modal_frame";
 import RemoveModalBody from "../../../components/modals/remove_modal_body";
 import PresentationCollabModalBody from "../../../components/modals/presentation_collaborator_modal_body";
+import StartPresentModalBody from "../../../components/modals/start_present_modal_body";
 
 function PresentationEditPage() {
     const { user } = useContext(AuthContext);
@@ -26,6 +27,7 @@ function PresentationEditPage() {
     const [collaboratorsData, setCollaboratorsData] = useState(null);
     const [isOwner, setIsOwner] = useState(false);
     const [showCollabModal, setShowCollabModal] = useState(false);
+    const [presentationToPresent, setPresentationToPresent] = useState(null);
     const [objectToRemove, setObjectToRemove] = useState(null);
     const [form] = Form.useForm();
     const queryClient = useQueryClient();
@@ -363,6 +365,7 @@ function PresentationEditPage() {
                             isOwner={isOwner}
                             parentAfterAddSlide={afterAddSlide}
                             parentUpdateSavingStatus={updateSavingList}
+                            onPresentBtnClick={(pres) => setPresentationToPresent(pres)}
                             onCollabBtnClick={() => setShowCollabModal(true)}
                             onDeleteBtnClick={(objectSelected) => setObjectToRemove(objectSelected)}
                         />
@@ -397,6 +400,15 @@ function PresentationEditPage() {
             <div className="flex flex-col w-full h-[90%] overflow-hidden">
                 {renderMainChildren()}
             </div>
+            <ModalFrame
+                width="w-2/5"
+                height="max-h-3/5"
+                clickOutSideToClose={false}
+                isVisible={presentationToPresent !== null}
+                onClose={() => setPresentationToPresent(null)}
+            >
+                <StartPresentModalBody presentationToPresent={presentationToPresent} />
+            </ModalFrame>
             <ModalFrame
                 width="w-2/5"
                 height="h-[80%]"

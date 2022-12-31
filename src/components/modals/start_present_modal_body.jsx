@@ -4,36 +4,18 @@ import PropTypes from "prop-types";
 import { useContext, useEffect, useState } from "react";
 import { ImSpinner10 } from "react-icons/im";
 import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
 import AuthContext from "../contexts/auth_context";
 
 function StartPresentModalBody({ presentationToPresent }) {
     const { user } = useContext(AuthContext);
-    const [presentOption, setPresentOption] = useState(0);
+    const [presentOption, setPresentOption] = useState("public");
     const [presentError, setPresentError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [form] = Form.useForm();
+    const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
-    const {
-        isFetching: isCreatedGroupFetching,
-        data: createdGroupListQueryRes,
-        refetch: createdGroupListQueryRefetch
-    } = useQuery({
-        queryKey: ["get_created_group_list"],
-        enabled: false,
-        queryFn: async () => {
-            console.log("run created by");
-            return privateAxios
-                .get(`group/createdBy`)
-                .then((response) => {
-                    console.log("created groups", response);
-                    return response;
-                })
-                .catch((error) => {
-                    console.log(error);
-                });
-        }
-    });
     const {
         isFetching: isJoinedGroupFetching,
         data: joinedGroupListQueryRes,
@@ -59,15 +41,19 @@ function StartPresentModalBody({ presentationToPresent }) {
         console.log(data);
         setIsLoading(true);
         privateAxios
-            .get(`presentation/present?`, {
+            .get(`/session/startPresentation/${data.present_option}?`, {
                 params: {
                     presentationId: presentationToPresent.presentationId,
-                    presentType: data.present_option,
                     groupId: data.present_group_id
                 }
             })
             .then((response) => {
-                console.log("created groups", response);
+                console.log("start presentation response", response);
+                navigate(
+                    `presentation/${presentationToPresent.presentationId}/present/${
+                        response?.data?.sessionId ?? 0
+                    }`
+                );
                 return response;
             })
             .catch((error) => {
@@ -90,22 +76,15 @@ function StartPresentModalBody({ presentationToPresent }) {
     };
 
     const renderGroupListOption = () => {
-        if (presentOption === 0) return null;
-        if (isCreatedGroupFetching && isJoinedGroupFetching) {
+        if (presentOption === "public") return null;
+        if (isJoinedGroupFetching) {
             return (
                 <div className="flex w-full h-full justify-center items-center">
                     <ImSpinner10 size={25} className="animate-spin" />
                 </div>
             );
         }
-        const listToRender = (createdGroupListQueryRes?.data ?? []).concat([]);
-        const { length } = joinedGroupListQueryRes?.data ?? [];
-        for (let i = 0; i < length; i += 1) {
-            const joinedGroup = { ...(joinedGroupListQueryRes?.data ?? [])[i] };
-            if (listToRender.find((group) => group.id === joinedGroup.id) === undefined) {
-                listToRender.push(joinedGroup);
-            }
-        }
+        const listToRender = (joinedGroupListQueryRes?.data ?? []).concat([]);
         return (
             <div className="w-full h-full px-2 py-2 border-2 rounded-sm mb-0 overflow-x-hidden overflow-y-auto">
                 <Form.Item
@@ -114,8 +93,7 @@ function StartPresentModalBody({ presentationToPresent }) {
                     rules={[
                         {
                             required: true,
-                            message: "Please choose a group to present.",
-                            whitespace: true
+                            message: "Please choose a group to present."
                         }
                     ]}
                     help=""
@@ -127,7 +105,7 @@ function StartPresentModalBody({ presentationToPresent }) {
                                 return (
                                     <div
                                         key={group.id}
-                                        className="px-3 py-3 w-full text-lg text-neutral-400 font-medium bg-neutral-200"
+                                        className="px-3 py-3 w-full text-lg text-neutral-400 font-medium"
                                     >
                                         <Radio
                                             value={group.id}
@@ -147,9 +125,7 @@ function StartPresentModalBody({ presentationToPresent }) {
 
     useEffect(() => {
         setPresentError(null);
-        form.setFieldValue("present_group_id", 0);
-        if (presentOption === 1) {
-            createdGroupListQueryRefetch();
+        if (presentOption === "group") {
             joinedGroupListQueryRefetch();
         }
     }, [presentOption]);
@@ -163,10 +139,11 @@ function StartPresentModalBody({ presentationToPresent }) {
                 form={form}
                 name="register_form"
                 initialValues={{
-                    present_option: 0
+                    present_option: "public"
                 }}
                 onValuesChange={(changedValues) => {
                     console.log(changedValues);
+                    setPresentError(null);
                     if (changedValues.present_option !== undefined) {
                         setPresentOption(changedValues.present_option);
                     }
@@ -177,8 +154,8 @@ function StartPresentModalBody({ presentationToPresent }) {
                 <Form.Item className="mb-2" name="present_option" label="">
                     <Radio.Group className="w-full">
                         <Space direction="vertical" className="w-full">
-                            <Radio value={0}>Public</Radio>
-                            <Radio value={1}>Group</Radio>
+                            <Radio value="public">Public</Radio>
+                            <Radio value="group">Group</Radio>
                         </Space>
                     </Radio.Group>
                 </Form.Item>

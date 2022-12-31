@@ -116,7 +116,7 @@ function PresentationMainView({ slideId, isViewer }) {
                 {slideDetailData?.question ?? "Question"}
             </p>
             {slideDetailData?.type === 0 ? (
-                <ResponsiveContainer width="45%" className="max-h-[60%]">
+                <ResponsiveContainer width="45%" className="max-h-[70%]">
                     <BarChart
                         width={150}
                         height={40}
