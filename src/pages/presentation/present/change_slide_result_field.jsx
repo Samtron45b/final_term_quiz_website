@@ -4,7 +4,7 @@ import { GiChoice } from "react-icons/gi";
 
 function ChangeSlideResultField({ canMoveLeft, canMoveRight, onSlideChanged, onResultBtnClick }) {
     const iconSize = 20;
-    const arrowActiveClassName = "text-neutral-300 hover:text-white";
+    const arrowActiveClassName = "text-neutral-200 hover:text-white";
     return (
         <div
             id="change_slide_result_field"
@@ -42,14 +42,14 @@ function ChangeSlideResultField({ canMoveLeft, canMoveRight, onSlideChanged, onR
 }
 
 ChangeSlideResultField.propTypes = {
-    canMoveLeft: PropTypes.number,
-    canMoveRight: PropTypes.number,
+    canMoveLeft: PropTypes.bool,
+    canMoveRight: PropTypes.bool,
     onSlideChanged: PropTypes.func,
     onResultBtnClick: PropTypes.func
 };
 ChangeSlideResultField.defaultProps = {
-    canMoveLeft: 0,
-    canMoveRight: 0,
+    canMoveLeft: false,
+    canMoveRight: false,
     onSlideChanged: null,
     onResultBtnClick: null
 };

@@ -13,7 +13,7 @@ function OptionForm({
     updateSavingStatus
 }) {
     const form = Form.useFormInstance();
-    console.log(form.getFieldsValue(true));
+    console.log("form list field:", form.getFieldsValue(fieldname));
 
     const privateAxios = usePrivateAxios();
 
@@ -28,16 +28,23 @@ function OptionForm({
             .then((response) => {
                 console.log(response);
                 console.log(`add option successfully for slide ${slideId}`);
-                const newOptionsList = listOptions.concat([
-                    {
-                        id: response?.data?.id ?? 0,
-                        slideId,
-                        optionText: response?.data?.optionText ?? "",
-                        isCorrect: response?.data?.isCorrect ?? false,
-                        answerAmount: response?.data?.answerAmount ?? 0
-                    }
-                ]);
-                parentUpdateAfterEditOptions(newOptionsList);
+                const newOptionsList = listOptions.map((option, index) => {
+                    return {
+                        ...option,
+                        optionText: Object.values(form.getFieldValue(fieldname)[index])[0]
+                    };
+                });
+                parentUpdateAfterEditOptions(
+                    newOptionsList.concat([
+                        {
+                            id: response?.data?.id ?? 0,
+                            slideId,
+                            optionText: response?.data?.optionText ?? "",
+                            isCorrect: response?.data?.isCorrect ?? false,
+                            answerAmount: response?.data?.answerAmount ?? 0
+                        }
+                    ])
+                );
                 parentUpdateDebounceOptionList(1);
                 return response;
             })
@@ -50,11 +57,17 @@ function OptionForm({
 
     const onDeleteOption = async (optionId) => {
         updateSavingStatus(true);
-        const newOptionsList = listOptions.filter((option, index) => {
+        const newOptionsList = listOptions.flatMap((option, index) => {
             if (option.id === optionId) {
                 parentUpdateDebounceOptionList(-1, null, index);
+                return [];
             }
-            return option.id !== optionId;
+            return [
+                {
+                    ...option,
+                    optionText: Object.values(form.getFieldValue(fieldname)[index])[0]
+                }
+            ];
         });
         parentUpdateAfterEditOptions(newOptionsList);
         return privateAxios
@@ -110,7 +123,7 @@ function OptionForm({
                                     size={30}
                                     className="cursor-pointer"
                                     onClick={async () => {
-                                        onDeleteOption(listOptions[index].id);
+                                        onDeleteOption(listOptions[index]?.id ?? 0);
                                     }}
                                 />
                             </div>

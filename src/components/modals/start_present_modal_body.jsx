@@ -41,7 +41,7 @@ function StartPresentModalBody({ presentationToPresent }) {
         console.log(data);
         setIsLoading(true);
         privateAxios
-            .get(`/session/startPresentation/${data.present_option}?`, {
+            .get(`/session/presentation/start/${data.present_option}?`, {
                 params: {
                     presentationId: presentationToPresent.presentationId,
                     groupId: data.present_group_id

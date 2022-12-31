@@ -146,20 +146,27 @@ function PreviewResultAndEdit({
         const finalIsCorrect = newIsCorrect ?? listOptions[optionIndex]?.isCorrect;
         console.log(listOptions, optionId, finalNewText, finalIsCorrect);
         updateSavingStatus(true);
-        const newOptionsList = listOptions.map((option, index) => {
+        const newOptionsList = listOptions.flatMap((option, index) => {
+            if (!option) return [];
             if (option.id === optionId) {
-                return {
-                    id: optionId,
-                    slideId: id,
-                    optionText: finalNewText ?? "",
-                    isCorrect: finalIsCorrect ?? false,
-                    answerAmount: option.answerAmount
-                };
+                return [
+                    {
+                        id: optionId,
+                        slideId: id,
+                        optionText: finalNewText ?? "",
+                        isCorrect: finalIsCorrect ?? false,
+                        answerAmount: option.answerAmount
+                    }
+                ];
             }
-            return {
-                ...option,
-                optionText: Object.values(form.getFieldValue(optionField)[index])[0]
-            };
+            if (!form.getFieldValue(optionField)[index]) return [];
+            console.log(Object.values(form.getFieldValue(optionField)[index]));
+            return [
+                {
+                    ...option,
+                    optionText: Object.values(form.getFieldValue(optionField)[index])[0]
+                }
+            ];
         });
         updateSlideDetailAndOptionsForm(newOptionsList, true);
         privateAxios
