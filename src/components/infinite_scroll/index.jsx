@@ -1,87 +1,100 @@
-import PropType from "prop-types";
+/* eslint-disable react/forbid-prop-types */
+/* eslint-disable no-unused-vars */
+import PropTypes from "prop-types";
+import { ImSpinner10 } from "react-icons/im";
 import React, { useRef, useCallback, useState, useEffect } from "react";
-import axios from "axios";
 
-function Fetching(url, query, pageNumber) {
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
-    const [data, setData] = useState([]);
-    const [hasMore, setHasMore] = useState(false);
-
-    useEffect(() => {
-        setData([]);
-    }, [query]);
-
-    useEffect(() => {
-        setLoading(true);
-        setError(false);
-        let cancel;
-        axios
-            .get(url, {
-                params: { q: query, page: pageNumber },
-                cancelToken: new axios.CancelToken((c) => {
-                    cancel = c;
-                })
-            })
-            .then((res) => {
-                setData((prev) => {
-                    return [...new Set([...prev, ...res.data.docs.map((b) => b.title)])];
-                });
-                setHasMore(res.data.docs.length > 0);
-                setLoading(false);
-            })
-            .catch((err) => {
-                if (axios.isCancel(err)) return;
-                setError(true);
-            });
-        return () => cancel();
-    }, [query, pageNumber]);
-    return { loading, error, data, hasMore };
-}
-
-export default function InfiniteScroll({ url, query }) {
+export default function InfiniteScroll({
+    controllerRef,
+    dataSource,
+    reversed,
+    hasMore,
+    itemRender,
+    loadMore
+}) {
     const [page, setPage] = useState(1);
-    const { loading, error, data, hasMore } = Fetching(url, query, page);
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(false);
+
+    const executeLoadMoreFunction = async () => {
+        setIsLoading(true);
+        loadMore()?.then(() => {
+            setIsLoading(false);
+        });
+    };
+
+    const boxRef = useRef();
 
     const observer = useRef();
     const lastData = useCallback(
         (node) => {
-            if (loading) return;
+            if (isLoading) return;
             if (observer.current) observer.current.disconnect();
             observer.current = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting && hasMore) {
-                    setPage((prePageNum) => prePageNum + 1);
+                    executeLoadMoreFunction();
                 }
             });
             if (node) observer.current.observe(node);
         },
-        [loading, hasMore]
+        [reversed, isLoading, hasMore]
     );
 
+    const renderLoadingItem = (offset) => {
+        if ((offset === 0 && !reversed) || (offset === 1 && reversed) || !isLoading) {
+            return null;
+        }
+        return (
+            <div className="flex justify-center items-center">
+                <ImSpinner10 size={50} className="animate-spin mr-3 mb-2" />
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        console.log(boxRef.current.scrollHeight);
+        if (reversed) {
+            boxRef.current.scrollTo({ left: 0, top: boxRef.current.scrollHeight });
+        } else {
+            boxRef.current.scrollTo({ left: 0, top: 0 });
+        }
+    }, [reversed]);
+
+    if (isLoading) console.log("isLoading");
+
     return (
-        <>
-            {data.map((childData, index) => {
-                if (data.length === index + 1) {
+        <div ref={boxRef} className="h-full w-full overflow-auto">
+            {renderLoadingItem(0)}
+            {dataSource.map((childData, index) => {
+                if ((!reversed && dataSource.length - 1 === index) || (reversed && index === 0)) {
                     return (
                         <div ref={lastData} key={childData}>
-                            {childData}
+                            {itemRender(childData, index)}
                         </div>
                     );
                 }
-                return <div key={childData}>{childData}</div>;
+                return <div key={childData}>{itemRender(childData, index)}</div>;
             })}
-            <div>{loading && "Loading..."}</div>
+            {renderLoadingItem(1)}
             <div>{error && "Error"}</div>
-        </>
+        </div>
     );
 }
 
 InfiniteScroll.propTypes = {
-    url: PropType.string,
-    query: PropType.string
+    controllerRef: PropTypes.any,
+    dataSource: PropTypes.array,
+    reversed: PropTypes.bool,
+    hasMore: PropTypes.bool,
+    itemRender: PropTypes.func,
+    loadMore: PropTypes.func
 };
 
 InfiniteScroll.defaultProps = {
-    url: "",
-    query: ""
+    controllerRef: null,
+    dataSource: [],
+    reversed: false,
+    hasMore: false,
+    itemRender: null,
+    loadMore: null
 };
