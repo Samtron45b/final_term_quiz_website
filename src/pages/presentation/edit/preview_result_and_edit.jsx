@@ -355,7 +355,7 @@ function PreviewResultAndEdit({
                         name="type"
                         label={<p className="text-lg font-medium text-gray-700">Slide type</p>}
                     >
-                        <Select size="large" placeholder="Please select a country">
+                        <Select size="large" placeholder="Select type for this slide">
                             <Select.Option value="0">{renderSelecOption(0)}</Select.Option>
                             <Select.Option value="1">{renderSelecOption(1)}</Select.Option>
                             <Select.Option value="2">{renderSelecOption(2)}</Select.Option>
