@@ -2,26 +2,30 @@
 /* eslint-disable no-unused-vars */
 import { Form, Input } from "antd";
 import PropTypes from "prop-types";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { IoSend } from "react-icons/io5";
-import InfiniteScroll from "../../infinite_scroll";
+import AuthContext from "../../../../components/contexts/auth_context";
+import InfiniteScroll from "../../../../components/infinite_scroll";
+import usePrivateAxios from "../../../../configs/networks/usePrivateAxios";
+import { convertTimeStampToDate } from "../../../../utilities";
 
-function ViewerQuestionView({
-    questionList,
-    renderSingleQuestion,
-    hasMore,
-    typingText,
-    loadMoreQuestion,
-    setTypingText,
-    onSubmitNewQuestion
-}) {
+function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, setTypingText }) {
+    const { user } = useContext(AuthContext);
+    const privateAxios = usePrivateAxios();
     const [form] = Form.useForm();
-    const fieldName = "newQuestion";
+    const fieldName = "newChat";
+
+    const onSubmitNewChat = (commentText) => {
+        privateAxios
+            .get(`session/comment/add?`, { params: { presentationId, commentText, type: 0 } })
+            .then((response) => console.log(response))
+            .catch((error) => console.log(error));
+    };
 
     const onFinish = (data) => {
         console.log(data);
         if (data[fieldName] === "") return;
-        onSubmitNewQuestion?.(data[fieldName]);
+        onSubmitNewChat?.(data[fieldName]);
     };
 
     useEffect(() => {
@@ -31,17 +35,49 @@ function ViewerQuestionView({
         };
     }, []);
 
-    const renderQuestionList = () => {
+    const renderQuestionSenderAndTime = (sender, timeCreated) => {
+        const timeString = convertTimeStampToDate({ date: new Date(timeCreated), showTime: true });
+        const senderText = sender === user.username ? "YOU" : sender;
+        return `By ${senderText ?? ""} at ${timeString}`;
+    };
+
+    const renderSingleChatItem = (chatItem) => {
+        const isSeflChat = user.username === chatItem.user;
         return (
-            <div className="mt-2 w-full h-[70%] overflow-hidden">
+            <div
+                className={`w-full p-2 flex flex-row ${
+                    isSeflChat ? "justify-end" : "justify-start"
+                }`}
+            >
+                <div className="w-[80%] flex flex-col break-words">
+                    <p className="text-sm text-neutral-300 w-full break-words">
+                        {renderQuestionSenderAndTime(chatItem.user, chatItem.time)}
+                    </p>
+                    <p
+                        className={`px-2 py-1 mt-1 text-md w-full break-words rounded-xl ${
+                            isSeflChat
+                                ? "text-white bg-purple-500"
+                                : "text-neutral-600 bg-neutral-300"
+                        }`}
+                    >
+                        {chatItem.commentText}
+                    </p>
+                </div>
+            </div>
+        );
+    };
+
+    const renderchatList = () => {
+        return (
+            <div className="mt-2 w-full h-[87%] overflow-hidden">
                 <InfiniteScroll
-                    dataSource={questionList}
+                    dataSource={chatList}
                     itemRender={(question) => {
-                        return renderSingleQuestion(question);
+                        return renderSingleChatItem(question);
                     }}
                     dividerRender={<div className="w-full h-[2px] bg-neutral-500" />}
                     hasMore={hasMore}
-                    loadMore={loadMoreQuestion}
+                    loadMore={loadMoreChat}
                 />
             </div>
         );
@@ -54,12 +90,12 @@ function ViewerQuestionView({
                     margin-right: 0px;
                 }
             `}</style>
-            {renderQuestionList()}
-            <div className="w-full mt-3 mb-1 h-[1.5px] bg-neutral-400" />
+            {renderchatList()}
+            <div className="w-full mb-1 h-[1px] bg-neutral-400" />
             <Form
                 form={form}
                 layout="horizontal"
-                className="w-full h-[15%] flex flex-row"
+                className="w-full h-[10%] flex flex-row"
                 onFinish={onFinish}
             >
                 <Form.Item
@@ -101,23 +137,21 @@ function ViewerQuestionView({
     );
 }
 
-ViewerQuestionView.propTypes = {
-    questionList: PropTypes.array,
-    renderSingleQuestion: PropTypes.func,
+ChatBox.propTypes = {
+    presentationId: PropTypes.number,
+    chatList: PropTypes.array,
     hasMore: PropTypes.bool,
     typingText: PropTypes.string,
-    loadMoreQuestion: PropTypes.func,
-    setTypingText: PropTypes.func,
-    onSubmitNewQuestion: PropTypes.func
+    loadMoreChat: PropTypes.func,
+    setTypingText: PropTypes.func
 };
-ViewerQuestionView.defaultProps = {
-    questionList: [],
-    renderSingleQuestion: null,
+ChatBox.defaultProps = {
+    presentationId: 0,
+    chatList: [],
     hasMore: false,
     typingText: "",
-    loadMoreQuestion: null,
-    setTypingText: null,
-    onSubmitNewQuestion: null
+    loadMoreChat: null,
+    setTypingText: null
 };
 
-export default ViewerQuestionView;
+export default ChatBox;

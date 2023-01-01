@@ -6,7 +6,8 @@ function PresentResultModalBody({
     presentationId,
     presentationName,
     resultList,
-    updateResultList
+    hasMore,
+    loadMoreResult
 }) {
     const renderListResults = () => {
         return resultList.map((result) => {
@@ -24,7 +25,12 @@ function PresentResultModalBody({
                 Result of presentation {presentationName}
             </p>
             <div className="h-full mt-1 p-2 overflow-auto border-2 border-neutral-400 rounded-md shadow-inner shadow-neutral-300">
-                <InfiniteScroll dataSource={resultList} itemRender={itemRender} hasMore reversed />
+                <InfiniteScroll
+                    dataSource={resultList}
+                    itemRender={itemRender}
+                    hasMore={hasMore}
+                    loadMore={loadMoreResult}
+                />
             </div>
         </div>
     );
@@ -35,12 +41,14 @@ PresentResultModalBody.propTypes = {
     presentationName: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     resultList: PropTypes.array,
-    updateResultList: PropTypes.func
+    hasMore: PropTypes.bool,
+    loadMoreResult: PropTypes.func
 };
 PresentResultModalBody.defaultProps = {
     presentationName: "",
     resultList: [],
-    updateResultList: null
+    hasMore: false,
+    loadMoreResult: null
 };
 
 export default PresentResultModalBody;

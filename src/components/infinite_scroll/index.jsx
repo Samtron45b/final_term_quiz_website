@@ -10,6 +10,7 @@ export default function InfiniteScroll({
     reversed,
     hasMore,
     itemRender,
+    dividerRender,
     loadMore
 }) {
     const [page, setPage] = useState(1);
@@ -18,7 +19,7 @@ export default function InfiniteScroll({
 
     const executeLoadMoreFunction = async () => {
         setIsLoading(true);
-        loadMore()?.then(() => {
+        loadMore?.().then(() => {
             setIsLoading(false);
         });
     };
@@ -69,11 +70,17 @@ export default function InfiniteScroll({
                 if ((!reversed && dataSource.length - 1 === index) || (reversed && index === 0)) {
                     return (
                         <div ref={lastData} key={childData}>
+                            {index !== 0 ? dividerRender : null}
                             {itemRender(childData, index)}
                         </div>
                     );
                 }
-                return <div key={childData}>{itemRender(childData, index)}</div>;
+                return (
+                    <div key={childData}>
+                        {index !== 0 ? dividerRender : null}
+                        {itemRender(childData, index)}
+                    </div>
+                );
             })}
             {renderLoadingItem(1)}
             <div>{error && "Error"}</div>
@@ -87,6 +94,7 @@ InfiniteScroll.propTypes = {
     reversed: PropTypes.bool,
     hasMore: PropTypes.bool,
     itemRender: PropTypes.func,
+    dividerRender: PropTypes.any,
     loadMore: PropTypes.func
 };
 
@@ -96,5 +104,6 @@ InfiniteScroll.defaultProps = {
     reversed: false,
     hasMore: false,
     itemRender: null,
+    dividerRender: null,
     loadMore: null
 };

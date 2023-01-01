@@ -1,39 +1,37 @@
-import { useContext, useEffect, useMemo, useState } from "react";
-import { GiSpinningSword } from "react-icons/gi";
-import { MdDone } from "react-icons/md";
+/* eslint-disable no-unused-vars */
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
-import { Form } from "antd";
-import debounce from "lodash/debounce";
-import MainHeader from "../../../components/header/main_header/main_header";
-import PreviewResult from "../edit/preview_result_and_edit";
-import PresentationSingleSlideThumbNail from "../edit/single_slide_thumbnail";
+import socketio from "socket.io-client";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
-import ActionButton from "../edit/action_btns";
-import AuthContext from "../../../components/contexts/auth_context";
-import ModalFrame from "../../../components/modals/modal_frame";
-import RemoveModalBody from "../../../components/modals/remove_modal_body";
-import PresentationCollabModalBody from "../../../components/modals/presentation_collaborator_modal_body";
 import PresentationMainView from "./main_view";
 import QuestionChatBtn from "./question_chat_btn";
 import ChangeSlideResultField from "./change_slide_result_field";
+import AuthContext from "../../../components/contexts/auth_context";
+import ModalFrame from "../../../components/modals/modal_frame";
+import PresentResultModalBody from "../../../components/modals/present_result_modal_body";
+import { SocketContext } from "../../../components/contexts/socket_context";
+import PresentQuestionModalBody from "../../../components/modals/present_question_modal_body/present_question_modal_body";
 
 function PresentationPresentPage() {
     const { user } = useContext(AuthContext);
-    const { presentationId } = useParams();
-    const [savingList, setSavingList] = useState([]);
-    const [selectedIndexView, setSelectedIndexView] = useState(0);
-    const [curIndexView, setCurIndexView] = useState(0);
+    const socket = useContext(SocketContext);
+    const { presentationId, sessionId } = useParams();
+    const [roleInThisSession, setRoleInThisSession] = useState(0);
+    const [isGetSessionError, setIsGetSessionError] = useState(false);
+    const [sessionData, setSessionData] = useState(null);
     const [isGetPresentationError, setIsGetPresentationError] = useState(false);
     const [presentationData, setPresentationData] = useState(null);
-    const [collaboratorsData, setCollaboratorsData] = useState(null);
-    const [isOwner, setIsOwner] = useState(false);
-    const [showCollabModal, setShowCollabModal] = useState(false);
-    const [objectToRemove, setObjectToRemove] = useState(null);
-    const [form] = Form.useForm();
+    const [showResultModal, setShowResultModal] = useState(false);
+    const [showQuestionModal, setShowQuestionModal] = useState(false);
+    const [sortBy, setSortBy] = useState(0);
+    const [typingQuestion, setTypingQuestion] = useState("");
+    const [typingChat, setTypingChat] = useState("");
     const queryClient = useQueryClient();
 
     const privateAxios = usePrivateAxios();
+
+    const namespace = `/presentation/${presentationId}`;
 
     const { refetch: presentationQueryRefetch } = useQuery({
         queryKey: ["get_presentation_present_data"],
@@ -44,12 +42,11 @@ function PresentationPresentPage() {
                 .then((response) => {
                     console.log("Presentation data", response);
                     setPresentationData({ ...response?.data });
-                    form.setFieldValue("presentationName", response?.data?.name);
-                    setIsOwner(response?.data?.creator?.username === user.username);
+                    setIsGetPresentationError(false);
                     return response;
                 })
                 .catch((error) => {
-                    console.log("get error");
+                    console.log("get presentation error");
                     console.log(error);
                     setPresentationData({});
                     setIsGetPresentationError(true);
@@ -57,381 +54,359 @@ function PresentationPresentPage() {
         }
     });
 
-    const { refetch: collaboratorsQueryRefetch } = useQuery({
-        queryKey: ["get_presentation_collaborators"],
+    const { refetch: sessionQueryRefetch } = useQuery({
+        queryKey: ["get_present_session_data"],
         enabled: false,
         queryFn: async () => {
+            console.log("sessionId", sessionId);
             return privateAxios
-                .get(`presentation/getCollaborator?presentationId=${presentationId}`)
-                .then((response) => {
-                    console.log("Collaborators data", response);
-                    setCollaboratorsData(response?.data?.concat([]));
+                .get(`session/data?sessionId=${sessionId}`)
+                .then(async (response) => {
+                    console.log("Session data", response);
+                    const session = response?.data;
+                    let callPresentationApi = true;
+                    if (session?.groupId !== null) {
+                        privateAxios
+                            .get(`group/getMember?groupId=${session?.groupId}`)
+                            .then((responseGroupMember) => {
+                                console.log(responseGroupMember);
+                                const userRole = responseGroupMember?.data?.role ?? 0;
+                                callPresentationApi = userRole > 0 && userRole < 4;
+                                if (userRole === 1 || userRole === 2) {
+                                    setRoleInThisSession(1);
+                                } else if (userRole === 3) {
+                                    setRoleInThisSession(2);
+                                }
+                            });
+                    } else if (session?.presenter === user.username) {
+                        setRoleInThisSession(1);
+                    } else {
+                        setRoleInThisSession(2);
+                    }
+                    if (callPresentationApi) {
+                        presentationQueryRefetch();
+                    }
+                    setSessionData({ ...session });
+                    setIsGetSessionError(false);
                     return response;
                 })
                 .catch((error) => {
-                    console.log("get error");
+                    console.log("get session error");
                     console.log(error);
+                    setSessionData({});
+                    setIsGetSessionError(true);
                 });
         }
     });
 
-    const afterRemoveCollaborator = (removedCollaboratorName) => {
-        setCollaboratorsData((currentCollaboratorsList) => {
-            const newCollaboratorsList = (currentCollaboratorsList ?? []).filter((collaborator) => {
-                return collaborator.username !== removedCollaboratorName;
-            });
-            return newCollaboratorsList.concat([]);
-        });
-        setObjectToRemove(null);
-    };
-
-    const updateSavingList = (isIncrease) => {
-        if (!isIncrease) {
-            setSavingList((currentSavingList) => currentSavingList.slice(0, -1));
-            return;
-        }
-        setSavingList((currentSavingList) => currentSavingList.concat([currentSavingList.length]));
-    };
-
-    async function changeName(newName) {
-        let finalNewName = newName.trim();
-        if (finalNewName === "") {
-            finalNewName = `Untitled_presentation_${presentationData?.timeCreated}`;
-        }
-        updateSavingList(true);
+    const onChangeSlideBtnClick = (action) => {
+        console.log("current index", sessionData?.currentSlideIndex);
         privateAxios
-            .get(
-                `presentation/update?presentationId=${
-                    presentationData?.id ?? 0
-                }&name=${finalNewName}`
-            )
+            .get(`session/presentation/move?`, {
+                params: {
+                    sessionId,
+                    slideIndex:
+                        parseInt(sessionData?.currentSlideIndex ?? 1, 10) + parseInt(action, 10)
+                }
+            })
             .then((response) => {
-                console.log(response);
-                console.log("name changed successfully");
-                setPresentationData((curPresentationData) => {
-                    return {
-                        ...curPresentationData,
-                        name: newName
-                    };
-                });
+                console.log("Presentation data", response);
                 return response;
             })
             .catch((error) => {
-                console.log("get error");
+                console.log("get change slide error");
                 console.log(error);
-            })
-            .finally(() => {
-                updateSavingList(false);
             });
-    }
-
-    const onPresentationNameChanged = async (newName) => {
-        console.log("console.log from debounce");
-        console.log(newName);
-        changeName(newName);
-    };
-    const debouncePresentatioNnameChanged = useMemo(
-        () => debounce(onPresentationNameChanged, 1000),
-        [presentationData?.id]
-    );
-
-    const updateSlideThumbnail = (slideId, newText, newType) => {
-        setPresentationData((curPresentationData) => {
-            return {
-                ...curPresentationData,
-                slides: (curPresentationData?.slides ?? []).map((slide) => {
-                    if (slideId === slide.id) {
-                        if (newText !== undefined) {
-                            return { ...slide, question: newText };
-                        }
-                        if (newType !== undefined) return { ...slide, type: newType };
-                    }
-                    return { ...slide };
-                })
-            };
-        });
-    };
-
-    const afterAddSlide = (newSlideData) => {
-        setPresentationData((curPresentationData) => {
-            return {
-                ...curPresentationData,
-                slides: (curPresentationData?.slides ?? []).concat([
-                    {
-                        id: newSlideData.id,
-                        presentationId: newSlideData.presentationId,
-                        question: newSlideData.question
-                    }
-                ])
-            };
-        });
     };
 
     useEffect(() => {
-        console.log(presentationId);
-        presentationQueryRefetch();
-        collaboratorsQueryRefetch();
+        sessionQueryRefetch();
         return () => {
-            console.log("Removing cache from presentation present", presentationId);
+            console.log("Removing cache from present session", sessionId, presentationId);
+            setSortBy(0);
+            setShowResultModal(false);
+            setShowQuestionModal(false);
             queryClient.removeQueries({ queryKey: ["get_presentation_present_data"], exact: true });
-            queryClient.removeQueries({
-                queryKey: ["get_presentation_collaborators"],
-                exact: true
-            });
+            queryClient.removeQueries({ queryKey: ["get_present_session_data"], exact: true });
             queryClient.removeQueries({ queryKey: ["get_slide_present_data"], exact: true });
             setIsGetPresentationError(false);
         };
-    }, [presentationId]);
+    }, [sessionId]);
 
-    function renderSavingStatus() {
-        const size = 24;
-        let icon = <MdDone size={size} className="text-green-400 mr-1" />;
-        let text = <p>Saved</p>;
-        if (savingList.length > 0) {
-            icon = <GiSpinningSword size={size} className="animate-spin text-blue-400 mr-1" />;
-            text = <p className="text-neutral-400">Saving...</p>;
-        }
-        return (
-            <div className="flex flex-row justify-center items-center mr-3 p-2">
-                {icon}
-                {text}
-            </div>
-        );
-    }
+    const getEventName = (eventName) => {
+        return `${namespace}/${eventName ?? ""}`;
+    };
 
-    function renderIconBaseOnType(type, size) {
-        if (type === 1) {
-            return (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    role="img"
-                    preserveAspectRatio="xMidYMid meet"
-                    width={`${size ?? 28}`}
-                    height={`${size ?? 28}`}
-                    viewBox="0 0 48 48"
-                >
-                    <title>Heading Paragraph Icon</title>
-                    <rect
-                        fill="rgb(183, 186, 194)"
-                        x="3.93"
-                        y="11.04"
-                        width="40.92"
-                        height="8.66"
-                        rx="1.26"
-                    />
-                    <rect fill="rgb(64, 70, 93)" y="22.31" width="48" height="13.38" rx="1.26" />
-                </svg>
-            );
-        }
-        if (type === 2) {
-            return (
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    role="img"
-                    preserveAspectRatio="xMidYMid meet"
-                    width={`${size ?? 28}`}
-                    height={`${size ?? 28}`}
-                    viewBox="0 0 48 48"
-                >
-                    <title>Heading Subheading Icon</title>
-                    <rect fill="rgb(64, 70, 93)" y="18.05" width="48" height="10.15" rx="1.26" />
-                    <rect
-                        fill="rgb(183, 186, 194)"
-                        x="5.54"
-                        y="30.05"
-                        width="36.92"
-                        height="4.62"
-                        rx="1.3"
-                    />
-                </svg>
-            );
-        }
+    const handleSlideChangeEvent = useCallback(({ currentSlideIndex, currentSlideId }) => {
+        console.log("new slide index:", currentSlideIndex);
+        console.log("new slide id:", currentSlideId);
+        setSessionData((currentSessionData) => {
+            return { ...currentSessionData, currentSlideIndex: parseInt(currentSlideIndex, 10) };
+        });
+    }, []);
 
-        return (
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                role="img"
-                preserveAspectRatio="xMidYMid meet"
-                width={`${size ?? 28}`}
-                height={`${size ?? 28}`}
-                viewBox="0 0 48 48"
-            >
-                <title>Bar Chart Icon</title>
-                <rect x="32.73" y="17.04" width="11.4" height="25.25" fill="rgb(231, 232, 235)" />
-                <rect x="3.87" y="26.22" width="11.4" height="16.06" fill="rgb(64, 70, 93)" />
-                <rect x="18.3" y="4.31" width="11.4" height="37.97" fill="rgb(183, 186, 194)" />
-                <rect y="42.28" width="48" height=".99" fill="#000000" />
-            </svg>
-        );
-    }
-
-    function renderSlideThumbnails() {
-        const listSlideThumbnails = [];
-        const slideList = presentationData?.slides ?? [];
-        const { length } = slideList;
-        const updateSlideListAfterRemoveSlide = (slideId) => {
-            const currentSlideList = presentationData?.slides?.concat() ?? [];
-            const slideIdIndex = currentSlideList.findIndex((slide) => slide.id === slideId);
-            const newSlideList = currentSlideList.filter((slide) => slide.id !== slideId);
-            console.log(slideId, currentSlideList, slideIdIndex, curIndexView, newSlideList);
-            if (slideIdIndex === curIndexView && slideIdIndex === currentSlideList.length - 1) {
-                setCurIndexView(newSlideList.length - 1);
-            }
-            setPresentationData((curPresentationData) => {
-                return {
-                    ...curPresentationData,
-                    slides: newSlideList
-                };
-            });
-            setObjectToRemove(null);
+    useEffect(() => {
+        socket.on(getEventName("moveToSlide"), handleSlideChangeEvent);
+        return () => {
+            socket?.off(getEventName("moveToSlide"), handleSlideChangeEvent);
         };
-        for (let i = 0; i < length; i += 1) {
-            listSlideThumbnails.push(
-                <PresentationSingleSlideThumbNail
-                    key={`${slideList[i].id}`}
-                    isSelected={i === selectedIndexView}
-                    canBeDeleted={length > 1}
-                    id={slideList[i].id}
-                    index={i}
-                    icon={renderIconBaseOnType(slideList[i].type, 50)}
-                    question={slideList[i].question}
-                    onClick={() => setCurIndexView(i)}
-                    updateListSlide={updateSlideListAfterRemoveSlide}
-                    updateSavingStatus={updateSavingList}
-                    updateObjectToRemove={(slideToRemove) => setObjectToRemove(slideToRemove)}
-                />
-            );
-        }
-        return listSlideThumbnails;
-    }
+    }, [socket, namespace, sessionData, handleSlideChangeEvent]);
 
-    if (!presentationData || !collaboratorsData) {
+    if (!sessionData || !presentationData) {
         return null;
     }
 
-    console.log("presentationData ", presentationData);
-
-    // eslint-disable-next-line no-unused-vars
-    function renderMainChildren() {
-        if (isGetPresentationError) {
-            return (
-                <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
-                    Cannot get data for this presentation.
-                </p>
-            );
-        }
-
-        if (user.username !== presentationData?.creator?.username) {
-            const userInList = collaboratorsData?.find((collaborator) => {
-                return collaborator.username === user.username;
-            });
-            if (!userInList) {
-                return (
-                    <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
-                        You cannot not access this presentation.
-                    </p>
-                );
-            }
-        }
-
+    if (!roleInThisSession) {
         return (
-            <>
-                <div className="flex flex-row items-center justify-between bg-white mt-[-2px] py-2 pl-8 pr-2 border-b-[0.5px] border-b-neutral-500">
-                    <Form
-                        form={form}
-                        layout="inline"
-                        className="w-[30%]"
-                        onValuesChange={(changedValues) => {
-                            debouncePresentatioNnameChanged(changedValues.presentationName);
-                        }}
-                    >
-                        <Form.Item name="presentationName" className="mt-1 w-full" initialValue="">
-                            <input
-                                name="presentationName"
-                                placeholder="Presentation name"
-                                className="
-                                    focus:ring-purple-600 focus:border-purple-500
-                                    focus:shadow-purple-300
-                                    focus:shadow-inner
-                                    focus:outline-none hover:border-purple-400
-                                    block w-full sm:text-sm border-gray-300
-                                    px-2 py-3 bg-white border rounded-md "
-                            />
-                        </Form.Item>
-                    </Form>
-                    <div className="flex">
-                        {renderSavingStatus()}
-                        <ActionButton
-                            presentationId={presentationData?.id}
-                            presentationName={presentationData?.name}
-                            isOwner={isOwner}
-                            parentAfterAddSlide={afterAddSlide}
-                            parentUpdateSavingStatus={updateSavingList}
-                            onCollabBtnClick={() => setShowCollabModal(true)}
-                            onDeleteBtnClick={(objectSelected) => setObjectToRemove(objectSelected)}
-                        />
-                    </div>
-                </div>
-                <div className="flex flex-row w-full max-h-full h-screen overflow-hidden">
-                    <div
-                        id="presentation_thumbnail_list"
-                        className="h-full overflow-auto sm:w-[20%] lg:w-[15%] xl:w-[12.5%] 2xl:w-[11%] text-cyan-200"
-                    >
-                        {renderSlideThumbnails()}
-                    </div>
-                    <PreviewResult
-                        id={presentationData?.slides?.[curIndexView]?.id ?? 0}
-                        parentSelectedIndex={selectedIndexView}
-                        parentCurIndexView={curIndexView}
-                        parentSetSelectedIndexView={(newSelectedIndexView) =>
-                            setSelectedIndexView(newSelectedIndexView)
-                        }
-                        parentSetSlideQuestion={updateSlideThumbnail}
-                        renderIcon={(type) => renderIconBaseOnType(type)}
-                        updateSavingStatus={updateSavingList}
-                    />
-                </div>
-            </>
+            <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
+                Only members of group can join this present session.
+            </p>
+        );
+    }
+
+    if (isGetSessionError || isGetPresentationError) {
+        return (
+            <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
+                Cannot get data for this present session.
+            </p>
         );
     }
 
     return (
         <>
-            <MainHeader />
-            <div className="relative flex flex-col w-full h-[90%] overflow-hidden">
-                <PresentationMainView slideId={presentationData?.slides?.[curIndexView]?.id ?? 0} />
-                <QuestionChatBtn />
-                <ChangeSlideResultField />
+            <div className="relative flex flex-col w-full h-full overflow-hidden">
+                <PresentationMainView
+                    slideId={
+                        presentationData?.slides?.[sessionData?.currentSlideIndex ?? 0]?.id ?? 0
+                    }
+                    isViewer={roleInThisSession === 2}
+                />
+                <QuestionChatBtn
+                    presentationId={parseInt(presentationId, 10)}
+                    chatList={[
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "",
+                            type: 0,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 0,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 0,
+                            time: 0,
+                            vote: 2
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "",
+                            type: 0,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "",
+                            type: 0,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 0,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 0,
+                            time: 0,
+                            vote: 1
+                        }
+                    ]}
+                    typingText={typingChat}
+                    setTypingText={setTypingChat}
+                    onQuestionBtnClick={() => setShowQuestionModal(true)}
+                />
+                {roleInThisSession === 1 ? (
+                    <ChangeSlideResultField
+                        canMoveLeft={sessionData?.currentSlideIndex > 0}
+                        canMoveRight={
+                            sessionData?.currentSlideIndex <
+                            (presentationData?.slides?.length ?? 0) - 1
+                        }
+                        onSlideChanged={(action) => onChangeSlideBtnClick(action)}
+                        onResultBtnClick={() => setShowResultModal(true)}
+                    />
+                ) : null}
             </div>
             <ModalFrame
-                width="w-2/5"
+                width="w-[40%]"
                 height="h-[80%]"
-                isVisible={showCollabModal}
                 clickOutSideToClose={false}
-                onClose={() => setShowCollabModal(false)}
+                isVisible={showResultModal}
+                onClose={() => setShowResultModal(false)}
             >
-                <PresentationCollabModalBody
+                <PresentResultModalBody
                     presentationId={parseInt(presentationId, 10)}
-                    presentationName={presentationData?.name}
-                    inviteId={presentationData?.inviteId}
-                    isOwner={isOwner}
-                    collaboratorsList={collaboratorsData ?? []}
-                    onDeleteCollaboratorBtnClick={(collaboratorToRemove) =>
-                        setObjectToRemove(collaboratorToRemove)
-                    }
-                    updateCollaboratorList={afterRemoveCollaborator}
+                    presentationName={presentationData?.name ?? ""}
+                    resultList={[
+                        "{user} choose {option} for {question} at {time} {time}{time}{time}{time}{time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}",
+                        "{user} choose {option} for {question} at {time}"
+                    ]}
                 />
             </ModalFrame>
             <ModalFrame
-                width="w-2/5"
-                isVisible={objectToRemove !== null}
+                width={roleInThisSession === 1 ? "w-[80%]" : "w-[50%]"}
+                height="h-[80%]"
+                placeSelf={roleInThisSession === 1 ? "" : "place-self-end"}
                 clickOutSideToClose={false}
-                hasXCloseBtn={false}
-                onClose={() => setObjectToRemove(null)}
+                isVisible={showQuestionModal}
+                onClose={() => setShowQuestionModal(false)}
             >
-                <RemoveModalBody
-                    objectToRemove={objectToRemove}
-                    onClose={() => setObjectToRemove(null)}
+                <PresentQuestionModalBody
+                    isPresenter={roleInThisSession === 1}
+                    presentationId={parseInt(presentationId, 10)}
+                    presentationName={presentationData?.name ?? ""}
+                    questionList={[
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "",
+                            type: 1,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 1,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 1,
+                            time: 0,
+                            vote: 2
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "",
+                            type: 1,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "",
+                            type: 1,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 1,
+                            time: 0,
+                            vote: 1
+                        },
+                        {
+                            id: 0,
+                            user: "ABCD",
+                            presentationId,
+                            commentText:
+                                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                            answerText: "a",
+                            type: 1,
+                            time: 0,
+                            vote: 1
+                        }
+                    ]}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    typingText={typingQuestion}
+                    setTypingText={setTypingQuestion}
                 />
             </ModalFrame>
         </>

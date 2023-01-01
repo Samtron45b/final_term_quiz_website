@@ -4,6 +4,7 @@ import { IoClose } from "react-icons/io5";
 function ModalFrame({
     width,
     height,
+    placeSelf,
     isVisible,
     hasXCloseBtn,
     clickOutSideToClose,
@@ -41,7 +42,7 @@ function ModalFrame({
             aria-hidden="true"
         >
             <div
-                className={`modal_body ${width} ${height} px-3 py-2 bg-white rounded-md flex flex-col justify-center items-center`}
+                className={`modal_body ${width} ${height} ${placeSelf} px-3 py-2 bg-white rounded-md flex flex-col justify-center items-center`}
             >
                 {renderXCloseBtn()}
                 {children}
@@ -53,6 +54,7 @@ function ModalFrame({
 ModalFrame.propTypes = {
     width: PropTypes.string,
     height: PropTypes.string,
+    placeSelf: PropTypes.string,
     isVisible: PropTypes.bool,
     hasXCloseBtn: PropTypes.bool,
     clickOutSideToClose: PropTypes.bool,
@@ -63,6 +65,7 @@ ModalFrame.propTypes = {
 ModalFrame.defaultProps = {
     width: "auto",
     height: "auto",
+    placeSelf: "",
     isVisible: null,
     clickOutSideToClose: true,
     hasXCloseBtn: true

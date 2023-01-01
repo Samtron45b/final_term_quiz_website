@@ -12,14 +12,15 @@ import {
     LabelList,
     ResponsiveContainer
 } from "recharts";
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import { ImSpinner10 } from "react-icons/im";
-import { Radio, Space } from "antd";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 import SelectOptionsField from "./select_options_field";
+import { SocketContext } from "../../../components/contexts/socket_context";
 
-function PresentationMainView({ slideId, isViewer }) {
+function PresentationMainView({ slideId, isViewer, nameSpace }) {
+    const socket = useContext(SocketContext);
     const [slideDetailData, setSlideDetailData] = useState(null);
     const [selectedOption, setSelectedOption] = useState(0);
     const [submittedOption, setSubmittedOption] = useState(0);
@@ -49,6 +50,17 @@ function PresentationMainView({ slideId, isViewer }) {
     useEffect(() => {
         slideQueryRefetch();
     }, [slideId]);
+
+    const handleNewResultEvent = useCallback((resultObject) => {
+        console.log(resultObject);
+    }, []);
+
+    useEffect(() => {
+        socket.on(`${nameSpace}newResult`, handleNewResultEvent);
+        return () => {
+            socket.off(`${nameSpace}newResult`, handleNewResultEvent);
+        };
+    }, [nameSpace, slideDetailData]);
 
     if (isSlideQueryFecthcing) {
         return (
@@ -108,15 +120,15 @@ function PresentationMainView({ slideId, isViewer }) {
     };
 
     return (
-        <div className="relative flex flex-col w-full h-screen justify-center items-center bg-white">
+        <div className="relative flex flex-col w-full h-full justify-center items-center bg-white">
             <div className="absolute left-[5%] w-[21%] h-[60%] overflow-x-hidden overflow-y-auto break-words ">
                 {renderOptionsField()}
             </div>
-            <p className="mb-3 w-[40%] max-h-[30%] text-3xl leading-none text-slate-500 overflow-hidden text-center break-words">
+            <p className="pt-1 pb-2 w-[40%] max-h-[15%] text-3xl leading-none font-bold text-slate-500 overflow-hidden text-center break-words">
                 {slideDetailData?.question ?? "Question"}
             </p>
             {slideDetailData?.type === 0 ? (
-                <ResponsiveContainer width="45%" className="max-h-[70%]">
+                <ResponsiveContainer width="45%" className=" max-h-[65%]">
                     <BarChart
                         width={150}
                         height={40}
@@ -130,7 +142,7 @@ function PresentationMainView({ slideId, isViewer }) {
                     </BarChart>
                 </ResponsiveContainer>
             ) : (
-                <p className="text-xl max-w-[90%] text-slate-300 text-center break-all">
+                <p className="text-xl max-w-[90%] text-slate-500 font-medium text-center break-all">
                     {slideDetailData?.subtext}
                 </p>
             )}
@@ -140,11 +152,13 @@ function PresentationMainView({ slideId, isViewer }) {
 
 PresentationMainView.propTypes = {
     slideId: PropTypes.number,
-    isViewer: PropTypes.bool
+    isViewer: PropTypes.bool,
+    nameSpace: PropTypes.string
 };
 PresentationMainView.defaultProps = {
     slideId: 0,
-    isViewer: true
+    isViewer: true,
+    nameSpace: ""
 };
 
 export default PresentationMainView;

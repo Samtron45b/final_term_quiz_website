@@ -2,10 +2,24 @@ import { Radio, Space } from "antd";
 import PropTypes from "prop-types";
 import { ImSpinner10 } from "react-icons/im";
 import { useState } from "react";
+import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function SelectOptionsField({ optionsList }) {
     const [selectedOption, setSelectedOption] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const privateAxios = usePrivateAxios();
+
+    const submitOption = async (optionId) => {
+        privateAxios
+            .get(`session/option/choose?optionId=${optionId}`)
+            .then((response) => {
+                console.log("submit choice result:", response);
+            })
+            .catch((error) => {
+                console.log("error on submit chocie", error);
+            });
+    };
 
     return (
         <>
@@ -17,7 +31,7 @@ function SelectOptionsField({ optionsList }) {
                             return (
                                 <div
                                     key={option.id}
-                                    className="px-3 py-3 w-full text-lg text-neutral-400 font-medium bg-neutral-200"
+                                    className="px-3 py-3 w-full text-lg text-neutral-400 font-medium border-2 border-neutral-400 rounded-xl"
                                 >
                                     <Radio value={option.id}>{option.optionText}</Radio>
                                 </div>
@@ -30,9 +44,9 @@ function SelectOptionsField({ optionsList }) {
                 type="button"
                 onClick={() => {
                     if (isSubmitting) return;
+                    if (selectedOption === 0) return;
                     setIsSubmitting(true);
-
-                    console.log(selectedOption);
+                    submitOption(selectedOption);
                 }}
                 className="w-[95%] py-[10px] mt-3 rounded-3xl bg-purple-500 text-white text-lg font-medium"
             >
