@@ -1,4 +1,5 @@
 import PropTypes from "prop-types";
+import { IoClose } from "react-icons/io5";
 
 function ModalFrame({
     width,
@@ -19,7 +20,7 @@ function ModalFrame({
                 className="mb-1 px-3 py-1 rounded-lg text-md font-bold text-gray-300 hover:text-black hover:bg-gray-200 place-self-end"
                 onClick={() => onClose()}
             >
-                X
+                <IoClose size={25} />
             </button>
         );
     }
