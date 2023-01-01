@@ -139,36 +139,38 @@ function PreviewResultAndEdit({
         });
         if (!noUpdateForm) setValueForOptionList(newOptionsList);
     };
-    const onChangeOptionText = async (optionIndex, listOptions, newText, newIsCorrect) => {
-        console.log("Change option slide", listOptions);
-        const optionId = listOptions[optionIndex]?.id;
-        const finalNewText = newText ?? listOptions[optionIndex]?.optionText;
-        const finalIsCorrect = newIsCorrect ?? listOptions[optionIndex]?.isCorrect;
-        console.log(listOptions, optionId, finalNewText, finalIsCorrect);
+    const onChangeOptionText = async (optionId, newText, newIsCorrect) => {
+        const finalNewText = newText;
+        const finalIsCorrect = newIsCorrect;
+        console.log(optionId, finalNewText, finalIsCorrect);
         updateSavingStatus(true);
-        const newOptionsList = listOptions.flatMap((option, index) => {
-            if (!option) return [];
-            if (option.id === optionId) {
+        setSlideDetailData((curSlideDetailData) => {
+            console.log("curSlideDetailData", curSlideDetailData);
+            const newOptionsList = curSlideDetailData.options.flatMap((option, index) => {
+                if (!option) return [];
+                if (option.id === optionId) {
+                    return [
+                        {
+                            id: optionId,
+                            slideId: id,
+                            optionText: finalNewText ?? "",
+                            isCorrect: finalIsCorrect ?? false,
+                            answerAmount: option.answerAmount
+                        }
+                    ];
+                }
+                if (!form.getFieldValue(optionField)[index]) return [];
+                console.log(Object.values(form.getFieldValue(optionField)[index]));
                 return [
                     {
-                        id: optionId,
-                        slideId: id,
-                        optionText: finalNewText ?? "",
-                        isCorrect: finalIsCorrect ?? false,
-                        answerAmount: option.answerAmount
+                        ...option,
+                        optionText: Object.values(form.getFieldValue(optionField)[index])[0]
                     }
                 ];
-            }
-            if (!form.getFieldValue(optionField)[index]) return [];
-            console.log(Object.values(form.getFieldValue(optionField)[index]));
-            return [
-                {
-                    ...option,
-                    optionText: Object.values(form.getFieldValue(optionField)[index])[0]
-                }
-            ];
+            });
+            return { ...curSlideDetailData, options: newOptionsList };
         });
-        updateSlideDetailAndOptionsForm(newOptionsList, true);
+        // updateSlideDetailAndOptionsForm(newOptionsList, true);
         privateAxios
             .get(`presentation/updateOption`, {
                 params: { optionId, optionText: finalNewText, isCorrect: finalIsCorrect }
@@ -305,8 +307,7 @@ function PreviewResultAndEdit({
                 }
             }
             debounceOptionList[optionIndex](
-                optionIndex,
-                slideDetailData?.options,
+                Object.entries(changedOption)[0][0],
                 Object.entries(changedOption)[0][1]
             );
         } else if (changedField === "type") {
