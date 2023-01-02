@@ -24,7 +24,7 @@ export default function InfiniteScroll({
         });
     };
 
-    const boxRef = useRef();
+    const boxRef = controllerRef ?? useRef();
 
     const observer = useRef();
     const lastData = useCallback(
@@ -53,6 +53,7 @@ export default function InfiniteScroll({
     };
 
     useEffect(() => {
+        console.log(dataSource);
         console.log(boxRef.current.scrollHeight);
         if (reversed) {
             boxRef.current.scrollTo({ left: 0, top: boxRef.current.scrollHeight });
@@ -69,14 +70,14 @@ export default function InfiniteScroll({
             {dataSource.map((childData, index) => {
                 if ((!reversed && dataSource.length - 1 === index) || (reversed && index === 0)) {
                     return (
-                        <div ref={lastData} key={childData}>
+                        <div ref={lastData} key={childData.id ?? index}>
                             {index !== 0 ? dividerRender : null}
                             {itemRender(childData, index)}
                         </div>
                     );
                 }
                 return (
-                    <div key={childData}>
+                    <div key={childData.id ?? index}>
                         {index !== 0 ? dividerRender : null}
                         {itemRender(childData, index)}
                     </div>

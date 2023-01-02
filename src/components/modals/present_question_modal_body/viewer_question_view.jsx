@@ -1,12 +1,13 @@
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable no-unused-vars */
-import { Form, Input } from "antd";
+import { Form } from "antd";
 import PropTypes from "prop-types";
 import { useEffect } from "react";
 import { IoSend } from "react-icons/io5";
 import InfiniteScroll from "../../infinite_scroll";
 
 function ViewerQuestionView({
+    questionBoxController,
     questionList,
     renderSingleQuestion,
     hasMore,
@@ -22,10 +23,11 @@ function ViewerQuestionView({
         console.log(data);
         if (data[fieldName] === "") return;
         onSubmitNewQuestion?.(data[fieldName]);
+        form.setFieldValue(fieldName, "");
     };
 
     useEffect(() => {
-        form.setFieldValue(fieldName, typingText);
+        form.setFieldValue(fieldName, typingText ?? "");
         return () => {
             setTypingText?.(form.getFieldValue(fieldName));
         };
@@ -35,6 +37,7 @@ function ViewerQuestionView({
         return (
             <div className="mt-2 w-full h-[70%] overflow-hidden">
                 <InfiniteScroll
+                    controllerRef={questionBoxController}
                     dataSource={questionList}
                     itemRender={(question) => {
                         return renderSingleQuestion(question);
@@ -64,18 +67,20 @@ function ViewerQuestionView({
             >
                 <Form.Item
                     className="w-[95%] text-sm font-medium text-gray-700 mb-0 mt-2 mr-2"
-                    name="newQuestion"
+                    name={fieldName}
                     help=""
                     validateStatus=""
                 >
-                    <Input
-                        id="newQuestion"
+                    <input
+                        id={fieldName}
+                        name={fieldName}
                         className="shadow-sm
-                                focus:ring-purple-600 focus:border-purple-500
-                                focus:shadow-purple-300 focus:shadow-md
-                                hover:border-purple-400
-                                block w-full sm:text-sm border-gray-300
-                                px-2 py-2 bg-white border rounded-md "
+                            focus:ring-purple-600 focus:border-purple-500
+                            focus:shadow-purple-300
+                            focus:shadow-inner
+                            focus:outline-none hover:border-purple-400
+                            block w-full sm:text-sm border-gray-300
+                            px-2 py-2 bg-white border rounded-md "
                         placeholder="Type and send what you want to ask"
                     />
                 </Form.Item>
@@ -102,6 +107,7 @@ function ViewerQuestionView({
 }
 
 ViewerQuestionView.propTypes = {
+    questionBoxController: PropTypes.any,
     questionList: PropTypes.array,
     renderSingleQuestion: PropTypes.func,
     hasMore: PropTypes.bool,
@@ -111,6 +117,7 @@ ViewerQuestionView.propTypes = {
     onSubmitNewQuestion: PropTypes.func
 };
 ViewerQuestionView.defaultProps = {
+    questionBoxController: null,
     questionList: [],
     renderSingleQuestion: null,
     hasMore: false,

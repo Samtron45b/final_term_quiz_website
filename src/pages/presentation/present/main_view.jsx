@@ -18,11 +18,13 @@ import { ImSpinner10 } from "react-icons/im";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 import SelectOptionsField from "./select_options_field";
 import { SocketContext } from "../../../components/contexts/socket_context";
+import { convertTimeStampToDate } from "../../../utilities";
+import AuthContext from "../../../components/contexts/auth_context";
 
-function PresentationMainView({ slideId, isViewer, nameSpace }) {
+function PresentationMainView({ slideId, isViewer, nameSpace, setParentResultData }) {
+    const { user } = useContext(AuthContext);
     const socket = useContext(SocketContext);
     const [slideDetailData, setSlideDetailData] = useState(null);
-    const [selectedOption, setSelectedOption] = useState(0);
     const [submittedOption, setSubmittedOption] = useState(0);
     const privateAxios = usePrivateAxios();
 
@@ -37,6 +39,16 @@ function PresentationMainView({ slideId, isViewer, nameSpace }) {
                 .then((response) => {
                     console.log(response);
                     setSlideDetailData({ ...response?.data });
+                    const length = response?.data?.options?.length ?? 0;
+                    if (isViewer) {
+                        for (let i = 0; i < length; i += 1) {
+                            const option = response?.data?.options?.[i];
+                            if (option?.userAnswer?.user === user.username) {
+                                setSubmittedOption(option.id);
+                                break;
+                            }
+                        }
+                    }
                     return response;
                 })
                 .catch((error) => {
@@ -49,13 +61,40 @@ function PresentationMainView({ slideId, isViewer, nameSpace }) {
 
     useEffect(() => {
         slideQueryRefetch();
+        setSubmittedOption(0);
     }, [slideId]);
 
     const handleNewResultEvent = useCallback((resultObject) => {
-        console.log(resultObject);
+        console.log("new result", resultObject);
+        const { optionId, optionText, question, timeAnswered, user: userAnswer } = resultObject;
+        if (userAnswer === user.username) {
+            setSubmittedOption(optionId);
+        }
+        setSlideDetailData((currentSlideDeatilData) => {
+            const newOptions = currentSlideDeatilData?.options?.map((option) => {
+                if (option.id === optionId) {
+                    return { ...option, answerAmount: option.answerAmount + 1 };
+                }
+                return { ...option };
+            });
+            return { ...currentSlideDeatilData, options: newOptions };
+        });
+        if (!isViewer) {
+            setParentResultData((currentResultData) => {
+                return currentResultData.concat([
+                    `${userAnswer} choosed option "${optionText}" for question "${question}" at "${convertTimeStampToDate(
+                        {
+                            date: new Date(timeAnswered),
+                            showTime: true
+                        }
+                    )}"`
+                ]);
+            });
+        }
     }, []);
 
     useEffect(() => {
+        console.log("nameSpace", nameSpace);
         socket.on(`${nameSpace}newResult`, handleNewResultEvent);
         return () => {
             socket.off(`${nameSpace}newResult`, handleNewResultEvent);
@@ -82,7 +121,8 @@ function PresentationMainView({ slideId, isViewer, nameSpace }) {
         const chosenOption = (slideDetailData?.options ?? []).find(
             (option) => option.id === submittedOption
         );
-        return chosenOption?.optiontext;
+        console.log("chosenOption", chosenOption);
+        return chosenOption?.optionText;
     };
     const renderAfterSubmitOptionField = () => {
         return (
@@ -135,7 +175,7 @@ function PresentationMainView({ slideId, isViewer, nameSpace }) {
                         data={slideDetailData?.options ?? []}
                         margin={{ top: 30 }}
                     >
-                        <XAxis dataKey="optionText" tick={{ fill: "rgb(163 163 163)" }} />
+                        <XAxis dataKey="optionText" tick={{ fill: "rgb(115 115 115)" }} />
                         <Bar dataKey="answerAmount" fill="#8884d8">
                             <LabelList dataKey="answerAmount" content={renderCustomizedLabel} />
                         </Bar>
@@ -153,12 +193,14 @@ function PresentationMainView({ slideId, isViewer, nameSpace }) {
 PresentationMainView.propTypes = {
     slideId: PropTypes.number,
     isViewer: PropTypes.bool,
-    nameSpace: PropTypes.string
+    nameSpace: PropTypes.string,
+    setParentResultData: PropTypes.func
 };
 PresentationMainView.defaultProps = {
     slideId: 0,
     isViewer: true,
-    nameSpace: ""
+    nameSpace: "",
+    setParentResultData: null
 };
 
 export default PresentationMainView;

@@ -1,22 +1,18 @@
 /* eslint-disable no-unused-vars */
 import PropTypes from "prop-types";
+import { convertTimeStampToDate } from "../../utilities";
 import InfiniteScroll from "../infinite_scroll";
 
-function PresentResultModalBody({
-    presentationId,
-    presentationName,
-    resultList,
-    hasMore,
-    loadMoreResult
-}) {
-    const renderListResults = () => {
-        return resultList.map((result) => {
-            return <p className="p-2 text-md font-medium text-neutral-500">{result}</p>;
-        });
-    };
-
+function PresentResultModalBody({ presentationName, resultList, hasMore, loadMoreResult }) {
     const itemRender = (childData) => {
-        return <p className="p-2 text-md font-medium text-neutral-500">{childData}</p>;
+        const { user: userAnswer, optionText, question, timeAnswered } = childData;
+        const renderString = `${userAnswer} choosed option "${optionText}" for question "${question}" at "${convertTimeStampToDate(
+            {
+                date: new Date(timeAnswered),
+                showTime: true
+            }
+        )}"`;
+        return <p className="p-2 text-md font-medium text-neutral-500">{renderString}</p>;
     };
 
     return (
@@ -26,8 +22,9 @@ function PresentResultModalBody({
             </p>
             <div className="h-full mt-1 p-2 overflow-auto border-2 border-neutral-400 rounded-md shadow-inner shadow-neutral-300">
                 <InfiniteScroll
-                    dataSource={resultList}
+                    dataSource={resultList.concat([]).reverse()}
                     itemRender={itemRender}
+                    dividerRender={<div className="w-full h-[1.5px] bg-neutral-400" />}
                     hasMore={hasMore}
                     loadMore={loadMoreResult}
                 />
@@ -37,7 +34,6 @@ function PresentResultModalBody({
 }
 
 PresentResultModalBody.propTypes = {
-    presentationId: PropTypes.number.isRequired,
     presentationName: PropTypes.string,
     // eslint-disable-next-line react/forbid-prop-types
     resultList: PropTypes.array,

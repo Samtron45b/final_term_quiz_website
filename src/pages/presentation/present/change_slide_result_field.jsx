@@ -1,8 +1,15 @@
 import PropTypes from "prop-types";
 import { AiOutlineArrowLeft, AiOutlineArrowRight } from "react-icons/ai";
 import { GiChoice } from "react-icons/gi";
+import { CgCloseR } from "react-icons/cg";
 
-function ChangeSlideResultField({ canMoveLeft, canMoveRight, onSlideChanged, onResultBtnClick }) {
+function ChangeSlideResultField({
+    canMoveLeft,
+    canMoveRight,
+    onSlideChanged,
+    onResultBtnClick,
+    onCloseBtnClick
+}) {
     const iconSize = 20;
     const arrowActiveClassName = "text-neutral-200 hover:text-white";
     return (
@@ -12,7 +19,7 @@ function ChangeSlideResultField({ canMoveLeft, canMoveRight, onSlideChanged, onR
         >
             <button
                 type="button"
-                onClick={() => onSlideChanged(-1)}
+                onClick={() => (canMoveLeft ? onSlideChanged(-1) : null)}
                 className="text-white bg-transparent hover:bg-neutral-200/[15%] font-medium rounded-full text-sm p-2 text-center inline-flex items-center"
             >
                 <AiOutlineArrowLeft
@@ -22,7 +29,7 @@ function ChangeSlideResultField({ canMoveLeft, canMoveRight, onSlideChanged, onR
             </button>
             <button
                 type="button"
-                onClick={() => onSlideChanged(1)}
+                onClick={() => (canMoveRight ? onSlideChanged(1) : null)}
                 className="text-white bg-transparent hover:bg-neutral-200/[15%] font-medium rounded-full text-sm p-2 text-center inline-flex items-center"
             >
                 <AiOutlineArrowRight
@@ -37,6 +44,13 @@ function ChangeSlideResultField({ canMoveLeft, canMoveRight, onSlideChanged, onR
             >
                 <GiChoice size={iconSize} className="text-white" />
             </button>
+            <button
+                type="button"
+                onClick={() => onCloseBtnClick()}
+                className="ml-3 text-red-500 bg-transparent hover:bg-neutral-200/[15%] font-medium rounded-full text-sm p-2 text-center inline-flex items-center"
+            >
+                <CgCloseR size={iconSize} className="text-red-500" />
+            </button>
         </div>
     );
 }
@@ -45,13 +59,15 @@ ChangeSlideResultField.propTypes = {
     canMoveLeft: PropTypes.bool,
     canMoveRight: PropTypes.bool,
     onSlideChanged: PropTypes.func,
-    onResultBtnClick: PropTypes.func
+    onResultBtnClick: PropTypes.func,
+    onCloseBtnClick: PropTypes.func
 };
 ChangeSlideResultField.defaultProps = {
     canMoveLeft: false,
     canMoveRight: false,
     onSlideChanged: null,
-    onResultBtnClick: null
+    onResultBtnClick: null,
+    onCloseBtnClick: null
 };
 
 export default ChangeSlideResultField;

@@ -1,9 +1,14 @@
+/* eslint-disable react/forbid-prop-types */
 import PropTypes from "prop-types";
 import { RiQuestionnaireFill } from "react-icons/ri";
 import ChatField from "./chat_field";
 
 function QuestionChatBtn({
     presentationId,
+    chatBoxController,
+    willScrollChatToBottom,
+    setWillScrollChatToBottom,
+    newMessageAmount,
     chatList,
     hasMoreChat,
     typingText,
@@ -27,6 +32,10 @@ function QuestionChatBtn({
             </button>
             <ChatField
                 presentationId={presentationId}
+                chatBoxController={chatBoxController}
+                willScrollChatToBottom={willScrollChatToBottom}
+                setWillScrollChatToBottom={setWillScrollChatToBottom}
+                newMessageAmount={newMessageAmount}
                 iconSize={iconSize}
                 chatList={chatList}
                 hasMoreChat={hasMoreChat}
@@ -41,23 +50,30 @@ function QuestionChatBtn({
 
 QuestionChatBtn.propTypes = {
     presentationId: PropTypes.number,
-    // eslint-disable-next-line react/forbid-prop-types
+    chatBoxController: PropTypes.any,
+    willScrollChatToBottom: PropTypes.bool,
+    newMessageAmount: PropTypes.number,
     chatList: PropTypes.array,
     hasMoreChat: PropTypes.bool,
     typingText: PropTypes.string,
     loadMoreChat: PropTypes.func,
     setTypingText: PropTypes.func,
     onSubmitNewChat: PropTypes.func,
+    setWillScrollChatToBottom: PropTypes.func,
     onQuestionBtnClick: PropTypes.func
 };
 QuestionChatBtn.defaultProps = {
     presentationId: 0,
+    chatBoxController: null,
+    willScrollChatToBottom: false,
+    newMessageAmount: 0,
     chatList: [],
     hasMoreChat: false,
     typingText: "",
     loadMoreChat: null,
     setTypingText: null,
     onSubmitNewChat: null,
+    setWillScrollChatToBottom: null,
     onQuestionBtnClick: null
 };
 

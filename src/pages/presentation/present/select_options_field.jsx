@@ -5,25 +5,29 @@ import { useState } from "react";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 
 function SelectOptionsField({ optionsList }) {
-    const [selectedOption, setSelectedOption] = useState(0);
+    const [selectedOption, setSelectedOption] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const privateAxios = usePrivateAxios();
 
-    const submitOption = async (optionId) => {
+    const submitOption = async () => {
+        console.log("optionId", selectedOption?.target.value);
         privateAxios
-            .get(`session/option/choose?optionId=${optionId}`)
+            .get(`session/option/choose?optionId=${selectedOption?.target.value}`)
             .then((response) => {
                 console.log("submit choice result:", response);
             })
             .catch((error) => {
                 console.log("error on submit chocie", error);
+            })
+            .finally(() => {
+                setIsSubmitting(false);
             });
     };
 
     return (
         <>
-            <div className="px-2 py-3 w-[95%] h-[80%] overflow-x-hidden overflow-y-auto break-words rounded-md shadow-lg bg-white">
+            <div className="px-2 py-3 w-[95%] h-[80%] overflow-x-hidden overflow-y-auto break-words rounded-md shadow-lg shadow-purple-300 bg-white">
                 <p className="font-bold text-lg mb-1">Select your option</p>
                 <Radio.Group className="w-full" onChange={(option) => setSelectedOption(option)}>
                     <Space direction="vertical" className="w-full">
@@ -44,9 +48,9 @@ function SelectOptionsField({ optionsList }) {
                 type="button"
                 onClick={() => {
                     if (isSubmitting) return;
-                    if (selectedOption === 0) return;
+                    if (selectedOption === null) return;
                     setIsSubmitting(true);
-                    submitOption(selectedOption);
+                    submitOption();
                 }}
                 className="w-[95%] py-[10px] mt-3 rounded-3xl bg-purple-500 text-white text-lg font-medium"
             >

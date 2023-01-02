@@ -1,6 +1,6 @@
 /* eslint-disable react/forbid-prop-types */
 /* eslint-disable no-unused-vars */
-import { Form, Input } from "antd";
+import { Form } from "antd";
 import PropTypes from "prop-types";
 import { useContext, useEffect } from "react";
 import { IoSend } from "react-icons/io5";
@@ -9,7 +9,16 @@ import InfiniteScroll from "../../../../components/infinite_scroll";
 import usePrivateAxios from "../../../../configs/networks/usePrivateAxios";
 import { convertTimeStampToDate } from "../../../../utilities";
 
-function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, setTypingText }) {
+function ChatBox({
+    presentationId,
+    chatBoxController,
+    newMessageAmount,
+    chatList,
+    hasMore,
+    typingText,
+    loadMoreChat,
+    setTypingText
+}) {
     const { user } = useContext(AuthContext);
     const privateAxios = usePrivateAxios();
     const [form] = Form.useForm();
@@ -18,7 +27,10 @@ function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, 
     const onSubmitNewChat = (commentText) => {
         privateAxios
             .get(`session/comment/add?`, { params: { presentationId, commentText, type: 0 } })
-            .then((response) => console.log(response))
+            .then((response) => {
+                console.log(response);
+                form.setFieldValue(fieldName, "");
+            })
             .catch((error) => console.log(error));
     };
 
@@ -49,12 +61,16 @@ function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, 
                     isSeflChat ? "justify-end" : "justify-start"
                 }`}
             >
-                <div className="w-[80%] flex flex-col break-words">
-                    <p className="text-sm text-neutral-300 w-full break-words">
+                <div
+                    className={`max-w-[80%] flex flex-col break-words ${
+                        isSeflChat ? "items-end text-end" : "items-start text-start"
+                    }`}
+                >
+                    <p className="text-sm text-neutral-400 w-full break-words">
                         {renderQuestionSenderAndTime(chatItem.user, chatItem.time)}
                     </p>
                     <p
-                        className={`px-2 py-1 mt-1 text-md w-full break-words rounded-xl ${
+                        className={`px-2 py-1 mt-1 text-md max-w-full w-min break-words rounded-xl ${
                             isSeflChat
                                 ? "text-white bg-purple-500"
                                 : "text-neutral-600 bg-neutral-300"
@@ -69,13 +85,19 @@ function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, 
 
     const renderchatList = () => {
         return (
-            <div className="mt-2 w-full h-[87%] overflow-hidden">
+            <div className="relative w-full h-[87%] overflow-hidden">
+                <div
+                    className={`absolute top-0 right-0 left-0 ${
+                        newMessageAmount > 0 ? "flex" : "hidden"
+                    } justify-center items-center text-[12px] text-white bg-purple-300`}
+                >{`${newMessageAmount <= 9 ? newMessageAmount : "9+"} new messages`}</div>
                 <InfiniteScroll
+                    controllerRef={chatBoxController}
                     dataSource={chatList}
                     itemRender={(question) => {
                         return renderSingleChatItem(question);
                     }}
-                    dividerRender={<div className="w-full h-[2px] bg-neutral-500" />}
+                    reversed
                     hasMore={hasMore}
                     loadMore={loadMoreChat}
                 />
@@ -90,29 +112,34 @@ function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, 
                     margin-right: 0px;
                 }
             `}</style>
+            <div className="w-full px-2 py-2 rounded-t-lg text-white font-bold bg-purple-400">
+                Chat box
+            </div>
             {renderchatList()}
             <div className="w-full mb-1 h-[1px] bg-neutral-400" />
             <Form
                 form={form}
                 layout="horizontal"
-                className="w-full h-[10%] flex flex-row"
+                className="w-full h-[12%] flex flex-row px-2"
                 onFinish={onFinish}
             >
                 <Form.Item
                     className="w-[95%] text-sm font-medium text-gray-700 mb-0 mt-2 mr-2"
-                    name="newQuestion"
+                    name={fieldName}
                     help=""
                     validateStatus=""
                 >
-                    <Input
-                        id="newQuestion"
-                        className="shadow-sm
-                                focus:ring-purple-600 focus:border-purple-500
-                                focus:shadow-purple-300 focus:shadow-md
-                                hover:border-purple-400
-                                block w-full sm:text-sm border-gray-300
-                                px-2 py-2 bg-white border rounded-md "
-                        placeholder="Type and send what you want to ask"
+                    <input
+                        id={fieldName}
+                        name={fieldName}
+                        className="
+                            focus:ring-purple-600 focus:border-purple-500
+                            focus:shadow-purple-300
+                            focus:shadow-inner
+                            focus:outline-none hover:border-purple-400
+                            block w-full sm:text-sm border-gray-300
+                            px-2 py-2 bg-white border rounded-md "
+                        placeholder="Chat with other participants"
                     />
                 </Form.Item>
                 <Form.Item
@@ -125,7 +152,7 @@ function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, 
                         type="submit"
                         data-mdb-ripple="true"
                         data-mdb-ripple-color="light"
-                        className="pl-6 pr-5 py-2 flex  mt-[10px] border-0 border-transparent
+                        className="pl-6 pr-5 py-2 flex  mt-[9px] border-0 border-transparent
                         shadow-sm text-sm font-medium rounded-md text-white bg-purple-600
                         hover:bg-purple-400 focus:outline-none focus:bg-purple-700"
                     >
@@ -139,6 +166,8 @@ function ChatBox({ presentationId, chatList, hasMore, typingText, loadMoreChat, 
 
 ChatBox.propTypes = {
     presentationId: PropTypes.number,
+    chatBoxController: PropTypes.any,
+    newMessageAmount: PropTypes.number,
     chatList: PropTypes.array,
     hasMore: PropTypes.bool,
     typingText: PropTypes.string,
@@ -147,6 +176,8 @@ ChatBox.propTypes = {
 };
 ChatBox.defaultProps = {
     presentationId: 0,
+    chatBoxController: null,
+    newMessageAmount: 0,
     chatList: [],
     hasMore: false,
     typingText: "",

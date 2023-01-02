@@ -1,3 +1,4 @@
+/* eslint-disable react/forbid-prop-types */
 /* eslint-disable no-unused-vars */
 import { Select } from "antd";
 import PropTypes from "prop-types";
@@ -13,6 +14,7 @@ function PresentQuestionModalBody({
     isPresenter,
     presentationId,
     presentationName,
+    questionBoxController,
     questionList,
     sortBy,
     hasMore,
@@ -28,15 +30,17 @@ function PresentQuestionModalBody({
     const onStatusBtnClick = (questionId, unAnswered) => {
         if (!isPresenter) return;
         privateAxios
-            .get(`session/comment/anwser?commentId=${questionId}&answerText=a`)
+            .get(
+                `session/comment/answer?commentId=${questionId}&answerText=${unAnswered ? "a" : ""}`
+            )
             .then((response) => console.log(response))
             .catch((error) => console.log(error));
     };
 
-    const onVoteBtnClick = (questionId, unAnswered) => {
-        if (!isPresenter) return;
+    const onVoteBtnClick = (questionId, votedByUser) => {
+        if (isPresenter) return;
         privateAxios
-            .get(`session/comment/${unAnswered ? "upvote" : "unvote"}?commentId=${questionId}`)
+            .get(`session/comment/${votedByUser ? "unvote" : "upvote"}?commentId=${questionId}`)
             .then((response) => console.log(response))
             .catch((error) => console.log(error));
     };
@@ -57,7 +61,7 @@ function PresentQuestionModalBody({
     const renderStatusBtn = (questionId, unAnswered) => {
         let questionStatusText = "Mark as answered";
         if (unAnswered && !isPresenter) {
-            questionStatusText = "UnAnswered";
+            questionStatusText = "Un-answered";
         } else if (!unAnswered) {
             questionStatusText = "Answered";
         }
@@ -79,7 +83,7 @@ function PresentQuestionModalBody({
         );
     };
 
-    const renderVoteField = (voteAmount, votedByUser) => {
+    const renderVoteField = (questionId, voteAmount, votedByUser) => {
         if (isPresenter) {
             return (
                 <div className="mt-2 flex flex-row w-full justify-center">
@@ -94,11 +98,11 @@ function PresentQuestionModalBody({
                     className={`flex justify-center items-center cursor-pointer w-12 h-12 rounded-full ${
                         votedByUser ? "bg-purple-500 text-white" : "bg-neutral-200 text-neutral-500"
                     }`}
-                    onClick={() => onVoteBtnClick(!votedByUser)}
+                    onClick={() => onVoteBtnClick(questionId, votedByUser)}
                 >
                     <FaThumbsUp size={25} />
                 </button>
-                <p className="w-full text-center text-sm text-neutral-400">{voteAmount}</p>
+                <p className="mt-1 w-full text-center text-sm text-neutral-400">{voteAmount}</p>
             </div>
         );
     };
@@ -122,8 +126,8 @@ function PresentQuestionModalBody({
                         isPresenter ? "w-[30%]" : "w-[20%] mr-2"
                     } flex flex-col break-words`}
                 >
-                    {renderStatusBtn(question.id, question.answerText === "")}
-                    {renderVoteField(question.vote, true)}
+                    {renderStatusBtn(question.id, !question.answerText)}
+                    {renderVoteField(question.id, question.voteAmount, question.isUpvoted)}
                 </div>
             </div>
         );
@@ -136,15 +140,18 @@ function PresentQuestionModalBody({
         if (sortBy === 0) {
             questionListToRender.sort((question1, question2) => question2.time - question1.time);
         } else if (sortBy === 1) {
-            questionListToRender.sort((question1, question2) => question2.vote - question1.vote);
+            questionListToRender.sort(
+                (question1, question2) => question2.voteAmount - question1.voteAmount
+            );
         }
         if (isPresenter || sortBy === 2 || sortBy === 3) {
             unAnsweredList = questionListToRender.filter((question) => {
-                return question.answerText === "";
+                return !question.answerText;
             });
             answeredList = questionListToRender.filter((question) => {
-                return question.answerText !== "";
+                return question.answerText;
             });
+            console.log("answeredList", answeredList);
             if (sortBy === 2) {
                 questionListToRender = unAnsweredList.concat(answeredList);
             } else if (sortBy === 3) {
@@ -165,12 +172,14 @@ function PresentQuestionModalBody({
         }
         return (
             <ViewerQuestionView
+                questionBoxController={questionBoxController}
                 questionList={questionListToRender}
                 hasMore={hasMore}
                 typingText={typingText}
                 loadMoreQuestion={loadMore}
                 renderSingleQuestion={renderSingleQuestion}
                 setTypingText={setTypingText}
+                onSubmitNewQuestion={onSubmitQuestion}
             />
         );
     };
@@ -211,7 +220,7 @@ PresentQuestionModalBody.propTypes = {
     isPresenter: PropTypes.bool,
     presentationId: PropTypes.number.isRequired,
     presentationName: PropTypes.string,
-    // eslint-disable-next-line react/forbid-prop-types
+    questionBoxController: PropTypes.any,
     questionList: PropTypes.array,
     sortBy: PropTypes.number,
     hasMore: PropTypes.bool,
@@ -224,6 +233,7 @@ PresentQuestionModalBody.propTypes = {
 PresentQuestionModalBody.defaultProps = {
     isPresenter: false,
     presentationName: "",
+    questionBoxController: null,
     questionList: [],
     sortBy: 0,
     hasMore: false,

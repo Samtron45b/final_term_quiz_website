@@ -1,5 +1,5 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useCallback, useContext, useEffect, useState } from "react";
 import { RiUserAddFill } from "react-icons/ri";
 import { MdGroupOff } from "react-icons/md";
 import { ImSpinner10 } from "react-icons/im";
@@ -12,10 +12,12 @@ import ChangeMemberRoleModalBody from "../../components/modals/change_member_rol
 import RemoveModalBody from "../../components/modals/remove_modal_body";
 import AuthContext from "../../components/contexts/auth_context";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
+import { SocketContext } from "../../components/contexts/socket_context";
 
 function GroupDetailPage() {
     const { groupId } = useParams();
     const { user } = useContext(AuthContext);
+    const socket = useContext(SocketContext);
     const [isGetGroupError, setIsGetGroupError] = useState(false);
     const [groupDetailData, setGroupDetailData] = useState(null);
     const [showModal, setShowModal] = useState(false);
@@ -52,6 +54,38 @@ function GroupDetailPage() {
             setIsGetGroupError(false);
         };
     }, [groupId]);
+
+    const handleOnNewSession = useCallback((newSession) => {
+        console.log("new session begun", newSession);
+        setGroupDetailData((curGroupDetailData) => {
+            return { ...curGroupDetailData, currentSession: { ...newSession } };
+        });
+    }, []);
+
+    const handleOnEndSession = useCallback(() => {
+        console.log("session ended");
+        setGroupDetailData((curGroupDetailData) => {
+            console.log("group data at end session", curGroupDetailData);
+            return { ...curGroupDetailData, currentSession: null };
+        });
+    }, []);
+
+    useEffect(() => {
+        if (groupDetailData) {
+            socket.on("newSession", handleOnNewSession);
+            socket.on(
+                `/presentation/${groupDetailData?.currentSession?.presentationId}/endSession`,
+                handleOnEndSession
+            );
+        }
+        return () => {
+            socket.off("newSession", handleOnNewSession);
+            socket.off(
+                `/presentation/${groupDetailData?.currentSession?.presentationId}/endSession`,
+                handleOnEndSession
+            );
+        };
+    }, [groupDetailData, handleOnEndSession, handleOnEndSession]);
 
     let userRole = 0;
 
@@ -176,6 +210,27 @@ function GroupDetailPage() {
         );
     }
 
+    const renderPresentationPresentNotiField = () => {
+        if (groupDetailData?.currentSession) {
+            console.log("group presenting session", groupDetailData?.currentSession);
+            return (
+                <div className="w-4/5 mt-3 ml-[10%]  p-2 rounded-lg text-white bg-purple-400">
+                    <p className="text-xl font-bold">Presenting presentation</p>
+                    <p className="text-md font-normal w-full overflow-x-hidden break-words">
+                        There is a presentation being presented in this group, click
+                        <Link
+                            to={`../presentation/${groupDetailData?.currentSession?.presentationId}/present/${groupDetailData?.currentSession?.id}`}
+                            className="ml-1 underline decoration-2 font-bold"
+                        >
+                            join now
+                        </Link>
+                    </p>
+                </div>
+            );
+        }
+        return null;
+    };
+
     if (isMemberListQueryFetching) {
         return (
             <div className="flex h-full justify-center ">
@@ -187,7 +242,7 @@ function GroupDetailPage() {
     return (
         <>
             <MainHeader />
-            <div className="h-[90%]">
+            <div className="h-[90%] overflow-auto">
                 <div className="flex justify-center items-center w-full mt-5">
                     <h1
                         className={`${
@@ -199,6 +254,7 @@ function GroupDetailPage() {
                             : `Group ${groupDetailData?.name}`}
                     </h1>
                 </div>
+                {renderPresentationPresentNotiField()}
                 <div className="content_box w-4/5 ml-[10%] items-top mt-5">{renderGroupMems()}</div>
             </div>
             <ModalFrame
