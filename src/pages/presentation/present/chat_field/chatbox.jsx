@@ -14,7 +14,7 @@ function ChatBox({
     chatBoxController,
     newMessageAmount,
     chatList,
-    hasMore,
+    hasMoreChat,
     typingText,
     loadMoreChat,
     setTypingText
@@ -98,7 +98,7 @@ function ChatBox({
                         return renderSingleChatItem(question);
                     }}
                     reversed
-                    hasMore={hasMore}
+                    hasMore={hasMoreChat}
                     loadMore={loadMoreChat}
                 />
             </div>
@@ -169,7 +169,7 @@ ChatBox.propTypes = {
     chatBoxController: PropTypes.any,
     newMessageAmount: PropTypes.number,
     chatList: PropTypes.array,
-    hasMore: PropTypes.bool,
+    hasMoreChat: PropTypes.bool,
     typingText: PropTypes.string,
     loadMoreChat: PropTypes.func,
     setTypingText: PropTypes.func
@@ -179,7 +179,7 @@ ChatBox.defaultProps = {
     chatBoxController: null,
     newMessageAmount: 0,
     chatList: [],
-    hasMore: false,
+    hasMoreChat: false,
     typingText: "",
     loadMoreChat: null,
     setTypingText: null

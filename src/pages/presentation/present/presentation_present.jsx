@@ -26,7 +26,8 @@ function PresentationPresentPage() {
     const [resultData, setResultData] = useState([]);
     const [questionData, setQuestionData] = useState([]);
     const [chatData, setChatData] = useState([]);
-    const [chatPage, setChatPage] = useState(1);
+    const [chatDataWithPagination, setChatDataWithPagination] = useState([]);
+    const [chatPage, setChatPage] = useState(0);
     const [showResultModal, setShowResultModal] = useState(false);
     const [showQuestionModal, setShowQuestionModal] = useState(false);
     const [showEndConfirmModal, setShowEndConfirmModal] = useState(false);
@@ -44,6 +45,7 @@ function PresentationPresentPage() {
     const chatBoxController = useRef();
     const isChatBoxAtBottom = useRef(true);
 
+    const pageLength = 10;
     const namespace = `/presentation/${presentationId}/`;
 
     console.log("update on scroll", isChatBoxAtBottom);
@@ -126,18 +128,6 @@ function PresentationPresentPage() {
         }
     });
 
-    const getListCommentByIds = async (type) => {
-        privateAxios
-            .get(`session/comment/data?id=${16}&id=${15}&id=${14}&id=${13}&id=${12}`)
-            .then((response) => {
-                console.log("list comment by ids", response);
-            })
-            .catch((error) => {
-                console.log("get list comments by ids error");
-                console.log(error);
-            });
-    };
-
     const { refetch: commentQueryRefetch } = useQuery({
         queryKey: ["get_presentation_comment_data"],
         enabled: false,
@@ -148,7 +138,11 @@ function PresentationPresentPage() {
                     console.log("Comment data", response);
                     const commentData = (response?.data ?? []).concat([]);
                     setQuestionData(commentData.filter((comment) => comment.type === 1));
-                    setChatData(commentData.filter((comment) => comment.type === 0));
+                    const chatList = commentData.filter((comment) => comment.type === 0);
+                    setChatData(chatList.concat([]));
+                    if (chatList.length > 0) {
+                        setChatPage((curChatPage) => curChatPage + 1);
+                    }
                     setIsGetPresentationError(false);
                     return response;
                 })
@@ -191,9 +185,11 @@ function PresentationPresentPage() {
                         setRoleInThisSession(2);
                     }
                     if (callPresentationApi) {
-                        presentationQueryRefetch();
-                        resulQueryRefetch();
-                        commentQueryRefetch();
+                        await Promise.all([
+                            presentationQueryRefetch(),
+                            resulQueryRefetch(),
+                            commentQueryRefetch()
+                        ]);
                     }
                     setSessionData({ ...session });
                     setIsGetSessionError(false);
@@ -252,7 +248,8 @@ function PresentationPresentPage() {
         setResultData([]);
         setQuestionData([]);
         setChatData([]);
-        setChatPage(1);
+        setChatDataWithPagination([]);
+        setChatPage(0);
         setShowResultModal(false);
         setShowQuestionModal(false);
         setShowEndConfirmModal(false);
@@ -280,6 +277,48 @@ function PresentationPresentPage() {
             cleanUpSessionData();
         };
     }, [sessionId]);
+
+    // handle load more
+    const getListCommentByIds = async (type) => {
+        const idSource = type === 0 ? chatData.concat([]) : questionData.concat([]);
+        let startIndex = idSource.length - (type === 0 ? chatPage : 0) * pageLength;
+        const endIndex = startIndex + pageLength - 1;
+        if (startIndex < 0) startIndex = 0;
+        let listIdsString = "";
+        for (let i = startIndex; i <= endIndex; i += 1) {
+            listIdsString += `id=${idSource[i].id}`;
+            if (i < endIndex) {
+                listIdsString += "&";
+            }
+        }
+        console.log("list ids", listIdsString);
+        privateAxios
+            .get(`session/comment/data?${listIdsString}`)
+            .then((response) => {
+                console.log("list comment by ids", response);
+                if (type === 0) {
+                    setChatDataWithPagination((curChatDataWithPagination) => {
+                        return (response?.data ?? []).concat(curChatDataWithPagination);
+                    });
+                }
+                return response;
+            })
+            .catch((error) => {
+                console.log("get list comments by ids error");
+                console.log(error);
+            });
+    };
+
+    const onLoadMoreChat = async () => {
+        setChatPage((curChatPage) => curChatPage + 1);
+    };
+
+    useEffect(() => {
+        if (chatData.length > 0 || chatPage > 0) {
+            console.log("run herer");
+            getListCommentByIds(0);
+        }
+    }, [chatData, chatPage]);
 
     // socket event handlers
     const getEventName = (eventName) => {
@@ -448,7 +487,9 @@ function PresentationPresentPage() {
                     willScrollChatToBottom={willScrollChatToBottom}
                     setWillScrollChatToBottom={setWillScrollChatToBottom}
                     newMessageAmount={newMessageAmount}
-                    chatList={chatData}
+                    chatList={chatDataWithPagination}
+                    hasMoreChat={chatData.length > chatPage * pageLength}
+                    loadMoreChat={async () => onLoadMoreChat()}
                     typingText={typingChat}
                     setTypingText={setTypingChat}
                     onQuestionBtnClick={() => setShowQuestionModal(true)}

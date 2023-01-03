@@ -12,7 +12,7 @@ function ChatField({
     newMessageAmount,
     iconSize,
     chatList,
-    hasMore,
+    hasMoreChat,
     typingText,
     loadMoreChat,
     setTypingText,
@@ -72,7 +72,7 @@ function ChatField({
                     chatBoxController={chatBoxController}
                     newMessageAmount={newMessageAmount}
                     chatList={chatList}
-                    hasMore={hasMore}
+                    hasMoreChat={hasMoreChat}
                     typingText={typingText}
                     loadMoreChat={loadMoreChat}
                     setTypingText={setTypingText}
@@ -90,7 +90,7 @@ ChatField.propTypes = {
     newMessageAmount: PropTypes.number,
     iconSize: PropTypes.number,
     chatList: PropTypes.array,
-    hasMore: PropTypes.bool,
+    hasMoreChat: PropTypes.bool,
     typingText: PropTypes.string,
     loadMoreChat: PropTypes.func,
     setTypingText: PropTypes.func,
@@ -104,7 +104,7 @@ ChatField.defaultProps = {
     newMessageAmount: 0,
     iconSize: 16,
     chatList: [],
-    hasMore: false,
+    hasMoreChat: false,
     typingText: "",
     loadMoreChat: null,
     setTypingText: null,
