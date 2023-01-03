@@ -34,8 +34,18 @@ const useFetch = (url) => {
                     username: decode.name,
                     avatar: decode.avatar
                         ? decode.avatar
-                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg"
+                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+                    email: decode.email
                 });
+                const userData = {
+                    displayName: decode.displayName,
+                    username: decode.name,
+                    avatar: decode.avatar
+                        ? decode.avatar
+                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
+                    email: decode.email
+                };
+                localStorage.setItem("userData", JSON.stringify(userData));
                 navigate("/", { replace: true });
                 setError(null);
                 setLoading(false);
