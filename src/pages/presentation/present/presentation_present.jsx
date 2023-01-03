@@ -26,7 +26,6 @@ function PresentationPresentPage() {
     const [resultData, setResultData] = useState([]);
     const [questionData, setQuestionData] = useState([]);
     const [chatData, setChatData] = useState([]);
-    // const [isChatBoxAtBottom, setIsChatBoxAtBottom] = useState(true);
     const [chatPage, setChatPage] = useState(1);
     const [showResultModal, setShowResultModal] = useState(false);
     const [showQuestionModal, setShowQuestionModal] = useState(false);
@@ -53,16 +52,6 @@ function PresentationPresentPage() {
     const handleOnChatBoxScroll = (chatbox) => {
         const { scrollHeight, scrollTop, clientHeight } = chatbox;
         const totalScrollTopnClientHeight = Math.ceil(scrollTop + clientHeight);
-        // setIsChatBoxAtBottom((curIsChatBoxAtBottom) => {
-        //     if (totalScrollTopnClientHeight < scrollHeight && curIsChatBoxAtBottom) {
-        //         return false;
-        //     }
-        //     if (totalScrollTopnClientHeight >= scrollHeight && !curIsChatBoxAtBottom) {
-        //         setNewMessageAmount(0);
-        //         return true;
-        //     }
-        //     return curIsChatBoxAtBottom;
-        // });
         if (totalScrollTopnClientHeight < scrollHeight && isChatBoxAtBottom.current) {
             isChatBoxAtBottom.current = false;
         }
@@ -80,7 +69,6 @@ function PresentationPresentPage() {
             const totalScrollTopClientHeight = Math.ceil(scrollTop + clientHeight);
             if (scrollHeight > 0) {
                 isChatBoxAtBottom.current = totalScrollTopClientHeight === scrollHeight;
-                // setIsChatBoxAtBottom(totalScrollTopClientHeight === scrollHeight);
             }
             chatBoxController.current.addEventListener("scroll", (event) => {
                 handleOnChatBoxScroll(event.target);
@@ -327,26 +315,8 @@ function PresentationPresentPage() {
             if (isChatBoxAtBottom.current) {
                 setWillScrollChatToBottom(true);
             }
-            // setIsChatBoxAtBottom((curIsChatBoxAtBottom) => {
-            //     if (curIsChatBoxAtBottom) {
-            //         setWillScrollChatToBottom(true);
-            //     }
-            //     return curIsChatBoxAtBottom;
-            // });
         } else if (isChatBoxAtBottom.current) {
             setWillScrollChatToBottom(true);
-            // setIsChatBoxAtBottom((curIsChatBoxAtBottom) => {
-            //     const isAtBottom = !!curIsChatBoxAtBottom;
-            //     if (isAtBottom) {
-            //         setWillScrollChatToBottom(true);
-            //     } else {
-            //         setNewMessageAmount((curNewMessageAmount) => {
-            //             console.log("curNewMessageAmount", curNewMessageAmount);
-            //             return curNewMessageAmount + 1;
-            //         });
-            //     }
-            //     return isAtBottom;
-            // });
         } else {
             setNewMessageAmount((curNewMessageAmount) => {
                 console.log("curNewMessageAmount", curNewMessageAmount);
@@ -440,12 +410,6 @@ function PresentationPresentPage() {
         handleQuestionUpVoteEvent,
         handleQuestionUnVoteEvent
     ]);
-
-    // const handleChatBoxScroll = useCallback(() => {}, []);
-
-    // useEffect(() => {
-    //     console.log("chatbox scroll height", chatBoxController.current?.scrollHeight);
-    // }, [handleChatBoxScroll]);
 
     if (!sessionData || !presentationData) {
         return null;
