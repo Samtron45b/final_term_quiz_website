@@ -11,7 +11,8 @@ export default function InfiniteScroll({
     hasMore,
     itemRender,
     dividerRender,
-    loadMore
+    loadMore,
+    handleOnScroll
 }) {
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -65,7 +66,7 @@ export default function InfiniteScroll({
     if (isLoading) console.log("isLoading");
 
     return (
-        <div ref={boxRef} className="h-full w-full overflow-auto">
+        <div ref={boxRef} onScroll={handleOnScroll} className="h-full w-full overflow-auto">
             {renderLoadingItem(0)}
             {dataSource.map((childData, index) => {
                 if ((!reversed && dataSource.length - 1 === index) || (reversed && index === 0)) {
@@ -96,7 +97,8 @@ InfiniteScroll.propTypes = {
     hasMore: PropTypes.bool,
     itemRender: PropTypes.func,
     dividerRender: PropTypes.any,
-    loadMore: PropTypes.func
+    loadMore: PropTypes.func,
+    handleOnScroll: PropTypes.func
 };
 
 InfiniteScroll.defaultProps = {
@@ -106,5 +108,6 @@ InfiniteScroll.defaultProps = {
     hasMore: false,
     itemRender: null,
     dividerRender: null,
-    loadMore: null
+    loadMore: null,
+    handleOnScroll: null
 };

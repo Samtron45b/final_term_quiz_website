@@ -20,15 +20,20 @@ function ChatField({
 }) {
     const [isChatBoxOpen, setIsChatBoxOpen] = useState(true);
 
+    console.log("willScrollChatToBottom", willScrollChatToBottom);
+
     useEffect(() => {
-        if (willScrollChatToBottom) {
+        if (
+            willScrollChatToBottom &&
+            chatBoxController.current?.scrollHeight > chatBoxController.current?.clientHeight
+        ) {
             chatBoxController.current?.scrollTo({
                 left: 0,
-                top: chatBoxController.current?.scrollheight
+                top: chatBoxController.current?.scrollHeight
             });
             setWillScrollChatToBottom(false);
         }
-    }, [chatList]);
+    }, [chatList, isChatBoxOpen]);
 
     return (
         <>
@@ -36,9 +41,6 @@ function ChatField({
                 <button
                     type="button"
                     onClick={() => {
-                        console.log(chatBoxController.current.clientHeight);
-                        console.log(chatBoxController.current.offsetHeight);
-                        console.log(chatBoxController.current.scrollTop);
                         setIsChatBoxOpen(!isChatBoxOpen);
                     }}
                     className="text-white bg-neutral-200 font-medium rounded-full text-sm p-2 text-center inline-flex items-center"

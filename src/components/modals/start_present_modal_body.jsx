@@ -50,7 +50,7 @@ function StartPresentModalBody({ presentationToPresent }) {
             .then((response) => {
                 console.log("start presentation response", response);
                 navigate(
-                    `presentation/${presentationToPresent.presentationId}/present/${
+                    `../presentation/${presentationToPresent.presentationId}/present/${
                         response?.data?.sessionId ?? 0
                     }`
                 );

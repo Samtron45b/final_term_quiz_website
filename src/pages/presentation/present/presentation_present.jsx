@@ -1,8 +1,7 @@
 /* eslint-disable no-unused-vars */
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "react-query";
-import socketio from "socket.io-client";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 import PresentationMainView from "./main_view";
 import QuestionChatBtn from "./question_chat_btn";
@@ -27,7 +26,8 @@ function PresentationPresentPage() {
     const [resultData, setResultData] = useState([]);
     const [questionData, setQuestionData] = useState([]);
     const [chatData, setChatData] = useState([]);
-    const [chatPage, setChatPage] = useState();
+    // const [isChatBoxAtBottom, setIsChatBoxAtBottom] = useState(true);
+    const [chatPage, setChatPage] = useState(1);
     const [showResultModal, setShowResultModal] = useState(false);
     const [showQuestionModal, setShowQuestionModal] = useState(false);
     const [showEndConfirmModal, setShowEndConfirmModal] = useState(false);
@@ -43,8 +43,57 @@ function PresentationPresentPage() {
 
     const questionBoxController = useRef();
     const chatBoxController = useRef();
+    const isChatBoxAtBottom = useRef(true);
 
     const namespace = `/presentation/${presentationId}/`;
+
+    console.log("update on scroll", isChatBoxAtBottom);
+
+    // handle on chatbox scroll event:
+    const handleOnChatBoxScroll = (chatbox) => {
+        const { scrollHeight, scrollTop, clientHeight } = chatbox;
+        const totalScrollTopnClientHeight = Math.ceil(scrollTop + clientHeight);
+        // setIsChatBoxAtBottom((curIsChatBoxAtBottom) => {
+        //     if (totalScrollTopnClientHeight < scrollHeight && curIsChatBoxAtBottom) {
+        //         return false;
+        //     }
+        //     if (totalScrollTopnClientHeight >= scrollHeight && !curIsChatBoxAtBottom) {
+        //         setNewMessageAmount(0);
+        //         return true;
+        //     }
+        //     return curIsChatBoxAtBottom;
+        // });
+        if (totalScrollTopnClientHeight < scrollHeight && isChatBoxAtBottom.current) {
+            isChatBoxAtBottom.current = false;
+        }
+        if (totalScrollTopnClientHeight >= scrollHeight) {
+            setNewMessageAmount(0);
+            if (!isChatBoxAtBottom.current) {
+                isChatBoxAtBottom.current = true;
+            }
+        }
+    };
+
+    useEffect(() => {
+        if (chatBoxController.current) {
+            const { scrollTop, clientHeight, scrollHeight } = chatBoxController.current;
+            const totalScrollTopClientHeight = Math.ceil(scrollTop + clientHeight);
+            if (scrollHeight > 0) {
+                isChatBoxAtBottom.current = totalScrollTopClientHeight === scrollHeight;
+                // setIsChatBoxAtBottom(totalScrollTopClientHeight === scrollHeight);
+            }
+            chatBoxController.current.addEventListener("scroll", (event) => {
+                handleOnChatBoxScroll(event.target);
+            });
+        }
+        return () => {
+            if (chatBoxController.current) {
+                chatBoxController.current.removeEventListener("scroll", (event) => {
+                    handleOnChatBoxScroll(event.target);
+                });
+            }
+        };
+    });
 
     // call api
     const { refetch: presentationQueryRefetch } = useQuery({
@@ -223,8 +272,10 @@ function PresentationPresentPage() {
         setSortBy(0);
         setTypingQuestion("");
         setTypingChat("");
-        setWillScrollChatToBottom(false);
+        setWillScrollChatToBottom(true);
         setNewMessageAmount(0);
+        chatBoxController.current?.disconnect();
+        isChatBoxAtBottom.current = true;
     };
 
     useEffect(() => {
@@ -242,11 +293,11 @@ function PresentationPresentPage() {
         };
     }, [sessionId]);
 
+    // socket event handlers
     const getEventName = (eventName) => {
         return `${namespace}${eventName ?? ""}`;
     };
 
-    // socket event handlers
     const handleSlideChangeEvent = useCallback(({ currentSlideIndex, currentSlideId }) => {
         console.log("new slide index:", currentSlideIndex);
         console.log("new slide id:", currentSlideId);
@@ -264,10 +315,45 @@ function PresentationPresentPage() {
     };
     const handleNewChat = (newChat) => {
         console.log("newChat", newChat);
-        setChatData((curQuestionData) => curQuestionData.concat([newChat]));
-        if (newChat.user === user.username) {
-            chatBoxController?.current?.scrollTo(0, chatBoxController?.current?.scrollHeight ?? 0);
+        const isSelfChat = newChat.user === user.username;
+        const scrollHeight = chatBoxController?.current?.scrollHeight ?? 0;
+        if (isSelfChat) {
+            setWillScrollChatToBottom(true);
+        } else if (scrollHeight === 0) {
+            setNewMessageAmount((curNewMessageAmount) => {
+                console.log("curNewMessageAmount", curNewMessageAmount);
+                return curNewMessageAmount + 1;
+            });
+            if (isChatBoxAtBottom.current) {
+                setWillScrollChatToBottom(true);
+            }
+            // setIsChatBoxAtBottom((curIsChatBoxAtBottom) => {
+            //     if (curIsChatBoxAtBottom) {
+            //         setWillScrollChatToBottom(true);
+            //     }
+            //     return curIsChatBoxAtBottom;
+            // });
+        } else if (isChatBoxAtBottom.current) {
+            setWillScrollChatToBottom(true);
+            // setIsChatBoxAtBottom((curIsChatBoxAtBottom) => {
+            //     const isAtBottom = !!curIsChatBoxAtBottom;
+            //     if (isAtBottom) {
+            //         setWillScrollChatToBottom(true);
+            //     } else {
+            //         setNewMessageAmount((curNewMessageAmount) => {
+            //             console.log("curNewMessageAmount", curNewMessageAmount);
+            //             return curNewMessageAmount + 1;
+            //         });
+            //     }
+            //     return isAtBottom;
+            // });
+        } else {
+            setNewMessageAmount((curNewMessageAmount) => {
+                console.log("curNewMessageAmount", curNewMessageAmount);
+                return curNewMessageAmount + 1;
+            });
         }
+        setChatData((curChatData) => curChatData.concat([newChat]));
     };
     const handleNewCommentEvent = useCallback((newComment) => {
         console.log("newComment", newComment);
@@ -283,7 +369,7 @@ function PresentationPresentPage() {
         setQuestionData((curQuestionData) => {
             return curQuestionData.map((question) => {
                 if (question.id === updatedComment.id) {
-                    return { ...updatedComment };
+                    return { ...updatedComment, isUpvoted: question.isUpvoted };
                 }
                 return { ...question };
             });
