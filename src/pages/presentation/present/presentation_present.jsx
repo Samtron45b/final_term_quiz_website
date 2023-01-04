@@ -450,10 +450,6 @@ function PresentationPresentPage() {
         handleQuestionUnVoteEvent
     ]);
 
-    if (!sessionData || !presentationData) {
-        return null;
-    }
-
     if (isGetSessionError || isGetPresentationError) {
         return (
             <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
@@ -468,6 +464,10 @@ function PresentationPresentPage() {
                 Only members of group can join this present session.
             </p>
         );
+    }
+
+    if (!sessionData || !presentationData) {
+        return null;
     }
 
     return (

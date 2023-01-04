@@ -11,6 +11,7 @@ import ForgotPassPage from "../pages/forgot_pass";
 import ActiveNotifyPage from "../pages/activate_account/active_notify";
 import PresentationPresentPage from "../pages/presentation/present/presentation_present";
 import InfiniteScroll from "../components/infinite_scroll";
+import PresentationResultPage from "../pages/presentation/result/presentation_result";
 
 const ViewRoutes = [
     {
@@ -67,6 +68,11 @@ const ViewRoutes = [
         path: "/presentation/:presentationId/present/:sessionId",
         exact: true,
         component: <PresentationPresentPage />
+    },
+    {
+        path: "/presentation/:presentationId/result",
+        exact: true,
+        component: <PresentationResultPage />
     },
     {
         path: "/infinite_scroll_test",

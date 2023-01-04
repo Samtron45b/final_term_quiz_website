@@ -60,7 +60,9 @@ function ActionBtnMenu({ presentationId, presentationName, onCollabBtnClick, onD
                     role="menuitem"
                     tabIndex="-1"
                     id="action-btns-menu-item-1"
-                    onClick={() => {}}
+                    onClick={() => {
+                        navigate(`../presentation/${presentationId}/result`);
+                    }}
                 >
                     <GiChoice className="mr-1 w-4 h-4" />
                     Present result

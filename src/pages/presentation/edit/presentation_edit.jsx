@@ -326,7 +326,7 @@ function PresentationEditPage() {
             if (!userInList) {
                 return (
                     <p className="mt-10 text-center w-full text-neutral-400 text-3xl">
-                        You cannot not access this presentation.
+                        You cannot access this presentation.
                     </p>
                 );
             }
