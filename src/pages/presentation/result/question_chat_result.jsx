@@ -189,7 +189,7 @@ function QuestionAndChatResult({ presentationId }) {
                     onChange={(activeKey) => setCurTabIndex(parseInt(activeKey, 10))}
                     items={[
                         {
-                            label: `List presentations`,
+                            label: `List questions`,
                             key: "1",
                             children: (
                                 <Table
@@ -200,7 +200,7 @@ function QuestionAndChatResult({ presentationId }) {
                             )
                         },
                         {
-                            label: `List groups`,
+                            label: `List chats`,
                             key: "2",
                             children: (
                                 <Table

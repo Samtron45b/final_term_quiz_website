@@ -10,6 +10,7 @@ function ChatField({
     willScrollChatToBottom,
     setWillScrollChatToBottom,
     newMessageAmount,
+    setNewMessageAmount,
     iconSize,
     chatList,
     chatPageLength,
@@ -24,15 +25,16 @@ function ChatField({
     console.log("willScrollChatToBottom", willScrollChatToBottom);
 
     useEffect(() => {
-        if (
-            willScrollChatToBottom &&
-            chatBoxController.current?.scrollHeight > chatBoxController.current?.clientHeight
-        ) {
-            chatBoxController.current?.scrollTo({
-                left: 0,
-                top: chatBoxController.current?.scrollHeight
-            });
-            setWillScrollChatToBottom(false);
+        if (willScrollChatToBottom) {
+            if (chatBoxController.current?.scrollHeight > chatBoxController.current?.clientHeight) {
+                chatBoxController.current?.scrollTo({
+                    left: 0,
+                    top: chatBoxController.current?.scrollHeight
+                });
+                setWillScrollChatToBottom(false);
+            } else if (chatBoxController.current?.scrollHeight > 0) {
+                setNewMessageAmount(0);
+            }
         }
     }, [chatList, isChatBoxOpen]);
 
@@ -98,7 +100,8 @@ ChatField.propTypes = {
     loadMoreChat: PropTypes.func,
     setTypingText: PropTypes.func,
     onSubmitNewChat: PropTypes.func,
-    setWillScrollChatToBottom: PropTypes.func
+    setWillScrollChatToBottom: PropTypes.func,
+    setNewMessageAmount: PropTypes.func
 };
 ChatField.defaultProps = {
     presentationId: 0,
@@ -113,7 +116,8 @@ ChatField.defaultProps = {
     loadMoreChat: null,
     setTypingText: null,
     onSubmitNewChat: null,
-    setWillScrollChatToBottom: null
+    setWillScrollChatToBottom: null,
+    setNewMessageAmount: null
 };
 
 export default ChatField;

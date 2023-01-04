@@ -343,6 +343,7 @@ function PresentationPresentPage() {
         const isSelfChat = newChat.user === user.username;
         const scrollHeight = chatBoxController?.current?.scrollHeight ?? 0;
         if (isSelfChat) {
+            setNewMessageAmount(0);
             setWillScrollChatToBottom(true);
         } else if (scrollHeight === 0) {
             setNewMessageAmount((curNewMessageAmount) => {
@@ -487,6 +488,7 @@ function PresentationPresentPage() {
                     willScrollChatToBottom={willScrollChatToBottom}
                     setWillScrollChatToBottom={setWillScrollChatToBottom}
                     newMessageAmount={newMessageAmount}
+                    setNewMessageAmount={setNewMessageAmount}
                     chatList={chatDataWithPagination}
                     chatPageLength={10}
                     chatTotalPage={Math.ceil(chatData.length / 10)}
