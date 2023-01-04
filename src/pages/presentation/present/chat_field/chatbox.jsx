@@ -50,8 +50,8 @@ function ChatBox({
 
     const renderQuestionSenderAndTime = (sender, timeCreated) => {
         const timeString = convertTimeStampToDate({ date: new Date(timeCreated), showTime: true });
-        const senderText = sender === user.username ? "YOU" : sender;
-        return `By ${senderText ?? ""} at ${timeString}`;
+        const senderText = sender === user.username ? "" : `By ${sender}`;
+        return `${senderText ?? ""} at ${timeString}`;
     };
 
     const renderSingleChatItem = (chatItem) => {
