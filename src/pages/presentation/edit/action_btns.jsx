@@ -2,6 +2,8 @@ import PropTypes from "prop-types";
 import { IoMdAdd } from "react-icons/io";
 import { BsFillPlayFill } from "react-icons/bs";
 import { RiTeamFill } from "react-icons/ri";
+import { GiChoice } from "react-icons/gi";
+import { useNavigate } from "react-router-dom";
 import usePrivateAxios from "../../../configs/networks/usePrivateAxios";
 import ActionBtnMenu from "./action_btns_menu";
 
@@ -15,6 +17,7 @@ function ActionButton({
     onCollabBtnClick,
     onDeleteBtnClick
 }) {
+    const navigate = useNavigate();
     const privateAxios = usePrivateAxios();
     async function addSlide() {
         parentUpdateSavingStatus(true);
@@ -55,14 +58,24 @@ function ActionButton({
             );
         }
         return (
-            <button
-                type="button"
-                onClick={() => onCollabBtnClick()}
-                className="bg-purple-500 flex justify-center items-center mr-4 px-2 py-2 rounded-md text-white"
-            >
-                <RiTeamFill className="mr-1" />
-                Collaborators
-            </button>
+            <>
+                <button
+                    type="button"
+                    onClick={() => onCollabBtnClick()}
+                    className="bg-purple-500 flex justify-center items-center mr-4 px-2 py-2 rounded-md text-white"
+                >
+                    <RiTeamFill className="mr-3" />
+                    Collaborators
+                </button>
+                <button
+                    type="button"
+                    onClick={() => navigate(`../presentation/${presentationId}/result`)}
+                    className="bg-purple-500 flex justify-center items-center mr-4 px-2 py-2 rounded-md text-white"
+                >
+                    <GiChoice className="mr-1" />
+                    Present result
+                </button>
+            </>
         );
     }
 
