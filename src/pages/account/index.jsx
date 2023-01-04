@@ -1,7 +1,6 @@
 import { useContext, useState } from "react";
 import { RiLockPasswordFill } from "react-icons/ri";
 import { ImProfile } from "react-icons/im";
-import { MdGroups } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import { message } from "antd";
 import MainHeader from "../../components/header/main_header/main_header";
@@ -57,10 +56,6 @@ function AccountPage() {
                                         {
                                             text: "Change password",
                                             icon: RiLockPasswordFill
-                                        },
-                                        {
-                                            text: "Group setting",
-                                            icon: MdGroups
                                         }
                                     ]}
                                 />

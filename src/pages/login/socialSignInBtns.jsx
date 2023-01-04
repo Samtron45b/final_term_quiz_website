@@ -29,22 +29,16 @@ const useFetch = (url) => {
                 const { accessToken } = res.data;
                 localStorage.setItem("accessToken", accessToken);
                 const decode = jwtDecode(accessToken, "letsplay");
-                setUser({
-                    displayName: decode.displayName,
-                    username: decode.name,
-                    avatar: decode.avatar
-                        ? decode.avatar
-                        : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-                    email: decode.email
-                });
                 const userData = {
                     displayName: decode.displayName,
                     username: decode.name,
                     avatar: decode.avatar
                         ? decode.avatar
                         : "https://www.gstatic.com/images/branding/googlelogo/svg/googlelogo_clr_74x24px.svg",
-                    email: decode.email
+                    email: decode.email,
+                    active: 1
                 };
+                setUser({ ...userData });
                 localStorage.setItem("userData", JSON.stringify(userData));
                 navigate("/", { replace: true });
                 setError(null);
