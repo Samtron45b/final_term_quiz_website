@@ -34,10 +34,6 @@ function PresentationResultPage() {
                 .then((response) => {
                     console.log("Presentation data", response);
                     return response;
-                })
-                .catch((error) => {
-                    console.log("get error");
-                    console.log(error);
                 });
         }
     });
@@ -56,10 +52,6 @@ function PresentationResultPage() {
                 .then((response) => {
                     console.log("Collaborators data", response);
                     return response;
-                })
-                .catch((error) => {
-                    console.log("get error");
-                    console.log(error);
                 });
         }
     });
@@ -85,11 +77,11 @@ function PresentationResultPage() {
         );
     }
 
-    if (!presentationData || !collaboratorsData) {
-        return null;
-    }
-
-    if (user.username !== presentationData?.data?.creator?.username) {
+    if (
+        !presentationIsError &&
+        !collaboratorsIsError &&
+        user.username !== presentationData?.data?.creator?.username
+    ) {
         const userInList = collaboratorsData?.data?.find((collaborator) => {
             return collaborator.username === user.username;
         });
@@ -125,34 +117,36 @@ function PresentationResultPage() {
                     } font-extrabold text-3xl text-center`}
                 >
                     {presentationIsError || collaboratorsIsError
-                        ? "Cannot get data for this group."
-                        : `Result for presentation "${presentationData?.name}"`}
+                        ? "Cannot get result data for this presentation."
+                        : `Result for presentation "${presentationData?.data?.name}"`}
                 </h1>
             </div>
-            <div className="content_box flex w-4/5 min-h-[70%] items-top mt-10 ml-[10%]">
-                <aside aria-label="Sidebar">
-                    <div className="overflow-y-auto w-56 py-3 px-3 bg-white rounded dark:bg-gray-800 border border-neutral-800 shadow-md">
-                        <h3 className="font-semibold">Account menu</h3>
-                        <SimpleMenuBar
-                            viewIndex={viewIndex}
-                            setViewIndex={setViewIndex}
-                            listItem={[
-                                {
-                                    text: "Choice result",
-                                    icon: GiMultipleTargets
-                                },
-                                {
-                                    text: "Question and chat",
-                                    icon: MdOutlineQuestionAnswer
-                                }
-                            ]}
-                        />
+            {presentationIsError || collaboratorsIsError ? null : (
+                <div className="content_box flex w-4/5 min-h-[70%] items-top mt-10 ml-[10%]">
+                    <aside aria-label="Sidebar">
+                        <div className="overflow-y-auto w-56 py-3 px-3 bg-white rounded dark:bg-gray-800 border border-neutral-800 shadow-md">
+                            <h3 className="font-semibold">Account menu</h3>
+                            <SimpleMenuBar
+                                viewIndex={viewIndex}
+                                setViewIndex={setViewIndex}
+                                listItem={[
+                                    {
+                                        text: "Choice result",
+                                        icon: GiMultipleTargets
+                                    },
+                                    {
+                                        text: "Question and chat",
+                                        icon: MdOutlineQuestionAnswer
+                                    }
+                                ]}
+                            />
+                        </div>
+                    </aside>
+                    <div className="ml-5 overflow-hidden w-full px-2 py-3 bg-white rounded-lg  shadow-md">
+                        {renderChild()}
                     </div>
-                </aside>
-                <div className="ml-5 overflow-hidden w-full px-2 py-3 bg-white rounded-lg  shadow-md">
-                    {renderChild()}
                 </div>
-            </div>
+            )}
         </>
     );
 }
