@@ -6,22 +6,30 @@ import React, { useRef, useCallback, useState, useEffect } from "react";
 
 export default function InfiniteScroll({
     controllerRef,
+    initialPage,
+    totalPage,
+    pageLength,
     dataSource,
     reversed,
-    hasMore,
+    loadOnInitial,
     itemRender,
     dividerRender,
     loadMore,
     handleOnScroll
 }) {
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(initialPage);
+    const [doInitialLoad, setDoInitialLoad] = useState(loadOnInitial);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(false);
+    const [hasMore, setHasMore] = useState(false);
 
-    const executeLoadMoreFunction = async () => {
+    console.log("dataSource", dataSource);
+
+    const executeLoadMoreFunction = async (curPage) => {
         setIsLoading(true);
-        loadMore?.().then(() => {
+        loadMore?.(curPage, pageLength).then(() => {
             setIsLoading(false);
+            setHasMore(page < totalPage);
         });
     };
 
@@ -30,16 +38,21 @@ export default function InfiniteScroll({
     const observer = useRef();
     const lastData = useCallback(
         (node) => {
+            console.log("run in callback list");
             if (isLoading) return;
             if (observer.current) observer.current.disconnect();
             observer.current = new IntersectionObserver((entries) => {
                 if (entries[0].isIntersecting && hasMore) {
-                    executeLoadMoreFunction();
+                    console.log("now run in here");
+                    setPage((curPage) => {
+                        console.log("curPage", curPage);
+                        return curPage + 1;
+                    });
                 }
             });
             if (node) observer.current.observe(node);
         },
-        [reversed, isLoading, hasMore]
+        [reversed, dataSource, isLoading, hasMore]
     );
 
     const renderLoadingItem = (offset) => {
@@ -54,14 +67,30 @@ export default function InfiniteScroll({
     };
 
     useEffect(() => {
-        console.log(dataSource);
-        console.log(boxRef.current.scrollHeight);
         if (reversed) {
             boxRef.current.scrollTo({ left: 0, top: boxRef.current.scrollHeight });
         } else {
             boxRef.current.scrollTo({ left: 0, top: 0 });
         }
     }, [reversed]);
+
+    useEffect(() => {
+        setDoInitialLoad((curDoInitialLoad) => {
+            if (curDoInitialLoad) {
+                executeLoadMoreFunction(1);
+            } else {
+                setHasMore(page < totalPage);
+            }
+            return false;
+        });
+    }, []);
+
+    useEffect(() => {
+        console.log("total page, page", totalPage, page);
+        if (page > 1 && page <= totalPage) {
+            executeLoadMoreFunction(page);
+        }
+    }, [page]);
 
     if (isLoading) console.log("isLoading");
 
@@ -92,9 +121,12 @@ export default function InfiniteScroll({
 
 InfiniteScroll.propTypes = {
     controllerRef: PropTypes.any,
+    initialPage: PropTypes.number,
+    totalPage: PropTypes.number,
+    pageLength: PropTypes.number,
     dataSource: PropTypes.array,
     reversed: PropTypes.bool,
-    hasMore: PropTypes.bool,
+    loadOnInitial: PropTypes.bool,
     itemRender: PropTypes.func,
     dividerRender: PropTypes.any,
     loadMore: PropTypes.func,
@@ -103,9 +135,12 @@ InfiniteScroll.propTypes = {
 
 InfiniteScroll.defaultProps = {
     controllerRef: null,
+    initialPage: 1,
+    totalPage: 1,
+    pageLength: 10,
     dataSource: [],
     reversed: false,
-    hasMore: false,
+    loadOnInitial: false,
     itemRender: null,
     dividerRender: null,
     loadMore: null,

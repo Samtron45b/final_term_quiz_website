@@ -14,7 +14,8 @@ function ChatBox({
     chatBoxController,
     newMessageAmount,
     chatList,
-    hasMoreChat,
+    chatPageLength,
+    chatTotalPage,
     typingText,
     loadMoreChat,
     setTypingText
@@ -70,7 +71,7 @@ function ChatBox({
                         {renderQuestionSenderAndTime(chatItem.user, chatItem.time)}
                     </p>
                     <p
-                        className={`px-2 py-1 mt-1 text-md max-w-full w-min break-words rounded-xl ${
+                        className={`px-2 py-1 mt-1 text-md max-w-full break-words rounded-xl ${
                             isSeflChat
                                 ? "text-white bg-purple-500"
                                 : "text-neutral-600 bg-neutral-300"
@@ -93,12 +94,14 @@ function ChatBox({
                 >{`${newMessageAmount <= 9 ? newMessageAmount : "9+"} new messages`}</div>
                 <InfiniteScroll
                     controllerRef={chatBoxController}
+                    pageLength={chatPageLength}
+                    totalPage={chatTotalPage}
                     dataSource={chatList}
+                    loadOnInitial
                     itemRender={(question) => {
                         return renderSingleChatItem(question);
                     }}
                     reversed
-                    hasMore={hasMoreChat}
                     loadMore={loadMoreChat}
                 />
             </div>
@@ -169,7 +172,8 @@ ChatBox.propTypes = {
     chatBoxController: PropTypes.any,
     newMessageAmount: PropTypes.number,
     chatList: PropTypes.array,
-    hasMoreChat: PropTypes.bool,
+    chatPageLength: PropTypes.number,
+    chatTotalPage: PropTypes.number,
     typingText: PropTypes.string,
     loadMoreChat: PropTypes.func,
     setTypingText: PropTypes.func
@@ -179,7 +183,8 @@ ChatBox.defaultProps = {
     chatBoxController: null,
     newMessageAmount: 0,
     chatList: [],
-    hasMoreChat: false,
+    chatPageLength: 10,
+    chatTotalPage: 1,
     typingText: "",
     loadMoreChat: null,
     setTypingText: null

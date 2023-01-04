@@ -10,7 +10,8 @@ function QuestionChatBtn({
     setWillScrollChatToBottom,
     newMessageAmount,
     chatList,
-    hasMoreChat,
+    chatPageLength,
+    chatTotalPage,
     typingText,
     loadMoreChat,
     setTypingText,
@@ -38,7 +39,8 @@ function QuestionChatBtn({
                 newMessageAmount={newMessageAmount}
                 iconSize={iconSize}
                 chatList={chatList}
-                hasMoreChat={hasMoreChat}
+                chatPageLength={chatPageLength}
+                chatTotalPage={chatTotalPage}
                 typingText={typingText}
                 loadMoreChat={loadMoreChat}
                 setTypingText={setTypingText}
@@ -54,7 +56,8 @@ QuestionChatBtn.propTypes = {
     willScrollChatToBottom: PropTypes.bool,
     newMessageAmount: PropTypes.number,
     chatList: PropTypes.array,
-    hasMoreChat: PropTypes.bool,
+    chatPageLength: PropTypes.number,
+    chatTotalPage: PropTypes.number,
     typingText: PropTypes.string,
     loadMoreChat: PropTypes.func,
     setTypingText: PropTypes.func,
@@ -68,7 +71,8 @@ QuestionChatBtn.defaultProps = {
     willScrollChatToBottom: false,
     newMessageAmount: 0,
     chatList: [],
-    hasMoreChat: false,
+    chatPageLength: 10,
+    chatTotalPage: 1,
     typingText: "",
     loadMoreChat: null,
     setTypingText: null,

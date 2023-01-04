@@ -27,7 +27,6 @@ function PresentationPresentPage() {
     const [questionData, setQuestionData] = useState([]);
     const [chatData, setChatData] = useState([]);
     const [chatDataWithPagination, setChatDataWithPagination] = useState([]);
-    const [chatPage, setChatPage] = useState(0);
     const [showResultModal, setShowResultModal] = useState(false);
     const [showQuestionModal, setShowQuestionModal] = useState(false);
     const [showEndConfirmModal, setShowEndConfirmModal] = useState(false);
@@ -44,8 +43,8 @@ function PresentationPresentPage() {
     const questionBoxController = useRef();
     const chatBoxController = useRef();
     const isChatBoxAtBottom = useRef(true);
+    const needInitialChatBox = useRef(false);
 
-    const pageLength = 10;
     const namespace = `/presentation/${presentationId}/`;
 
     console.log("update on scroll", isChatBoxAtBottom);
@@ -141,7 +140,7 @@ function PresentationPresentPage() {
                     const chatList = commentData.filter((comment) => comment.type === 0);
                     setChatData(chatList.concat([]));
                     if (chatList.length > 0) {
-                        setChatPage((curChatPage) => curChatPage + 1);
+                        needInitialChatBox.current = true;
                     }
                     setIsGetPresentationError(false);
                     return response;
@@ -249,7 +248,6 @@ function PresentationPresentPage() {
         setQuestionData([]);
         setChatData([]);
         setChatDataWithPagination([]);
-        setChatPage(0);
         setShowResultModal(false);
         setShowQuestionModal(false);
         setShowEndConfirmModal(false);
@@ -261,6 +259,7 @@ function PresentationPresentPage() {
         setNewMessageAmount(0);
         chatBoxController.current?.disconnect();
         isChatBoxAtBottom.current = true;
+        needInitialChatBox.current = false;
     };
 
     useEffect(() => {
@@ -279,10 +278,10 @@ function PresentationPresentPage() {
     }, [sessionId]);
 
     // handle load more
-    const getListCommentByIds = async (type) => {
+    const getListCommentByIds = async (curPage, length, type) => {
         const idSource = type === 0 ? chatData.concat([]) : questionData.concat([]);
-        let startIndex = idSource.length - (type === 0 ? chatPage : 0) * pageLength;
-        const endIndex = startIndex + pageLength - 1;
+        let startIndex = idSource.length - (type === 0 ? curPage : 0) * length;
+        const endIndex = startIndex + length - 1;
         if (startIndex < 0) startIndex = 0;
         let listIdsString = "";
         for (let i = startIndex; i <= endIndex; i += 1) {
@@ -309,16 +308,15 @@ function PresentationPresentPage() {
             });
     };
 
-    const onLoadMoreChat = async () => {
-        setChatPage((curChatPage) => curChatPage + 1);
-    };
-
-    useEffect(() => {
-        if (chatData.length > 0 || chatPage > 0) {
-            console.log("run herer");
-            getListCommentByIds(0);
-        }
-    }, [chatData, chatPage]);
+    // useEffect(() => {
+    //     if (needInitialChatBox.current) {
+    //         if (chatData.length > 0) {
+    //             console.log("run herer");
+    //             getListCommentByIds(1, 10, 0);
+    //         }
+    //         needInitialChatBox.current = false;
+    //     }
+    // }, [chatData]);
 
     // socket event handlers
     const getEventName = (eventName) => {
@@ -362,7 +360,9 @@ function PresentationPresentPage() {
                 return curNewMessageAmount + 1;
             });
         }
-        setChatData((curChatData) => curChatData.concat([newChat]));
+        setChatDataWithPagination((curChatDataWithPagination) =>
+            curChatDataWithPagination.concat([newChat])
+        );
     };
     const handleNewCommentEvent = useCallback((newComment) => {
         console.log("newComment", newComment);
@@ -488,8 +488,11 @@ function PresentationPresentPage() {
                     setWillScrollChatToBottom={setWillScrollChatToBottom}
                     newMessageAmount={newMessageAmount}
                     chatList={chatDataWithPagination}
-                    hasMoreChat={chatData.length > chatPage * pageLength}
-                    loadMoreChat={async () => onLoadMoreChat()}
+                    chatPageLength={10}
+                    chatTotalPage={Math.ceil(chatData.length / 10)}
+                    loadMoreChat={async (curPage, curPageLength) =>
+                        getListCommentByIds(curPage, curPageLength, 0)
+                    }
                     typingText={typingChat}
                     setTypingText={setTypingChat}
                     onQuestionBtnClick={() => setShowQuestionModal(true)}

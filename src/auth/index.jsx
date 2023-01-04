@@ -50,7 +50,8 @@ export const getUserDataFromServer = () => {
                         displayName: userData.displayName,
                         username: userData.username,
                         email: userData.email,
-                        avatar: userData.avatar
+                        avatar: userData.avatar,
+                        active: userData.active
                     });
                     localStorage.setItem("userData", JSON.stringify(userData));
                 }

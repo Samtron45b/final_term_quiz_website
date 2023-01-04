@@ -82,12 +82,7 @@ function PresentationMainView({ slideId, isViewer, nameSpace, setParentResultDat
         if (!isViewer) {
             setParentResultData((currentResultData) => {
                 return currentResultData.concat([
-                    `${userAnswer} choosed option "${optionText}" for question "${question}" at "${convertTimeStampToDate(
-                        {
-                            date: new Date(timeAnswered),
-                            showTime: true
-                        }
-                    )}"`
+                    { user: userAnswer, optionText, question, timeAnswered }
                 ]);
             });
         }
