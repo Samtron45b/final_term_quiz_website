@@ -177,6 +177,10 @@ function PresentationPresentPage() {
                                 } else if (userRole === 3) {
                                     setRoleInThisSession(2);
                                 }
+                            })
+                            .catch(() => {
+                                callPresentationApi = false;
+                                setRoleInThisSession(0);
                             });
                     } else if (session?.presenter === user.username) {
                         setRoleInThisSession(1);

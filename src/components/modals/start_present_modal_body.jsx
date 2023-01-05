@@ -37,14 +37,12 @@ function StartPresentModalBody({ presentationToPresent }) {
         }
     });
 
-    const onFinish = async (data) => {
-        console.log(data);
-        setIsLoading(true);
+    const startPresentation = (finalPresentOption, groupId) => {
         privateAxios
-            .get(`/session/presentation/start/${data.present_option}?`, {
+            .get(`/session/presentation/start/${finalPresentOption}?`, {
                 params: {
                     presentationId: presentationToPresent.presentationId,
-                    groupId: data.present_group_id
+                    groupId
                 }
             })
             .then((response) => {
@@ -62,6 +60,33 @@ function StartPresentModalBody({ presentationToPresent }) {
             })
             .finally(() => setIsLoading(false));
     };
+
+    const onFinish = async (data) => {
+        console.log(data);
+        setIsLoading(true);
+        if (data.present_option === "public") {
+            startPresentation(data.present_option);
+        } else {
+            privateAxios
+                .get(`group/getMember?groupId=${data.present_group_id}`)
+                .then((responseGroupMember) => {
+                    console.log("responseGroupMember", responseGroupMember);
+                    const userRole = responseGroupMember?.data?.role ?? 0;
+                    if (userRole === 1 || userRole === 2) {
+                        startPresentation(data.present_option, data.present_group_id);
+                    } else {
+                        setPresentError(
+                            "Only owner and co-owner can start a presentation in a group."
+                        );
+                        setIsLoading(false);
+                    }
+                })
+                .catch((error) => {
+                    setPresentError(error.response.data.error);
+                    setIsLoading(false);
+                });
+        }
+    };
     const onFinishFailed = (error) => {
         console.log(error);
         setPresentError(error.errorFields[0].errors[0]);
@@ -70,7 +95,7 @@ function StartPresentModalBody({ presentationToPresent }) {
     const getGroupName = (group) => {
         let groupName = group.name;
         if (group.creator.username !== user.username) {
-            groupName = `${groupName} (owner: ${group.creator.displayname}-${group.creator.username})`;
+            groupName = `${groupName} (owner: ${group.creator.displayName}-${group.creator.username})`;
         }
         return groupName;
     };
