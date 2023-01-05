@@ -398,7 +398,8 @@ function PresentationPresentPage() {
                     return {
                         ...question,
                         voteAmount: question.voteAmount + 1,
-                        isUpvoted: upVotedCommentInfo.user === user.username
+                        isUpvoted:
+                            upVotedCommentInfo.user === user.username ? true : question.isUpvoted
                     };
                 }
                 return { ...question };
@@ -414,7 +415,8 @@ function PresentationPresentPage() {
                     return {
                         ...question,
                         voteAmount: question.voteAmount - 1,
-                        isUpvoted: !(unVotedCommentInfo.user === user.username)
+                        isUpvoted:
+                            unVotedCommentInfo.user === user.username ? false : question.isUpvoted
                     };
                 }
                 return { ...question };
