@@ -52,7 +52,9 @@ const useFetch = (url) => {
 };
 
 function SocialSignInBtns() {
-    const { handleGoogle, loading, error } = useFetch("http://localhost:5000/auth/login/google");
+    const { handleGoogle, loading, error } = useFetch(
+        `${process.env.REACT_APP_BASE_URL}auth/login/google`
+    );
 
     useEffect(() => {
         if (window.google) {

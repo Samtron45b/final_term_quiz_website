@@ -16,7 +16,7 @@ function AddMemberModalBody({ groupId, inviteId }) {
 
     const privateAxios = usePrivateAxios();
 
-    const inviteGroupUrl = `http://localhost:3000/group/invite/${inviteId}`;
+    const inviteGroupUrl = `${window.location.origin}/group/invite/${inviteId}`;
 
     async function copyToClipboard(text) {
         navigator.clipboard
