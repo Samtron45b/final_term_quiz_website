@@ -41,6 +41,7 @@ function ProfileViewEdit({ messageInstance, showModal }) {
                 console.log(user);
                 const newUser = {
                     ...user,
+                    active: 1,
                     displayName: data.displayName,
                     email: data.email
                 };
