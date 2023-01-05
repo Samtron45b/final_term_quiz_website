@@ -1,10 +1,12 @@
 import PropTypes from "prop-types";
 import { Form } from "antd";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import usePrivateAxios from "../../configs/networks/usePrivateAxios";
+import AuthContext from "../contexts/auth_context";
 
 function PassswordEdit({ messageInstance }) {
+    const { user } = useContext(AuthContext);
     const [form] = Form.useForm();
     const [canChangePass, setCanChangePass] = useState(false);
     const [curPassError, setCurPassError] = useState(null);
@@ -40,7 +42,7 @@ function PassswordEdit({ messageInstance }) {
     function updatePassword(newPassword) {
         setIsLoading(true);
         privateAxios
-            .get(`user/edit`, { params: { password: newPassword } })
+            .get(`user/edit`, { params: { email: user.email, password: newPassword } })
             .then((response) => {
                 console.log(response);
                 setCanChangePass(false);
